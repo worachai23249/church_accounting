@@ -1,0 +1,26 @@
+<?php
+header("Access-Control-Allow-Origin: *");
+header("Content-Type: application/json; charset=UTF-8");
+header("Access-Control-Allow-Methods: POST");
+header("Access-Control-Max-Age: 3600");
+header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+
+// เปลี่ยนชื่อเรียกไฟล์ฐานข้อมูลให้ตรงกับของคุณ (db.php)
+include_once 'db.php'; 
+
+$data = json_decode(file_get_contents("php://input"));
+
+if(!empty($data->id)) {
+    $query = "DELETE FROM transactions WHERE id=:id";
+    $stmt = $conn->prepare($query);
+    $stmt->bindParam(":id", $data->id);
+
+    if($stmt->execute()) {
+        echo json_encode(array("status" => "success", "message" => "ลบข้อมูลสำเร็จ"));
+    } else {
+        echo json_encode(array("status" => "error", "message" => "ไม่สามารถลบข้อมูลได้"));
+    }
+} else {
+    echo json_encode(array("status" => "error", "message" => "ไม่พบ ID ที่ต้องการลบ"));
+}
+?>

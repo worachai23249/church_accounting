@@ -1,0 +1,15 @@
+<?php
+// ไฟล์ db.php สำหรับเชื่อมต่อ MySQL ด้วย PDO
+$host = "localhost";
+$dbname = "church_accounting";
+$username = "root"; // ใส่ username ของฐานข้อมูล (ค่าเริ่มต้น xampp คือ root)
+$password = "";     // ใส่รหัสผ่าน (ค่าเริ่มต้น xampp คือ ปล่อยว่าง)
+
+try {
+    $conn = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
+    // ตั้งค่าให้แจ้งเตือนเมื่อมี Error
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch(PDOException $e) {
+    echo "Connection failed: " . $e->getMessage();
+}
+?>

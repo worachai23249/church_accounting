@@ -1,0 +1,37 @@
+@import "tailwindcss";
+
+/* =========================================
+   เอฟเฟ็ค Fade In & Slide Up สไตล์ Next.js
+   ========================================= */
+.animate-fade-in {
+  animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =========================================
+   ปรับแต่ง Scrollbar ให้ดูมินิมอลกลืนกับ Dark Mode
+   ========================================= */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #1e293b; /* สี slate-800 */
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #334155; /* สี slate-700 */
+}
