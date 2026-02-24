@@ -26,7 +26,7 @@ export default function Record({ transactions, formatThaiDate, fmt, handleViewIm
           </div>
           <button
             onClick={handleOpenAddTransaction}
-            className="group relative flex items-center justify-center space-x-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white px-8 py-4 rounded-full font-black text-sm uppercase tracking-widest transition-all duration-300 shadow-[0_0_20px_rgba(79,70,229,0.4)] hover:shadow-[0_0_30px_rgba(79,70,229,0.6)] hover:-translate-y-1 active:scale-95 overflow-hidden"
+            className="group relative flex items-center justify-center space-x-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white px-8 py-4 rounded-full font-black text-sm uppercase tracking-widest transition-all duration-300 shadow-[0_0_20px_rgba(79,70,229,0.4)] hover:shadow-[0_0_30px_rgba(79,70,229,0.6)] hover:-translate-y-1 active:scale-95 overflow-hidden w-full md:w-auto mt-4 md:mt-0 mt-3 md:mt-0"
           >
             <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-in-out"></div>
             <Plus size={18} className="group-hover:rotate-90 transition-transform duration-300 relative z-10" />
@@ -36,24 +36,24 @@ export default function Record({ transactions, formatThaiDate, fmt, handleViewIm
       </div>
 
       {/* Filter Tabs */}
-      <div className="flex bg-white/70 dark:bg-[#0B1121]/60 backdrop-blur-md border border-white/20 dark:border-white/5 rounded-[24px] p-2 mb-8 max-w-2xl shadow-[0_8px_32px_0_rgba(31,38,135,0.07)] dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.5)] animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+      <div className="flex bg-white/70 dark:bg-[#0B1121]/60 backdrop-blur-md border border-white/20 dark:border-white/5 rounded-[24px] p-1 md:p-2 mb-8 max-w-2xl shadow-[0_8px_32px_0_rgba(31,38,135,0.07)] dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.5)] animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
         <button
           onClick={() => setFilterType('ALL')}
-          className={`group flex-1 py-3.5 rounded-[18px] text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all duration-300 ${filterType === 'ALL' ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg' : 'text-slate-500 dark:text-[#94A3B8] hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5'}`}>
-          <Filter size={16} className={`${filterType === 'ALL' ? 'text-white' : 'text-slate-400 group-hover:text-blue-500'}`} />
-          ทั้งหมด (All)
+          className={`group flex-1 py-3 md:py-3.5 rounded-[18px] text-[10px] md:text-xs font-black uppercase tracking-widest flex items-center justify-center gap-1.5 md:gap-2 transition-all duration-300 ${filterType === 'ALL' ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg' : 'text-slate-500 dark:text-[#94A3B8] hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5'}`}>
+          <Filter size={14} className={`md:w-4 md:h-4 ${filterType === 'ALL' ? 'text-white' : 'text-slate-400 group-hover:text-blue-500'}`} />
+          <span className="hidden sm:inline">ทั้งหมด (All)</span><span className="sm:hidden">ทั้งหมด</span>
         </button>
         <button
           onClick={() => setFilterType('INCOME')}
-          className={`flex-1 py-3.5 rounded-[18px] text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all duration-300 ${filterType === 'INCOME' ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-[0_0_15px_rgba(16,185,129,0.4)]' : 'text-slate-500 dark:text-[#94A3B8] hover:text-emerald-500 hover:bg-emerald-50/50 dark:hover:bg-emerald-500/10'}`}>
-          <span className={`w-2 h-2 rounded-full ${filterType === 'INCOME' ? 'bg-white' : 'bg-emerald-500'}`}></span>
-          รายรับ (In)
+          className={`flex-1 py-3 md:py-3.5 rounded-[18px] text-[10px] md:text-xs font-black uppercase tracking-widest flex items-center justify-center gap-1.5 md:gap-2 transition-all duration-300 ${filterType === 'INCOME' ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-[0_0_15px_rgba(16,185,129,0.4)]' : 'text-slate-500 dark:text-[#94A3B8] hover:text-emerald-500 hover:bg-emerald-50/50 dark:hover:bg-emerald-500/10'}`}>
+          <span className={`w-1.5 h-1.5 md:w-2 md:h-2 rounded-full ${filterType === 'INCOME' ? 'bg-white' : 'bg-emerald-500'}`}></span>
+          <span className="hidden sm:inline">รายรับ (In)</span><span className="sm:hidden">รายรับ</span>
         </button>
         <button
           onClick={() => setFilterType('EXPENSE')}
-          className={`flex-1 py-3.5 rounded-[18px] text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all duration-300 ${filterType === 'EXPENSE' ? 'bg-gradient-to-r from-rose-500 to-rose-600 text-white shadow-[0_0_15px_rgba(244,63,94,0.4)]' : 'text-slate-500 dark:text-[#94A3B8] hover:text-rose-500 hover:bg-rose-50/50 dark:hover:bg-rose-500/10'}`}>
-          <span className={`w-2 h-2 rounded-full ${filterType === 'EXPENSE' ? 'bg-white' : 'bg-rose-500'}`}></span>
-          รายจ่าย (Out)
+          className={`flex-1 py-3 md:py-3.5 rounded-[18px] text-[10px] md:text-xs font-black uppercase tracking-widest flex items-center justify-center gap-1.5 md:gap-2 transition-all duration-300 ${filterType === 'EXPENSE' ? 'bg-gradient-to-r from-rose-500 to-rose-600 text-white shadow-[0_0_15px_rgba(244,63,94,0.4)]' : 'text-slate-500 dark:text-[#94A3B8] hover:text-rose-500 hover:bg-rose-50/50 dark:hover:bg-rose-500/10'}`}>
+          <span className={`w-1.5 h-1.5 md:w-2 md:h-2 rounded-full ${filterType === 'EXPENSE' ? 'bg-white' : 'bg-rose-500'}`}></span>
+          <span className="hidden sm:inline">รายจ่าย (Out)</span><span className="sm:hidden">รายจ่าย</span>
         </button>
       </div>
 

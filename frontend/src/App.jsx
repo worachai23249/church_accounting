@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import {
   LayoutDashboard, ArrowLeftRight, Tags, PieChart as PieChartIcon,
-  Sun, Moon, LogOut, X, Trash2, Upload, Lock, AlertTriangle, CheckCircle
+  Sun, Moon, LogOut, X, Trash2, Upload, Lock, AlertTriangle, CheckCircle, Menu
 } from 'lucide-react';
 
 import Overview from './pages/Overview';
@@ -46,6 +46,7 @@ function App() {
   }, [categories]);
 
   const [loading, setLoading] = useState(true);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState('overview');
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isCategoryFormOpen, setIsCategoryFormOpen] = useState(false);
@@ -176,8 +177,14 @@ function App() {
       <div className="fixed top-[-10%] left-[-5%] w-[600px] h-[600px] rounded-full bg-blue-500/10 dark:bg-blue-600/20 blur-[120px] pointer-events-none"></div>
       <div className="fixed bottom-[-10%] right-[-5%] w-[600px] h-[600px] rounded-full bg-purple-500/10 dark:bg-purple-600/20 blur-[120px] pointer-events-none"></div>
 
-      {/* Sidebar ล็อกติดหน้าจอ (Hi-Tech Version) */}
-      <aside className="w-72 h-full border-r border-slate-200/50 dark:border-white/5 bg-slate-50/50 dark:bg-[#030610]/80 backdrop-blur-2xl flex flex-col justify-between hidden md:flex shrink-0 z-20 shadow-[10px_0_30px_-10px_rgba(0,0,0,0.1)] left-0">
+      {/* Sidebar ล็อกติดหน้าจอ (Hi-Tech Version) & Mobile Drawer */}
+      {isMobileMenuOpen && (
+        <div
+          className="md:hidden fixed inset-0 bg-slate-900/40 dark:bg-black/40 backdrop-blur-sm z-[90] animate-fade-in"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+      <aside className={`w-72 h-full border-r border-slate-200/50 dark:border-white/5 bg-slate-50/95 dark:bg-[#030610]/95 backdrop-blur-2xl flex flex-col justify-between shrink-0 z-[100] shadow-[10px_0_30px_-10px_rgba(0,0,0,0.1)] fixed md:relative transition-transform duration-300 ease-in-out ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'} left-0`}>
         <div>
           <div className="p-8 border-b border-slate-200/50 dark:border-white/5 flex flex-col items-center relative overflow-hidden group">
             <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-blue-500/10 dark:from-blue-600/10 to-transparent pointer-events-none opacity-50 group-hover:opacity-100 transition-opacity duration-700"></div>
@@ -209,7 +216,7 @@ function App() {
               return (
                 <button
                   key={menu.id}
-                  onClick={() => setActiveMenu(menu.id)}
+                  onClick={() => { setActiveMenu(menu.id); setIsMobileMenuOpen(false); }}
                   className={`group relative w-full flex items-center space-x-4 px-5 py-3.5 rounded-[18px] transition-all duration-500 overflow-hidden font-black tracking-[0.15em] text-[11px] uppercase ${isActive ? 'text-blue-600 dark:text-white border border-blue-500/40 dark:border-blue-500/30 shadow-[0_5px_20px_-5px_rgba(59,130,246,0.2)] bg-blue-50/80 dark:bg-blue-900/10' : 'text-slate-500 dark:text-[#64748B] hover:text-slate-800 dark:hover:text-white border border-transparent hover:border-slate-200/50 dark:hover:border-white/10 hover:bg-slate-100/50 dark:hover:bg-white/[0.03]'}`}
                 >
                   {/* Indicator Edge Rail */}
@@ -250,7 +257,7 @@ function App() {
 
           {!isLoggedIn ? (
             <button
-              onClick={() => setShowLoginScreen(true)}
+              onClick={() => { setShowLoginScreen(true); setIsMobileMenuOpen(false); }}
               className="group relative w-full flex items-center space-x-4 px-5 py-4 rounded-[18px] bg-slate-50/80 dark:bg-[#0A101D]/80 border border-slate-200/80 dark:border-white/5 text-slate-600 dark:text-slate-400 font-black overflow-hidden transition-all duration-500 hover:border-blue-400/50 dark:hover:border-blue-500/30 hover:shadow-[0_0_20px_rgba(59,130,246,0.15)] hover:bg-white dark:hover:bg-[#0F172A]"
             >
               <div className="absolute inset-0 bg-gradient-to-b from-blue-500/0 to-blue-500/5 dark:to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -261,7 +268,7 @@ function App() {
             </button>
           ) : (
             <button
-              onClick={() => { sessionStorage.removeItem('isLoggedIn'); setIsLoggedIn(false); setActiveMenu('overview'); }}
+              onClick={() => { sessionStorage.removeItem('isLoggedIn'); setIsLoggedIn(false); setActiveMenu('overview'); setIsMobileMenuOpen(false); }}
               className="group relative w-full flex items-center space-x-4 px-5 py-4 rounded-[18px] bg-slate-50/80 dark:bg-[#0A101D]/80 border border-slate-200/80 dark:border-white/5 text-slate-600 dark:text-slate-400 font-black overflow-hidden transition-all duration-500 hover:border-rose-400/50 dark:hover:border-rose-500/30 hover:shadow-[0_0_20px_rgba(244,63,94,0.15)] hover:bg-white dark:hover:bg-[#0F172A]"
             >
               <div className="absolute inset-0 bg-gradient-to-b from-rose-500/0 to-rose-500/5 dark:to-rose-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -274,8 +281,31 @@ function App() {
         </div>
       </aside>
 
+      {/* Mobile Top Header (Hi-Tech Version) */}
+      <div className="md:hidden fixed top-0 left-0 right-0 h-16 bg-slate-50/90 dark:bg-[#030610]/90 backdrop-blur-xl border-b border-slate-200/50 dark:border-white/5 z-[80] flex items-center justify-between px-4 shadow-sm">
+        <div className="flex items-center space-x-3">
+          <button onClick={() => setIsMobileMenuOpen(true)} className="p-2 -ml-2 text-slate-600 dark:text-slate-300 hover:text-blue-500">
+            <Menu size={24} />
+          </button>
+          <img src="/logo.png" alt="Logo" className="w-8 h-8 object-contain drop-shadow-[0_0_8px_rgba(255,255,255,0.2)]" />
+          <div className="flex flex-col mt-0.5">
+            <span className="text-[10px] uppercase font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-600 dark:from-blue-400 dark:to-purple-500">House of Worship</span>
+          </div>
+        </div>
+        <div className="flex items-center space-x-2">
+          <button onClick={() => setIsDarkMode(!isDarkMode)} className="w-10 h-10 rounded-full bg-slate-200/50 dark:bg-white/5 text-slate-600 dark:text-slate-300 flex items-center justify-center transition-all bg-opacity-50">
+            {isDarkMode ? <Sun size={18} className="text-amber-400 drop-shadow-[0_0_5px_rgba(251,191,36,0.6)]" /> : <Moon size={18} className="text-blue-600 drop-shadow-[0_0_5px_rgba(59,130,246,0.4)]" />}
+          </button>
+          {!isLoggedIn ? (
+            <button onClick={() => setShowLoginScreen(true)} className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center"><Lock size={16} /></button>
+          ) : (
+            <button onClick={() => { sessionStorage.removeItem('isLoggedIn'); setIsLoggedIn(false); setActiveMenu('overview'); }} className="w-10 h-10 rounded-full bg-rose-100 dark:bg-rose-500/20 text-rose-600 dark:text-rose-400 flex items-center justify-center"><LogOut size={16} /></button>
+          )}
+        </div>
+      </div>
+
       {/* Main Content */}
-      <main className="flex-1 h-full overflow-y-auto p-8 relative z-10 custom-scrollbar">
+      <main className="flex-1 h-full overflow-y-auto p-4 md:p-8 pt-20 md:pt-8 pb-8 md:pb-8 relative z-10 custom-scrollbar w-full">
         {activeMenu === 'overview' && <Overview transactions={transactions} categories={categories} formatThaiDate={formatThaiDate} fmt={fmt} handleViewImage={(url) => { setViewImageUrl(url); setIsImageModalOpen(true); }} setActiveMenu={setActiveMenu} />}
         {activeMenu === 'record' && <Record transactions={transactions} formatThaiDate={formatThaiDate} fmt={fmt} handleViewImage={(url) => { setViewImageUrl(url); setIsImageModalOpen(true); }} handleOpenAddTransaction={handleOpenAddTransaction} handleOpenEditTransaction={handleOpenEditTransaction} handleDeleteTransaction={handleDeleteTransaction} />}
         {activeMenu === 'categories' && <Categories categories={categories} transactions={transactions} handleOpenAddCategory={handleOpenAddCategory} handleOpenEditCategory={handleOpenEditCategory} handleDeleteCategory={handleDeleteCategory} />}
@@ -285,39 +315,39 @@ function App() {
       {/* 1. Modal บันทึกรายการ */}
       {isFormOpen && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/40 dark:bg-[#060A13]/80 backdrop-blur-xl animate-fade-in">
-          <div className="glass-panel w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh] rounded-[40px] shadow-[0_0_50px_rgba(0,0,0,0.2)] animate-fade-in-up">
-            <div className="flex justify-between items-center p-8 border-b border-slate-200/50 dark:border-white/10 shrink-0 bg-white/30 dark:bg-[#0F172A]/30">
-              <h3 className="text-2xl font-black text-slate-800 dark:text-white tracking-tight">{editingId ? 'แก้ไขรายการ' : 'เพิ่มรายการใหม่'}</h3>
-              <button onClick={() => setIsFormOpen(false)} className="p-3 bg-white dark:bg-[#1E293B] border border-slate-200 dark:border-transparent text-slate-500 dark:text-[#94A3B8] rounded-full hover:text-white hover:bg-slate-800 dark:hover:bg-[#334155] hover:rotate-90 transition-all shadow-sm"><X size={20} /></button>
+          <div className="glass-panel w-[92vw] sm:w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh] rounded-[24px] md:rounded-[40px] shadow-[0_0_50px_rgba(0,0,0,0.2)] animate-fade-in-up">
+            <div className="flex justify-between items-center p-5 md:p-8 border-b border-slate-200/50 dark:border-white/10 shrink-0 bg-white/30 dark:bg-[#0F172A]/30">
+              <h3 className="text-xl md:text-2xl font-black text-slate-800 dark:text-white tracking-tight">{editingId ? 'แก้ไขรายการ' : 'เพิ่มรายการใหม่'}</h3>
+              <button onClick={() => setIsFormOpen(false)} className="p-2 md:p-3 bg-white dark:bg-[#1E293B] border border-slate-200 dark:border-transparent text-slate-500 dark:text-[#94A3B8] rounded-full hover:text-white hover:bg-slate-800 dark:hover:bg-[#334155] hover:rotate-90 transition-all shadow-sm"><X size={18} className="md:w-5 md:h-5" /></button>
             </div>
-            <form onSubmit={handleSubmitTransaction} className="p-8 space-y-6 overflow-y-auto custom-scrollbar bg-white/40 dark:bg-transparent">
-              <div className="flex bg-white/70 dark:bg-[#0F172A]/80 border border-slate-200/50 dark:border-[#1E293B] rounded-2xl p-1.5 shadow-inner">
-                <button type="button" onClick={() => setFormData({ ...formData, type: 'INCOME', description: '' })} className={`flex-1 py-3.5 rounded-xl text-sm font-black tracking-widest uppercase transition-all duration-300 ${formData.type === 'INCOME' ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-[0_0_15px_rgba(16,185,129,0.4)]' : 'text-slate-500 dark:text-[#64748B] hover:text-emerald-500'}`}>รายรับ</button>
-                <button type="button" onClick={() => setFormData({ ...formData, type: 'EXPENSE', description: '' })} className={`flex-1 py-3.5 rounded-xl text-sm font-black tracking-widest uppercase transition-all duration-300 ${formData.type === 'EXPENSE' ? 'bg-gradient-to-r from-rose-500 to-rose-600 text-white shadow-[0_0_15px_rgba(244,63,94,0.4)]' : 'text-slate-500 dark:text-[#64748B] hover:text-rose-500'}`}>รายจ่าย</button>
+            <form onSubmit={handleSubmitTransaction} className="p-5 md:p-8 space-y-4 md:space-y-6 overflow-y-auto custom-scrollbar bg-white/40 dark:bg-transparent">
+              <div className="flex bg-white/70 dark:bg-[#0F172A]/80 border border-slate-200/50 dark:border-[#1E293B] rounded-[16px] md:rounded-2xl p-1 md:p-1.5 shadow-inner">
+                <button type="button" onClick={() => setFormData({ ...formData, type: 'INCOME', description: '' })} className={`flex-1 py-3 md:py-3.5 rounded-xl md:rounded-xl text-xs md:text-sm font-black tracking-widest uppercase transition-all duration-300 ${formData.type === 'INCOME' ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-[0_0_15px_rgba(16,185,129,0.4)]' : 'text-slate-500 dark:text-[#64748B] hover:text-emerald-500'}`}>รายรับ</button>
+                <button type="button" onClick={() => setFormData({ ...formData, type: 'EXPENSE', description: '' })} className={`flex-1 py-3 md:py-3.5 rounded-xl md:rounded-xl text-xs md:text-sm font-black tracking-widest uppercase transition-all duration-300 ${formData.type === 'EXPENSE' ? 'bg-gradient-to-r from-rose-500 to-rose-600 text-white shadow-[0_0_15px_rgba(244,63,94,0.4)]' : 'text-slate-500 dark:text-[#64748B] hover:text-rose-500'}`}>รายจ่าย</button>
               </div>
 
               <div>
                 <label className="block text-[10px] font-black text-slate-500 dark:text-[#64748B] mb-2 uppercase tracking-[0.2em] ml-1">จำนวนเงิน (บาท)</label>
-                <input type="number" value={formData.amount} onChange={(e) => setFormData({ ...formData, amount: e.target.value })} required className="w-full py-5 text-4xl font-black text-center bg-white/60 dark:bg-[#060A13]/60 backdrop-blur-md border border-slate-200/50 dark:border-white/10 rounded-[20px] outline-none text-slate-800 dark:text-white focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all shadow-sm font-sans" placeholder="0.00" />
+                <input type="number" value={formData.amount} onChange={(e) => setFormData({ ...formData, amount: e.target.value })} required className="w-full py-4 md:py-5 text-3xl md:text-4xl font-black text-center bg-white/60 dark:bg-[#060A13]/60 backdrop-blur-md border border-slate-200/50 dark:border-white/10 rounded-[16px] md:rounded-[20px] outline-none text-slate-800 dark:text-white focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all shadow-sm font-sans" placeholder="0.00" />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-[10px] font-black text-slate-500 dark:text-[#64748B] mb-2 uppercase tracking-[0.2em] ml-1">หมวดหมู่</label>
-                  <select value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} required className="w-full p-4 bg-white/60 dark:bg-[#060A13]/60 backdrop-blur-md border border-slate-200/50 dark:border-white/10 rounded-[20px] outline-none text-slate-800 dark:text-white focus:ring-2 focus:ring-blue-500/50 transition-all shadow-sm font-bold">
+                  <select value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} required className="w-full p-3.5 md:p-4 bg-white/60 dark:bg-[#060A13]/60 backdrop-blur-md border border-slate-200/50 dark:border-white/10 rounded-[16px] md:rounded-[20px] outline-none text-slate-800 dark:text-white focus:ring-2 focus:ring-blue-500/50 transition-all shadow-sm font-bold text-sm md:text-base">
                     <option value="">เลือก...</option>
                     {categories.filter(c => c.type === formData.type).map(c => (<option key={c.id} value={c.name}>{c.name}</option>))}
                   </select>
                 </div>
                 <div>
                   <label className="block text-[10px] font-black text-slate-500 dark:text-[#64748B] mb-2 uppercase tracking-[0.2em] ml-1">วันที่</label>
-                  <input type="date" value={formData.transaction_date} onChange={(e) => setFormData({ ...formData, transaction_date: e.target.value })} required className="w-full p-4 bg-white/60 dark:bg-[#060A13]/60 backdrop-blur-md border border-slate-200/50 dark:border-white/10 rounded-[20px] outline-none text-slate-800 dark:text-white focus:ring-2 focus:ring-blue-500/50 transition-all shadow-sm font-bold [color-scheme:light_dark]" />
+                  <input type="date" value={formData.transaction_date} onChange={(e) => setFormData({ ...formData, transaction_date: e.target.value })} required className="w-full p-3.5 md:p-4 bg-white/60 dark:bg-[#060A13]/60 backdrop-blur-md border border-slate-200/50 dark:border-white/10 rounded-[16px] md:rounded-[20px] outline-none text-slate-800 dark:text-white focus:ring-2 focus:ring-blue-500/50 transition-all shadow-sm font-bold text-sm md:text-base [color-scheme:light_dark]" />
                 </div>
               </div>
 
               <div>
                 <label className="block text-[10px] font-black text-slate-500 dark:text-[#64748B] mb-2 uppercase tracking-[0.2em] ml-1">หมายเหตุ</label>
-                <input type="text" value={formData.note} onChange={(e) => setFormData({ ...formData, note: e.target.value })} placeholder="ระบุรายละเอียดเพิ่มเติม..." className="w-full p-4 bg-white/60 dark:bg-[#060A13]/60 backdrop-blur-md border border-slate-200/50 dark:border-white/10 rounded-[20px] outline-none text-slate-800 dark:text-white focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all shadow-sm font-bold" />
+                <input type="text" value={formData.note} onChange={(e) => setFormData({ ...formData, note: e.target.value })} placeholder="ระบุรายละเอียดเพิ่มเติม..." className="w-full p-3.5 md:p-4 bg-white/60 dark:bg-[#060A13]/60 backdrop-blur-md border border-slate-200/50 dark:border-white/10 rounded-[16px] md:rounded-[20px] outline-none text-slate-800 dark:text-white focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all shadow-sm font-bold text-sm md:text-base" />
               </div>
 
               <div>
@@ -349,14 +379,14 @@ function App() {
       {/* 2. Modal จัดการหมวดหมู่ */}
       {isCategoryFormOpen && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/40 dark:bg-[#060A13]/80 backdrop-blur-xl animate-fade-in">
-          <div className="glass-panel rounded-[40px] shadow-[0_0_50px_rgba(0,0,0,0.2)] w-full max-w-md overflow-hidden flex flex-col animate-fade-in-up">
+          <div className="glass-panel w-[92vw] sm:w-full max-w-md rounded-[24px] md:rounded-[40px] shadow-[0_0_50px_rgba(0,0,0,0.2)] overflow-hidden flex flex-col animate-fade-in-up">
 
-            <div className="flex justify-between items-center p-8 border-b border-slate-200/50 dark:border-[#1E293B] bg-white/30 dark:bg-[#0F172A]/30">
-              <h3 className="text-2xl font-black text-slate-800 dark:text-white tracking-tight">{categoryFormData.id ? 'แก้ไขหมวดหมู่' : 'เพิ่มหมวดหมู่ใหม่'}</h3>
-              <button onClick={() => setIsCategoryFormOpen(false)} className="p-3 bg-white dark:bg-[#1E293B] border border-slate-200 dark:border-transparent text-slate-500 dark:text-[#94A3B8] rounded-full hover:text-white hover:bg-slate-800 dark:hover:bg-[#334155] hover:rotate-90 transition-all shadow-sm"><X size={20} /></button>
+            <div className="flex justify-between items-center p-5 md:p-8 border-b border-slate-200/50 dark:border-[#1E293B] bg-white/30 dark:bg-[#0F172A]/30">
+              <h3 className="text-xl md:text-2xl font-black text-slate-800 dark:text-white tracking-tight">{categoryFormData.id ? 'แก้ไขหมวดหมู่' : 'เพิ่มหมวดหมู่ใหม่'}</h3>
+              <button onClick={() => setIsCategoryFormOpen(false)} className="p-2 md:p-3 bg-white dark:bg-[#1E293B] border border-slate-200 dark:border-transparent text-slate-500 dark:text-[#94A3B8] rounded-full hover:text-white hover:bg-slate-800 dark:hover:bg-[#334155] hover:rotate-90 transition-all shadow-sm"><X size={18} className="md:w-5 md:h-5" /></button>
             </div>
 
-            <form onSubmit={handleCategorySubmit} className="p-8 space-y-8 bg-white/40 dark:bg-transparent">
+            <form onSubmit={handleCategorySubmit} className="p-5 md:p-8 space-y-6 md:space-y-8 bg-white/40 dark:bg-transparent">
 
               <div>
                 <label className="block text-[10px] font-black text-slate-500 dark:text-[#64748B] mb-3 uppercase tracking-[0.2em] ml-1">ชื่อหมวดหมู่</label>
@@ -366,27 +396,27 @@ function App() {
                   onChange={(e) => setCategoryFormData({ ...categoryFormData, name: e.target.value })}
                   placeholder="เช่น อาหาร, ถุงถวาย"
                   required
-                  className="w-full p-4 bg-white/60 dark:bg-[#060A13]/60 backdrop-blur-md border border-slate-200/50 dark:border-white/10 rounded-[20px] text-slate-800 dark:text-white font-bold outline-none focus:ring-2 focus:ring-blue-500/50 transition-colors shadow-sm"
+                  className="w-full p-3.5 md:p-4 bg-white/60 dark:bg-[#060A13]/60 backdrop-blur-md border border-slate-200/50 dark:border-white/10 rounded-[16px] md:rounded-[20px] text-slate-800 dark:text-white font-bold outline-none focus:ring-2 focus:ring-blue-500/50 transition-colors shadow-sm text-sm md:text-base"
                 />
               </div>
 
               <div>
                 <label className="block text-[10px] font-black text-slate-500 dark:text-[#64748B] mb-3 uppercase tracking-[0.2em] ml-1">ประเภท</label>
-                <div className="flex bg-white/70 dark:bg-[#0F172A]/80 border border-slate-200/50 dark:border-[#1E293B] rounded-2xl p-1.5 shadow-inner">
-                  <button type="button" onClick={() => setCategoryFormData({ ...categoryFormData, type: 'INCOME' })} className={`flex-1 py-3.5 rounded-xl text-sm font-black uppercase tracking-widest transition-all duration-300 ${categoryFormData.type === 'INCOME' ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-[0_0_15px_rgba(16,185,129,0.4)]' : 'text-slate-500 dark:text-[#64748B] hover:text-emerald-500'}`}>รายรับ</button>
-                  <button type="button" onClick={() => setCategoryFormData({ ...categoryFormData, type: 'EXPENSE' })} className={`flex-1 py-3.5 rounded-xl text-sm font-black uppercase tracking-widest transition-all duration-300 ${categoryFormData.type === 'EXPENSE' ? 'bg-gradient-to-r from-rose-500 to-rose-600 text-white shadow-[0_0_15px_rgba(244,63,94,0.4)]' : 'text-slate-500 dark:text-[#64748B] hover:text-rose-500'}`}>รายจ่าย</button>
+                <div className="flex bg-white/70 dark:bg-[#0F172A]/80 border border-slate-200/50 dark:border-[#1E293B] rounded-[16px] md:rounded-2xl p-1 md:p-1.5 shadow-inner">
+                  <button type="button" onClick={() => setCategoryFormData({ ...categoryFormData, type: 'INCOME' })} className={`flex-1 py-3 md:py-3.5 rounded-xl text-xs md:text-sm font-black uppercase tracking-widest transition-all duration-300 ${categoryFormData.type === 'INCOME' ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-[0_0_15px_rgba(16,185,129,0.4)]' : 'text-slate-500 dark:text-[#64748B] hover:text-emerald-500'}`}>รายรับ</button>
+                  <button type="button" onClick={() => setCategoryFormData({ ...categoryFormData, type: 'EXPENSE' })} className={`flex-1 py-3 md:py-3.5 rounded-xl text-xs md:text-sm font-black uppercase tracking-widest transition-all duration-300 ${categoryFormData.type === 'EXPENSE' ? 'bg-gradient-to-r from-rose-500 to-rose-600 text-white shadow-[0_0_15px_rgba(244,63,94,0.4)]' : 'text-slate-500 dark:text-[#64748B] hover:text-rose-500'}`}>รายจ่าย</button>
                 </div>
               </div>
 
               <div>
                 <label className="block text-[10px] font-black text-slate-500 dark:text-[#64748B] mb-4 uppercase tracking-[0.2em] ml-1 text-center">เลือกสีประจำหมวดหมู่</label>
-                <div className="flex flex-wrap gap-4 justify-center">
+                <div className="flex flex-wrap gap-2 md:gap-4 justify-center">
                   {CATEGORY_COLORS.map(color => (
                     <button
                       key={color}
                       type="button"
                       onClick={() => setCategoryFormData({ ...categoryFormData, color: color })}
-                      className={`w-12 h-12 rounded-[16px] transition-all duration-300 relative group overflow-hidden ${categoryFormData.color === color ? 'scale-110 shadow-lg' : 'hover:scale-110 opacity-60 hover:opacity-100'}`}
+                      className={`w-10 h-10 md:w-12 md:h-12 rounded-[12px] md:rounded-[16px] transition-all duration-300 relative group overflow-hidden ${categoryFormData.color === color ? 'scale-110 shadow-lg' : 'hover:scale-110 opacity-60 hover:opacity-100'}`}
                       style={{ backgroundColor: color }}
                     >
                       <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -415,39 +445,39 @@ function App() {
       {/* 4. Modal ยืนยันการลบ (แทน window.confirm) */}
       {deleteModal.isOpen && (
         <div className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-[#030610]/80 backdrop-blur-md animate-fade-in">
-          <div className="relative w-full max-w-md overflow-hidden flex flex-col rounded-[32px] bg-[#13151c] border border-white/5 shadow-[0_0_80px_rgba(255,42,95,0.15)] animate-fade-in-up">
+          <div className="relative w-[92vw] sm:w-full max-w-md overflow-hidden flex flex-col rounded-[24px] md:rounded-[32px] bg-[#13151c] border border-white/5 shadow-[0_0_80px_rgba(255,42,95,0.15)] animate-fade-in-up">
 
             {/* Ambient Red Glow Behind */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[#ff2a5f]/10 blur-[120px] pointer-events-none"></div>
 
-            <div className="flex justify-end p-5 pb-0 relative z-10">
-              <button onClick={() => setDeleteModal({ ...deleteModal, isOpen: false })} className="w-10 h-10 bg-[#1e202b] border border-[#2a2d3c] text-slate-400 rounded-full flex items-center justify-center hover:text-white hover:bg-[#282b3a] hover:shadow-[0_0_15px_rgba(255,255,255,0.05)] hover:rotate-90 transition-all duration-300"><X size={18} /></button>
+            <div className="flex justify-end p-4 md:p-5 pb-0 relative z-10">
+              <button onClick={() => setDeleteModal({ ...deleteModal, isOpen: false })} className="w-8 h-8 md:w-10 md:h-10 bg-[#1e202b] border border-[#2a2d3c] text-slate-400 rounded-full flex items-center justify-center hover:text-white hover:bg-[#282b3a] hover:shadow-[0_0_15px_rgba(255,255,255,0.05)] hover:rotate-90 transition-all duration-300"><X size={16} /></button>
             </div>
 
-            <div className="p-8 pt-0 pb-10 flex flex-col items-center text-center relative z-10">
-              <div className="w-24 h-24 rounded-full bg-[#ff2a5f]/10 border-2 border-[#ff2a5f]/40 shadow-[0_0_40px_rgba(255,42,95,0.3),inset_0_0_20px_rgba(255,42,95,0.4)] flex items-center justify-center mb-8 relative group">
+            <div className="p-6 md:p-8 pt-0 pb-8 md:pb-10 flex flex-col items-center text-center relative z-10">
+              <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-[#ff2a5f]/10 border-2 border-[#ff2a5f]/40 shadow-[0_0_40px_rgba(255,42,95,0.3),inset_0_0_20px_rgba(255,42,95,0.4)] flex items-center justify-center mb-6 md:mb-8 relative group">
                 <div className="absolute inset-0 rounded-full bg-[#ff2a5f] blur-2xl opacity-30 animate-pulse"></div>
-                <AlertTriangle size={36} className="text-[#ff2a5f] drop-shadow-[0_0_12px_rgba(255,42,95,0.8)] relative z-10" />
+                <AlertTriangle size={36} className="text-[#ff2a5f] drop-shadow-[0_0_12px_rgba(255,42,95,0.8)] relative z-10 w-8 md:w-10" />
               </div>
 
-              <h3 className="text-2xl font-black text-[#ff2a5f] tracking-tight mb-4 drop-shadow-[0_0_15px_rgba(255,42,95,0.6)]">
+              <h3 className="text-xl md:text-2xl font-black text-[#ff2a5f] tracking-tight mb-3 md:mb-4 drop-shadow-[0_0_15px_rgba(255,42,95,0.6)]">
                 {deleteModal.title}
               </h3>
 
-              <p className="text-sm text-[#94a3b8] leading-relaxed max-w-[280px] mx-auto mb-10 font-bold">
+              <p className="text-xs md:text-sm text-[#94a3b8] leading-relaxed max-w-[280px] mx-auto mb-8 font-bold">
                 {deleteModal.message}
               </p>
 
-              <div className="grid grid-cols-2 gap-4 w-full px-2">
+              <div className="grid grid-cols-2 gap-3 md:gap-4 w-full px-2">
                 <button
                   onClick={() => setDeleteModal({ ...deleteModal, isOpen: false })}
-                  className="w-full py-4 px-2 bg-[#212431] hover:bg-[#2a2e3d] border border-[#2d3142] text-white rounded-[20px] font-black uppercase tracking-widest text-[13px] transition-all shadow-sm active:scale-95"
+                  className="w-full py-3.5 md:py-4 px-2 bg-[#212431] hover:bg-[#2a2e3d] border border-[#2d3142] text-white rounded-[16px] md:rounded-[20px] font-black uppercase tracking-widest text-[12px] md:text-[13px] transition-all shadow-sm active:scale-95"
                 >
                   ยกเลิก
                 </button>
                 <button
                   onClick={confirmDelete}
-                  className="w-full py-4 px-2 bg-[#ff2a5f] hover:bg-[#ff154d] border border-[#ff2a5f]/50 text-white rounded-[20px] font-black uppercase tracking-widest text-[13px] shadow-[0_0_30px_rgba(255,42,95,0.4)] hover:shadow-[0_0_40px_rgba(255,42,95,0.6)] hover:-translate-y-1 active:scale-95 transition-all outline-none"
+                  className="w-full py-3.5 md:py-4 px-2 bg-[#ff2a5f] hover:bg-[#ff154d] border border-[#ff2a5f]/50 text-white rounded-[16px] md:rounded-[20px] font-black uppercase tracking-widest text-[12px] md:text-[13px] shadow-[0_0_30px_rgba(255,42,95,0.4)] hover:shadow-[0_0_40px_rgba(255,42,95,0.6)] hover:-translate-y-1 active:scale-95 transition-all outline-none"
                 >
                   ลบ
                 </button>
@@ -470,7 +500,7 @@ function App() {
       {/* 5. Modal แจ้งเตือนสำเร็จ (Jesus Image) - 🌟 MAGNIFICENT GRAND EDITION 🌟 */}
       {successModal.isOpen && (
         <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-[#010408]/90 backdrop-blur-xl animate-fade-in" onClick={() => setSuccessModal(prev => ({ ...prev, isOpen: false }))}>
-          <div className="relative w-full max-w-[420px] flex flex-col items-center animate-fade-in-up" style={{ animationDuration: '0.6s', animationTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)' }} onClick={e => e.stopPropagation()}>
+          <div className="relative w-[92vw] sm:w-full max-w-[420px] flex flex-col items-center animate-fade-in-up" style={{ animationDuration: '0.6s', animationTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)' }} onClick={e => e.stopPropagation()}>
 
             {/* 🌟 GRAND LAYER 1: Rotating Divine God Rays */}
             <div className="absolute top-[30px] w-[600px] h-[600px] rounded-full pointer-events-none z-0 overflow-hidden flex items-center justify-center opacity-30 mask-radial-gradient mix-blend-screen">

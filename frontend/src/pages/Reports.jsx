@@ -49,16 +49,16 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
         {/* Header section with Glass Back Button */}
         <div className="mb-10 relative animate-fade-in-up">
           <div className="absolute -left-6 -top-6 w-24 h-24 bg-blue-500/20 rounded-full blur-2xl animate-pulse-glow"></div>
-          <div className="flex items-center space-x-6 relative z-10">
+          <div className="flex flex-col md:flex-row items-start md:items-center space-y-4 md:space-y-0 md:space-x-6 relative z-10">
             <button
               onClick={() => setSelectedMonthDetail(null)}
-              className="w-14 h-14 bg-white/70 dark:bg-[#0B1121]/60 backdrop-blur-md border border-white/20 dark:border-white/5 rounded-full flex items-center justify-center text-slate-500 dark:text-[#94A3B8] hover:text-blue-500 dark:hover:text-blue-400 hover:scale-110 hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:-translate-x-2 transition-all duration-300"
+              className="w-12 h-12 md:w-14 md:h-14 bg-white/70 dark:bg-[#0B1121]/60 backdrop-blur-md border border-white/20 dark:border-white/5 rounded-full flex items-center justify-center text-slate-500 dark:text-[#94A3B8] hover:text-blue-500 dark:hover:text-blue-400 hover:scale-110 hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:-translate-x-2 transition-all duration-300 shrink-0"
             >
-              <ArrowLeft size={24} />
+              <ArrowLeft size={20} className="md:w-6 md:h-6" />
             </button>
             <div>
-              <h1 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 tracking-tighter drop-shadow-sm pb-2 mb-1">รายละเอียดประจำเดือน</h1>
-              <p className="text-slate-500 dark:text-[#94A3B8] text-xs font-bold tracking-[0.2em] uppercase flex items-center gap-2">
+              <h1 className="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 tracking-tighter drop-shadow-sm pb-2 mb-1">รายละเอียดประจำเดือน</h1>
+              <p className="text-slate-500 dark:text-[#94A3B8] text-[10px] md:text-xs font-bold tracking-[0.2em] uppercase flex items-center gap-2">
                 <Activity size={12} className="text-blue-500" />
                 {detailMonthName} {selectedYear}
               </p>
@@ -199,21 +199,21 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
           </div>
 
           {/* Glass Year Selector */}
-          <div className="glass-panel p-1 rounded-2xl flex items-center max-w-fit shadow-lg shadow-blue-500/5">
+          <div className="glass-panel p-1 rounded-2xl flex items-center justify-between md:justify-start w-full md:w-auto shadow-lg shadow-blue-500/5 mt-4 md:mt-0">
             <button
               onClick={() => setSelectedYear(y => y - 1)}
-              className="p-3 text-slate-400 dark:text-[#64748B] hover:text-blue-500 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-white/5 rounded-xl transition-all duration-300"
+              className="p-4 md:p-3 text-slate-400 dark:text-[#64748B] hover:text-blue-500 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-white/5 rounded-xl transition-all duration-300"
             >
-              <ChevronLeft size={20} />
+              <ChevronLeft size={24} className="md:w-5 md:h-5" />
             </button>
-            <div className="px-8 font-black text-2xl text-slate-800 dark:text-white tracking-widest text-glow-emerald">
+            <div className="px-4 md:px-8 font-black text-2xl md:text-2xl text-slate-800 dark:text-white tracking-widest text-glow-emerald">
               {selectedYear}
             </div>
             <button
               onClick={() => setSelectedYear(y => y + 1)}
-              className="p-3 text-slate-400 dark:text-[#64748B] hover:text-blue-500 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-white/5 rounded-xl transition-all duration-300"
+              className="p-4 md:p-3 text-slate-400 dark:text-[#64748B] hover:text-blue-500 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-white/5 rounded-xl transition-all duration-300"
             >
-              <ChevronRight size={20} />
+              <ChevronRight size={24} className="md:w-5 md:h-5" />
             </button>
           </div>
         </div>
@@ -379,11 +379,11 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
       </div>
 
       {/* Monthly Summary Grids (12 Cards) */}
-      <div className="mb-8 relative animate-fade-in-up" style={{ animationDelay: '0.7s' }}>
-        <h3 className="text-2xl font-black text-slate-800 dark:text-white tracking-tight flex items-center gap-3">
-          <LineChart className="text-blue-500" /> สรุปละเอียดรายเดือน
+      <div className="mb-8 mt-12 md:mt-0 relative animate-fade-in-up" style={{ animationDelay: '0.7s' }}>
+        <h3 className="text-xl md:text-2xl font-black text-slate-800 dark:text-white tracking-tight flex items-center gap-3">
+          <LineChart className="text-blue-500 md:w-6 md:h-6" size={20} /> สรุปละเอียดรายเดือน
         </h3>
-        <p className="text-xs text-slate-500 font-bold uppercase tracking-widest mt-1 ml-9">Monthly Breakdown Panel (คลิกเพื่อดูรายละเอียด)</p>
+        <p className="text-[10px] md:text-xs text-slate-500 font-bold uppercase tracking-widest mt-1 ml-8 md:ml-9">Monthly Breakdown Panel (คลิกเพื่อดูรายละเอียด)</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 pb-12 animate-fade-in-up" style={{ animationDelay: '0.8s' }}>
