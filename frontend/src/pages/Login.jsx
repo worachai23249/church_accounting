@@ -126,6 +126,20 @@ export default function Login({ onLogin, onBack }) {
           <div className="max-w-[400px] mx-auto w-full relative z-10">
 
             <div className="text-center mb-10 xl:mb-14 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+              {/* โลโก้และชื่อสำหรับมือถือ/ไอแพด (ซ่อนในจอใหญ่) */}
+              <div className="lg:hidden flex flex-col items-center justify-center mb-8">
+                <div className="w-32 h-32 md:w-40 md:h-40 relative flex items-center justify-center mb-4 group">
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 opacity-20 blur-[30px] rounded-full"></div>
+                  <div className="w-full h-full rounded-full p-[2px] bg-gradient-to-b from-white/50 to-transparent dark:from-white/10 dark:to-transparent relative shadow-xl">
+                    <div className="absolute inset-0 bg-white/20 dark:bg-black/20 rounded-full backdrop-blur-md"></div>
+                    <img src="/logo.png" alt="Logo" className="w-full h-full object-contain drop-shadow-[0_0_15px_rgba(59,130,246,0.3)] relative z-10" />
+                  </div>
+                </div>
+                <h1 className="text-2xl md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-600 dark:from-blue-400 dark:via-indigo-400 dark:to-purple-400 uppercase tracking-tighter drop-shadow-sm flex flex-col items-center">
+                  <span>The House of</span>
+                  <span className="text-[0.6em] tracking-[0.1em] mt-1">worship and prayer</span>
+                </h1>
+              </div>
               <div className="inline-flex items-center justify-center px-4 py-1.5 rounded-full bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 mb-6 relative overflow-hidden group">
                 <div className="absolute inset-0 w-1/4 h-full bg-white/50 skew-x-[-20deg] translate-x-[-200%] group-hover:translate-x-[500%] transition-transform duration-1000"></div>
                 <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse mr-2 relative z-10"></div>

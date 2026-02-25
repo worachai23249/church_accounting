@@ -106,16 +106,11 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
                 return (
                   <div
                     key={t.id}
-                    className={`relative rounded-[22px] overflow-hidden
-                    bg-gradient-to-br from-[#0f172a] to-[#1e293b]
-                    border ${isIncome ? 'border-emerald-500/30' : 'border-rose-500/30'}
-                    ${isIncome
-                        ? 'shadow-[0_4px_30px_rgba(16,185,129,0.15),inset_0_1px_0_rgba(255,255,255,0.07)]'
-                        : 'shadow-[0_4px_30px_rgba(244,63,94,0.15),inset_0_1px_0_rgba(255,255,255,0.07)]'}
-                    backdrop-blur-xl`}
+                    className={`glass-panel relative rounded-[22px] overflow-hidden
+                    border ${isIncome ? 'border-emerald-400/40 dark:border-emerald-500/30' : 'border-rose-400/40 dark:border-rose-500/30'}`}
                   >
                     <div className={`absolute top-0 left-0 right-0 h-[2px] ${isIncome ? 'bg-gradient-to-r from-transparent via-emerald-400 to-transparent' : 'bg-gradient-to-r from-transparent via-rose-400 to-transparent'}`} />
-                    <div className={`absolute -top-8 -right-8 w-28 h-28 rounded-full blur-3xl pointer-events-none ${isIncome ? 'bg-emerald-500/20' : 'bg-rose-500/20'}`} />
+                    <div className={`absolute -top-8 -right-8 w-28 h-28 rounded-full blur-3xl pointer-events-none opacity-0 dark:opacity-100 ${isIncome ? 'bg-emerald-500/20' : 'bg-rose-500/20'}`} />
 
                     {/* HEADER */}
                     <div className="relative flex items-center justify-between px-5 pt-4 pb-3">
@@ -123,7 +118,7 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
                         <div className={`w-2 h-2 rounded-full shrink-0 ${isIncome ? 'bg-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.9)]' : 'bg-rose-400 shadow-[0_0_10px_rgba(244,63,94,0.9)]'}`} />
                         <span className={`text-sm font-black tracking-[0.25em] uppercase ${isIncome ? 'text-emerald-400' : 'text-rose-400'}`}>{isIncome ? 'รายรับ' : 'รายจ่าย'}</span>
                       </div>
-                      <span className="text-sm text-white font-bold tracking-wide">{formatThaiDate(t.transaction_date)}</span>
+                      <span className="text-sm text-slate-500 dark:text-white font-bold tracking-wide">{formatThaiDate(t.transaction_date)}</span>
                     </div>
 
                     <div className={`mx-5 h-px ${isIncome ? 'bg-gradient-to-r from-transparent via-emerald-500/30 to-transparent' : 'bg-gradient-to-r from-transparent via-rose-500/30 to-transparent'}`} />
@@ -131,8 +126,8 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
                     {/* BODY */}
                     <div className="relative flex items-center justify-between px-5 py-4">
                       <div className="flex-1 min-w-0 mr-4">
-                        <p className="text-base font-black text-white mb-1.5 truncate tracking-tight">{t.description}</p>
-                        <span className={`text-2xl font-black tracking-tight ${isIncome ? 'text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 to-emerald-500' : 'text-transparent bg-clip-text bg-gradient-to-r from-rose-300 to-rose-500'}`}>
+                        <p className="text-base font-black text-slate-800 dark:text-white mb-1.5 truncate tracking-tight">{t.description}</p>
+                        <span className={`text-2xl font-black tracking-tight ${isIncome ? 'text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-emerald-600 dark:from-emerald-300 dark:to-emerald-500' : 'text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-rose-600 dark:from-rose-300 dark:to-rose-500'}`}>
                           {isIncome ? '+' : '-'}฿{fmt(t.amount)}
                         </span>
                       </div>
@@ -141,9 +136,9 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
                         className={`relative w-16 h-16 rounded-2xl flex-shrink-0 flex items-center justify-center overflow-hidden transition-all duration-300 active:scale-95
                         ${t.image_url
                             ? `cursor-pointer border-2 ${isIncome ? 'border-emerald-500/50 shadow-[0_0_20px_rgba(16,185,129,0.3)]' : 'border-rose-500/50 shadow-[0_0_20px_rgba(244,63,94,0.3)]'}`
-                            : 'border border-white/10 bg-white/5 cursor-default opacity-40'}`}
+                            : 'border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-white/5 cursor-default opacity-40'}`}
                       >
-                        {t.image_url ? <img src={t.image_url} alt="Evidence" className="w-full h-full object-cover" /> : <ImageIcon size={20} className="text-white/30" />}
+                        {t.image_url ? <img src={t.image_url} alt="Evidence" className="w-full h-full object-cover" /> : <ImageIcon size={20} className="text-slate-400 dark:text-white/30" />}
                       </button>
                     </div>
 
@@ -152,13 +147,13 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
                     {/* FOOTER */}
                     <div className="flex items-center justify-between px-5 py-3.5">
                       <div className="flex items-center gap-2 min-w-0 flex-1 mr-2">
-                        <span className="text-white/25 text-[10px] font-black uppercase tracking-widest shrink-0">NOTE</span>
-                        <span className="text-xs text-white/60 font-medium truncate">{t.note || '—'}</span>
+                        <span className="text-slate-400 dark:text-white/25 text-[10px] font-black uppercase tracking-widest shrink-0">NOTE</span>
+                        <span className="text-xs text-slate-500 dark:text-white/60 font-medium truncate">{t.note || '—'}</span>
                       </div>
                       {isLoggedIn && (
                         <div className="flex items-center gap-2 shrink-0">
-                          <button onClick={(e) => { e.stopPropagation(); handleOpenEditTransaction(t); }} className="w-8 h-8 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center text-white/50 hover:text-blue-400 hover:border-blue-500/50 active:scale-95 transition-all"><Edit size={13} /></button>
-                          <button onClick={(e) => { e.stopPropagation(); handleDeleteTransaction(t.id); }} className="w-8 h-8 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center text-white/50 hover:text-rose-400 hover:border-rose-500/50 active:scale-95 transition-all"><Trash2 size={13} /></button>
+                          <button onClick={(e) => { e.stopPropagation(); handleOpenEditTransaction(t); }} className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-white/10 border border-slate-200 dark:border-white/15 flex items-center justify-center text-slate-400 dark:text-white/50 hover:text-blue-500 hover:border-blue-400/50 active:scale-95 transition-all"><Edit size={13} /></button>
+                          <button onClick={(e) => { e.stopPropagation(); handleDeleteTransaction(t.id); }} className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-white/10 border border-slate-200 dark:border-white/15 flex items-center justify-center text-slate-400 dark:text-white/50 hover:text-rose-500 hover:border-rose-400/50 active:scale-95 transition-all"><Trash2 size={13} /></button>
                         </div>
                       )}
                     </div>
@@ -212,7 +207,7 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
       </div>
 
       {/* Yearly Summary Cards */}
-      <div className="grid grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6 mb-8">
 
         <div className="glass-panel glass-panel-hover p-6 rounded-[24px] flex justify-between items-start group relative overflow-hidden animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
           <div className="absolute -right-10 -top-10 w-40 h-40 bg-emerald-500/10 rounded-full blur-3xl group-hover:bg-emerald-500/20 transition-all duration-700"></div>
@@ -221,7 +216,7 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
               <div className="text-slate-500 dark:text-[#94A3B8] text-xs font-black uppercase tracking-[0.15em] whitespace-nowrap">รายรับรวมทั้งปี</div>
             </div>
-            <div className="text-3xl lg:text-4xl font-black text-slate-800 dark:text-white tracking-tight">฿{fmt(reportYearlyIncome)}</div>
+            <div className="text-3xl lg:text-4xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-emerald-700 dark:from-emerald-400 dark:to-emerald-500">฿{fmt(reportYearlyIncome)}</div>
           </div>
           <div className="relative z-10 w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-400/20 to-emerald-600/5 border border-emerald-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-500  shadow-[0_0_15px_rgba(16,185,129,0.1)]">
             <TrendingUp size={24} className="text-emerald-500" />
@@ -235,7 +230,7 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
               <div className="w-1.5 h-1.5 rounded-full bg-rose-500"></div>
               <div className="text-slate-500 dark:text-[#94A3B8] text-xs font-black uppercase tracking-[0.15em] whitespace-nowrap">รายจ่ายรวมทั้งปี</div>
             </div>
-            <div className="text-3xl lg:text-4xl font-black text-slate-800 dark:text-white tracking-tight">฿{fmt(reportYearlyExpense)}</div>
+            <div className="text-3xl lg:text-4xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-rose-700 dark:from-rose-400 dark:to-rose-500">฿{fmt(reportYearlyExpense)}</div>
           </div>
           <div className="relative z-10 w-14 h-14 rounded-2xl bg-gradient-to-br from-rose-400/20 to-rose-600/5 border border-rose-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-500 shadow-[0_0_15px_rgba(244,63,94,0.1)]">
             <TrendingDown size={24} className="text-rose-500" />
@@ -264,7 +259,7 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
               <div className="text-slate-500 dark:text-[#94A3B8] text-xs font-black uppercase tracking-[0.15em] whitespace-nowrap">อัตราการออมสุทธิ</div>
             </div>
             <div className="flex items-baseline gap-1">
-              <div className={`text-3xl lg:text-4xl font-black tracking-tight ${reportSavingsRate >= 0 ? 'text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400' : 'text-rose-500'}`}>{reportSavingsRate > 0 ? '+' : ''}{reportSavingsRate}</div>
+              <div className={`text-3xl lg:text-4xl font-black tracking-tight ${reportSavingsRate >= 0 ? 'text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-cyan-500 dark:from-blue-400 dark:to-cyan-400' : 'text-rose-500'}`}>{reportSavingsRate > 0 ? '+' : ''}{reportSavingsRate}</div>
               <span className="text-lg font-bold text-slate-500">%</span>
             </div>
           </div>
@@ -378,7 +373,7 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
         <p className="text-[10px] md:text-xs text-slate-500 font-bold uppercase tracking-widest mt-1 ml-8 md:ml-9">Monthly Breakdown Panel (คลิกเพื่อดูรายละเอียด)</p>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 pb-12 animate-fade-in-up" style={{ animationDelay: '0.8s' }}>
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 pb-12 animate-fade-in-up" style={{ animationDelay: '0.8s' }}>
         {reportMonthlyStats.map((month, index) => {
           const isCurrentMonth = (index + 1) === currentMonthNum && selectedYear === currentYearNum;
           const hasData = month.income > 0 || month.expense > 0;

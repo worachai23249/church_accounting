@@ -15,7 +15,10 @@ const CATEGORY_COLORS = ['#EF4444', '#F87171', '#F97316', '#EAB308', '#84CC16', 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(() => sessionStorage.getItem('isLoggedIn') === 'true');
   const [showLoginScreen, setShowLoginScreen] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(() => localStorage.getItem('theme') === 'dark' || true);
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    const savedTheme = localStorage.getItem('theme');
+    return savedTheme ? savedTheme === 'dark' : true;
+  });
   const [transactions, setTransactions] = useState([]);
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, id: null, type: '', title: '', message: '' });
   const [successModal, setSuccessModal] = useState({ isOpen: false, title: '', message: '' });
@@ -47,7 +50,12 @@ function App() {
 
   const [loading, setLoading] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [activeMenu, setActiveMenu] = useState('overview');
+  const [activeMenu, setActiveMenu] = useState(() => sessionStorage.getItem('activeMenu') || 'overview');
+
+  useEffect(() => {
+    sessionStorage.setItem('activeMenu', activeMenu);
+  }, [activeMenu]);
+
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isCategoryFormOpen, setIsCategoryFormOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
@@ -180,11 +188,11 @@ function App() {
       {/* Sidebar ล็อกติดหน้าจอ (Hi-Tech Version) & Mobile Drawer */}
       {isMobileMenuOpen && (
         <div
-          className="md:hidden fixed inset-0 bg-slate-900/40 dark:bg-black/40 backdrop-blur-sm z-[90] animate-fade-in"
+          className="lg:hidden fixed inset-0 bg-slate-900/40 dark:bg-black/40 backdrop-blur-sm z-[90] animate-fade-in"
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}
-      <aside className={`w-72 h-full border-r border-slate-200/50 dark:border-white/5 bg-slate-50/95 dark:bg-[#030610]/95 backdrop-blur-2xl flex flex-col justify-between shrink-0 z-[100] shadow-[10px_0_30px_-10px_rgba(0,0,0,0.1)] fixed md:relative transition-transform duration-300 ease-in-out ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'} left-0`}>
+      <aside className={`w-72 h-full border-r border-slate-200/50 dark:border-white/5 bg-slate-50/95 dark:bg-[#030610]/95 backdrop-blur-2xl flex flex-col justify-between shrink-0 z-[100] shadow-[10px_0_30px_-10px_rgba(0,0,0,0.1)] fixed lg:relative transition-transform duration-300 ease-in-out ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'} left-0`}>
         <div>
           <div className="p-8 border-b border-slate-200/50 dark:border-white/5 flex flex-col items-center relative overflow-hidden group">
             <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-blue-500/10 dark:from-blue-600/10 to-transparent pointer-events-none opacity-50 group-hover:opacity-100 transition-opacity duration-700"></div>
@@ -281,32 +289,18 @@ function App() {
         </div>
       </aside>
 
-      {/* Mobile Top Header (Hi-Tech Version) */}
-      <div className="md:hidden fixed top-0 left-0 right-0 h-16 bg-slate-50/90 dark:bg-[#030610]/90 backdrop-blur-xl border-b border-slate-200/50 dark:border-white/5 z-[80] flex items-center justify-between px-4 shadow-sm">
-        <div className="flex items-center space-x-3">
-          <button onClick={() => setIsMobileMenuOpen(true)} className="p-2 -ml-2 text-slate-600 dark:text-slate-300 hover:text-blue-500">
-            <Menu size={24} />
-          </button>
-          <img src="/logo.png" alt="Logo" className="w-8 h-8 object-contain drop-shadow-[0_0_8px_rgba(255,255,255,0.2)]" />
-          <div className="flex flex-col mt-0.5">
-            <span className="text-[10px] uppercase font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-600 dark:from-blue-400 dark:to-purple-500">House of Worship</span>
-          </div>
-        </div>
-        <div className="flex items-center space-x-2">
-          <button onClick={() => setIsDarkMode(!isDarkMode)} className="w-10 h-10 rounded-full bg-slate-200/50 dark:bg-white/5 text-slate-600 dark:text-slate-300 flex items-center justify-center transition-all bg-opacity-50">
-            {isDarkMode ? <Sun size={18} className="text-amber-400 drop-shadow-[0_0_5px_rgba(251,191,36,0.6)]" /> : <Moon size={18} className="text-blue-600 drop-shadow-[0_0_5px_rgba(59,130,246,0.4)]" />}
-          </button>
-          {!isLoggedIn ? (
-            <button onClick={() => setShowLoginScreen(true)} className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center"><Lock size={16} /></button>
-          ) : (
-            <button onClick={() => { sessionStorage.removeItem('isLoggedIn'); setIsLoggedIn(false); setActiveMenu('overview'); }} className="w-10 h-10 rounded-full bg-rose-100 dark:bg-rose-500/20 text-rose-600 dark:text-rose-400 flex items-center justify-center"><LogOut size={16} /></button>
-          )}
-        </div>
+      {/* Mobile Top Header */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-slate-50/90 dark:bg-[#030610]/90 backdrop-blur-xl border-b border-slate-200/50 dark:border-white/5 z-[80] flex items-center px-4 shadow-sm">
+        <button onClick={() => setIsMobileMenuOpen(true)} className="p-2 -ml-2 text-slate-600 dark:text-slate-300 hover:text-blue-500">
+          <Menu size={24} />
+        </button>
+        <img src="/logo.png" alt="Logo" className="w-8 h-8 object-contain ml-2 shrink-0 drop-shadow-[0_0_8px_rgba(255,255,255,0.2)]" />
+        <span className="ml-2 text-[11px] uppercase font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-600 dark:from-blue-400 dark:via-purple-400 dark:to-indigo-500 whitespace-nowrap">The House of Worship and Prayer</span>
       </div>
 
       {/* Main Content */}
-      <main className="flex-1 h-full overflow-y-auto p-4 md:p-8 pt-20 md:pt-8 pb-8 md:pb-8 relative z-10 custom-scrollbar w-full">
-        {activeMenu === 'overview' && <Overview transactions={transactions} categories={categories} formatThaiDate={formatThaiDate} fmt={fmt} handleViewImage={(url) => { setViewImageUrl(url); setIsImageModalOpen(true); }} setActiveMenu={setActiveMenu} />}
+      <main className="flex-1 h-full overflow-y-auto p-4 lg:p-8 pt-20 lg:pt-8 pb-8 lg:pb-8 relative z-10 custom-scrollbar w-full">
+        {activeMenu === 'overview' && <Overview transactions={transactions} categories={categories} formatThaiDate={formatThaiDate} fmt={fmt} handleViewImage={(url) => { setViewImageUrl(url); setIsImageModalOpen(true); }} setActiveMenu={setActiveMenu} isLoggedIn={isLoggedIn} />}
         {activeMenu === 'record' && <Record transactions={transactions} formatThaiDate={formatThaiDate} fmt={fmt} handleViewImage={(url) => { setViewImageUrl(url); setIsImageModalOpen(true); }} handleOpenAddTransaction={handleOpenAddTransaction} handleOpenEditTransaction={handleOpenEditTransaction} handleDeleteTransaction={handleDeleteTransaction} />}
         {activeMenu === 'categories' && <Categories categories={categories} transactions={transactions} handleOpenAddCategory={handleOpenAddCategory} handleOpenEditCategory={handleOpenEditCategory} handleDeleteCategory={handleDeleteCategory} />}
         {activeMenu === 'reports' && <Reports transactions={transactions} categories={categories} fmt={fmt} formatThaiDate={formatThaiDate} handleViewImage={(url) => { setViewImageUrl(url); setIsImageModalOpen(true); }} handleOpenEditTransaction={handleOpenEditTransaction} handleDeleteTransaction={handleDeleteTransaction} isLoggedIn={isLoggedIn} />}

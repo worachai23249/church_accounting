@@ -1,7 +1,9 @@
-import { TrendingUp, TrendingDown, Wallet, Receipt, Image as ImageIcon, Activity } from 'lucide-react';
+import { useState } from 'react';
+import { TrendingUp, TrendingDown, Wallet, Receipt, Image as ImageIcon, Activity, X } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
-export default function Overview({ transactions, categories = [], formatThaiDate, fmt, handleViewImage, setActiveMenu }) {
+export default function Overview({ transactions, categories = [], formatThaiDate, fmt, handleViewImage, setActiveMenu, isLoggedIn }) {
+  const [selectedExpenseCategory, setSelectedExpenseCategory] = useState(null);
   const MONTHS_TH = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
 
   const currentMonthNum = new Date().getMonth() + 1;
@@ -65,7 +67,7 @@ export default function Overview({ transactions, categories = [], formatThaiDate
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
         <div className="glass-panel glass-panel-hover p-4 md:p-6 rounded-[20px] md:rounded-[24px] flex justify-between items-start group relative overflow-hidden animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
           <div className="absolute -right-10 -top-10 w-40 h-40 bg-emerald-500/10 rounded-full blur-3xl group-hover:bg-emerald-500/20 transition-all duration-700 ease-out"></div>
           <div className="relative z-10">
@@ -73,7 +75,7 @@ export default function Overview({ transactions, categories = [], formatThaiDate
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
               <div className="text-slate-500 dark:text-[#94A3B8] text-[10px] md:text-xs font-black uppercase tracking-widest md:tracking-[0.2em]">รายรับ (Income)</div>
             </div>
-            <div className="text-2xl md:text-3xl lg:text-4xl font-black text-slate-800 dark:text-white tracking-tight">฿{fmt(totalIncome)}</div>
+            <div className="text-2xl md:text-3xl lg:text-4xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-emerald-700 dark:from-emerald-400 dark:to-emerald-500">฿{fmt(totalIncome)}</div>
           </div>
           <div className="relative z-10 w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl bg-gradient-to-br from-emerald-400/20 to-emerald-600/5 border border-emerald-500/20 flex items-center justify-center group-hover:scale-110 group-hover:rotate-12 transition-all duration-500">
             <TrendingUp size={18} className="md:w-6 md:h-6 text-emerald-500 drop-shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
@@ -87,7 +89,7 @@ export default function Overview({ transactions, categories = [], formatThaiDate
               <div className="w-1.5 h-1.5 rounded-full bg-rose-500"></div>
               <div className="text-slate-500 dark:text-[#94A3B8] text-[10px] md:text-xs font-black uppercase tracking-widest md:tracking-[0.2em]">รายจ่าย (Expense)</div>
             </div>
-            <div className="text-2xl md:text-3xl lg:text-4xl font-black text-slate-800 dark:text-white tracking-tight">฿{fmt(totalExpense)}</div>
+            <div className="text-2xl md:text-3xl lg:text-4xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-rose-700 dark:from-rose-400 dark:to-rose-500">฿{fmt(totalExpense)}</div>
           </div>
           <div className="relative z-10 w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl bg-gradient-to-br from-rose-400/20 to-rose-600/5 border border-rose-500/20 flex items-center justify-center group-hover:scale-110 group-hover:-rotate-12 transition-all duration-500">
             <TrendingDown size={18} className="md:w-6 md:h-6 text-rose-500 drop-shadow-[0_0_8px_rgba(244,63,94,0.8)]" />
@@ -116,7 +118,7 @@ export default function Overview({ transactions, categories = [], formatThaiDate
               <div className="text-slate-500 dark:text-[#94A3B8] text-[10px] md:text-xs font-black uppercase tracking-widest md:tracking-[0.2em]">รายการทั้งหมด</div>
             </div>
             <div className="flex items-baseline gap-1">
-              <div className="text-2xl md:text-3xl lg:text-4xl font-black text-slate-800 dark:text-white tracking-tight">{transactionCount}</div>
+              <div className="text-2xl md:text-3xl lg:text-4xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-cyan-500 dark:from-blue-400 dark:to-cyan-400">{transactionCount}</div>
               <div className="text-xs text-slate-500 font-bold uppercase tracking-wider">Txns</div>
             </div>
           </div>
@@ -182,12 +184,12 @@ export default function Overview({ transactions, categories = [], formatThaiDate
               <p className="text-[10px] text-slate-500 ml-4 md:ml-5 mt-1 font-bold uppercase tracking-widest">Top Expenses Current Month</p>
             </div>
           </div>
-          <div className="flex-1 flex flex-row items-center relative z-10 gap-2">
-            <div className="w-1/2 h-full relative flex items-center justify-center">
+          <div className="flex-1 flex flex-col sm:flex-row items-center relative z-10 gap-4 sm:gap-2 overflow-hidden pb-2 sm:pb-0">
+            <div className="w-full sm:w-1/2 h-[140px] sm:h-full relative flex items-center justify-center shrink-0">
               {categoryData.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
-                    <Pie data={categoryData} cx="50%" cy="50%" innerRadius={50} outerRadius={85} paddingAngle={6} dataKey="value" stroke="none" cornerRadius={6} animationDuration={1500}>
+                    <Pie data={categoryData} cx="50%" cy="50%" innerRadius={40} outerRadius={70} paddingAngle={6} dataKey="value" stroke="none" cornerRadius={6} animationDuration={1500} onClick={(data) => setSelectedExpenseCategory(data.name)} style={{ cursor: 'pointer' }}>
                       {categoryData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
                     </Pie>
                     <RechartsTooltip content={({ active, payload }) => {
@@ -206,25 +208,65 @@ export default function Overview({ transactions, categories = [], formatThaiDate
               )}
               {categoryData.length > 0 && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                  <span className="text-[9px] font-black uppercase text-slate-500 tracking-[0.15em]">รวมรายจ่าย</span>
-                  <span className="text-base font-black text-slate-800 dark:text-white">{fmt(categoryData.reduce((acc, curr) => acc + curr.value, 0))}</span>
+                  <span className="text-xl font-black text-slate-800 dark:text-white sm:text-2xl">{fmt(categoryData.reduce((acc, curr) => acc + curr.value, 0))}</span>
                 </div>
               )}
+
             </div>
-            <div className="w-1/2 flex flex-col justify-center space-y-2 overflow-y-auto custom-scrollbar pr-1 max-h-full">
+            <div className="w-full sm:w-1/2 flex flex-col justify-start sm:justify-center space-y-2 overflow-y-auto custom-scrollbar pr-1 max-h-full">
               {categoryData.map((entry, index) => (
-                <div key={index} className="flex justify-between items-center p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">
+                <div key={index} onClick={() => setSelectedExpenseCategory(entry.name)} className="flex justify-between items-center p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-white/10 transition-colors cursor-pointer group">
                   <div className="flex items-center space-x-2 flex-1 min-w-0 pr-2">
-                    <span className="w-3 h-3 rounded-md shrink-0" style={{ backgroundColor: entry.color }}></span>
-                    <span className="text-slate-600 dark:text-[#E2E8F0] font-bold text-xs truncate">{entry.name}</span>
+                    <span className="w-3 h-3 rounded-md shrink-0 group-hover:scale-125 transition-transform" style={{ backgroundColor: entry.color }}></span>
+                    <span className="text-slate-600 dark:text-[#E2E8F0] font-bold text-xs truncate group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors">{entry.name}</span>
                   </div>
-                  <span className="font-black text-slate-800 dark:text-white text-xs shrink-0">฿{fmt(entry.value)}</span>
+                  <span className="font-black text-slate-800 dark:text-white text-xs shrink-0 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">฿{fmt(entry.value)}</span>
                 </div>
               ))}
             </div>
           </div>
         </div>
       </div>
+
+      {/* Expense Detail Modal */}
+      {selectedExpenseCategory && (
+        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-slate-900/60 dark:bg-[#030610]/80 backdrop-blur-sm animate-fade-in" onClick={() => setSelectedExpenseCategory(null)}></div>
+          <div className="relative glass-panel w-full max-w-lg rounded-[24px] md:rounded-[32px] overflow-hidden shadow-2xl flex flex-col max-h-[85vh] animate-zoom-in">
+            <div className="flex items-center justify-between p-5 md:p-6 border-b border-slate-200/50 dark:border-white/5 bg-slate-50/50 dark:bg-[#0A101D]/50 backdrop-blur-md">
+              <div className="flex items-center gap-3">
+                <div className="w-3 h-6 rounded-full" style={{ backgroundColor: categories.find(c => c.name === selectedExpenseCategory)?.color || '#94A3B8' }}></div>
+                <div>
+                  <h3 className="text-lg md:text-xl font-black text-slate-800 dark:text-white tracking-tight">{selectedExpenseCategory}</h3>
+                  <p className="text-xs text-slate-500 font-bold uppercase tracking-widest mt-0.5">Expense Details</p>
+                </div>
+              </div>
+              <button onClick={() => setSelectedExpenseCategory(null)} className="w-10 h-10 rounded-full bg-slate-200/50 dark:bg-white/5 flex items-center justify-center text-slate-500 hover:text-rose-500 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all">
+                <X size={18} />
+              </button>
+            </div>
+            <div className="p-4 md:p-6 overflow-y-auto custom-scrollbar flex-1 space-y-3">
+              {currentMonthTransactions.filter(t => t.type === 'EXPENSE' && (t.description === selectedExpenseCategory || (!t.description && selectedExpenseCategory === 'อื่นๆ'))).map((t, idx) => (
+                <div key={idx} className="flex flex-col p-4 rounded-2xl bg-slate-50 dark:bg-white/[0.02] border border-slate-200 dark:border-white/5 hover:border-slate-300 dark:hover:border-white/10 transition-colors">
+                  <div className="flex justify-between items-start mb-2">
+                    <span className="text-sm font-black text-slate-800 dark:text-white">{formatThaiDate(t.transaction_date)}</span>
+                    <span className="font-black text-rose-500 text-lg tracking-tight">-฿{fmt(t.amount)}</span>
+                  </div>
+                  {t.note && (
+                    <div className="flex gap-2">
+                      <span className="text-[10px] uppercase font-black tracking-widest text-slate-400 dark:text-slate-500 shrink-0 mt-0.5">NOTE:</span>
+                      <p className="text-xs font-medium text-slate-600 dark:text-white/70">{t.note}</p>
+                    </div>
+                  )}
+                </div>
+              ))}
+              {currentMonthTransactions.filter(t => t.type === 'EXPENSE' && (t.description === selectedExpenseCategory || (!t.description && selectedExpenseCategory === 'อื่นๆ'))).length === 0 && (
+                <div className="text-center py-8 text-slate-500 font-black tracking-widest text-sm uppercase">ไม่มีรายการ</div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Recent Transactions — Card on mobile, Table on desktop */}
       <div className="glass-panel rounded-[24px] md:rounded-[32px] overflow-hidden animate-fade-in-up flex flex-col" style={{ animationDelay: '0.7s' }}>
@@ -236,26 +278,23 @@ export default function Overview({ transactions, categories = [], formatThaiDate
               <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">Recent Transactions History</p>
             </div>
           </div>
-          <button onClick={() => setActiveMenu('record')} className="px-4 py-2 rounded-full bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 text-xs font-black uppercase tracking-wider hover:bg-blue-500 hover:text-white transition-all duration-300 border border-transparent hover:border-blue-400 shadow-sm whitespace-nowrap">
-            ดูทั้งหมด
-          </button>
+          {isLoggedIn && (
+            <button onClick={() => setActiveMenu('record')} className="px-4 py-2 rounded-full bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 text-xs font-black uppercase tracking-wider hover:bg-blue-500 hover:text-white transition-all duration-300 border border-transparent hover:border-blue-400 shadow-sm whitespace-nowrap">
+              ดูทั้งหมด
+            </button>
+          )}
         </div>
 
         {/* Premium Card Grid — All screens */}
         <div className="px-3 pb-4 pt-1 grid grid-cols-1 md:grid-cols-2 gap-3">
-          {transactions.slice(0, 8).map((tx) => {
+          {transactions.slice(0, 6).map((tx) => {
             const isIncome = tx.type === 'INCOME';
             const accentColor = isIncome ? 'emerald' : 'rose';
             return (
               <div
                 key={tx.id}
-                className={`relative rounded-[22px] overflow-hidden
-                  bg-gradient-to-br from-[#0f172a] to-[#1e293b]
-                  border ${isIncome ? 'border-emerald-500/30' : 'border-rose-500/30'}
-                  ${isIncome
-                    ? 'shadow-[0_4px_30px_rgba(16,185,129,0.15),inset_0_1px_0_rgba(255,255,255,0.07)]'
-                    : 'shadow-[0_4px_30px_rgba(244,63,94,0.15),inset_0_1px_0_rgba(255,255,255,0.07)]'}
-                  backdrop-blur-xl`}
+                className={`glass-panel relative rounded-[22px] overflow-hidden
+                  border ${isIncome ? 'border-emerald-400/40 dark:border-emerald-500/30' : 'border-rose-400/40 dark:border-rose-500/30'}`}
               >
                 {/* Top shimmer accent line */}
                 <div className={`absolute top-0 left-0 right-0 h-[2px] ${isIncome
@@ -272,11 +311,11 @@ export default function Overview({ transactions, categories = [], formatThaiDate
                       ? 'bg-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.9)]'
                       : 'bg-rose-400 shadow-[0_0_10px_rgba(244,63,94,0.9)]'}`}
                     />
-                    <span className={`text-sm font-black tracking-[0.25em] uppercase ${isIncome ? 'text-emerald-400' : 'text-rose-400'}`}>
+                    <span className={`text-sm font-black tracking-[0.25em] uppercase ${isIncome ? 'text-emerald-500 dark:text-emerald-400' : 'text-rose-500 dark:text-rose-400'}`}>
                       {isIncome ? 'รายรับ' : 'รายจ่าย'}
                     </span>
                   </div>
-                  <span className="text-sm text-white font-bold tracking-wide">
+                  <span className="text-sm text-slate-500 dark:text-white font-bold tracking-wide">
                     {formatThaiDate(tx.transaction_date)}
                   </span>
                 </div>
@@ -291,12 +330,12 @@ export default function Overview({ transactions, categories = [], formatThaiDate
                 <div className="relative flex items-center justify-between px-5 py-4">
                   {/* Left: category & amount */}
                   <div className="flex-1 min-w-0 mr-4">
-                    <p className="text-base font-black text-white mb-1.5 truncate tracking-tight">
+                    <p className="text-base font-black text-slate-800 dark:text-white mb-1.5 truncate tracking-tight">
                       {tx.description}
                     </p>
                     <span className={`text-2xl font-black tracking-tight ${isIncome
-                      ? 'text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 to-emerald-500'
-                      : 'text-transparent bg-clip-text bg-gradient-to-r from-rose-300 to-rose-500'}`}
+                      ? 'text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-emerald-600 dark:from-emerald-300 dark:to-emerald-500'
+                      : 'text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-rose-600 dark:from-rose-300 dark:to-rose-500'}`}
                     >
                       {isIncome ? '+' : '-'}฿{fmt(tx.amount)}
                     </span>
@@ -307,11 +346,11 @@ export default function Overview({ transactions, categories = [], formatThaiDate
                     className={`relative w-16 h-16 rounded-2xl flex-shrink-0 flex items-center justify-center overflow-hidden transition-all duration-300 active:scale-95
                       ${tx.image_url
                         ? `cursor-pointer border-2 ${isIncome ? 'border-emerald-500/50 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)]' : 'border-rose-500/50 shadow-[0_0_20px_rgba(244,63,94,0.3)] hover:shadow-[0_0_30px_rgba(244,63,94,0.5)]'}`
-                        : 'border border-white/10 bg-white/5 cursor-default opacity-40'}`}
+                        : 'border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-white/5 cursor-default opacity-40'}`}
                   >
                     {tx.image_url
                       ? <img src={tx.image_url} alt="Receipt" className="w-full h-full object-cover" />
-                      : <ImageIcon size={20} className="text-white/30" />
+                      : <ImageIcon size={20} className="text-slate-400 dark:text-white/30" />
                     }
                   </button>
                 </div>
@@ -325,16 +364,18 @@ export default function Overview({ transactions, categories = [], formatThaiDate
                 {/* ─── FOOTER: หมายเหตุ + ดูทั้งหมด ─── */}
                 <div className="flex items-center justify-between px-5 py-3.5">
                   <div className="flex items-center gap-2 min-w-0 flex-1 mr-2">
-                    <span className="text-white/25 text-[10px] font-black uppercase tracking-widest shrink-0">NOTE</span>
-                    <span className="text-xs text-white/60 font-medium truncate">{tx.note || '—'}</span>
+                    <span className="text-slate-400 dark:text-white/25 text-[10px] font-black uppercase tracking-widest shrink-0">NOTE</span>
+                    <span className="text-xs text-slate-500 dark:text-white/60 font-medium truncate">{tx.note || '—'}</span>
                   </div>
-                  <button
-                    onClick={() => setActiveMenu('record')}
-                    className="flex items-center gap-1 text-[11px] font-black text-cyan-400 hover:text-cyan-300 active:scale-95 transition-all shrink-0 drop-shadow-[0_0_8px_rgba(34,211,238,0.6)]"
-                  >
-                    ดูทั้งหมด
-                    <span className="text-[10px]">→</span>
-                  </button>
+                  {isLoggedIn && (
+                    <button
+                      onClick={() => setActiveMenu('record')}
+                      className="flex items-center gap-1 text-[11px] font-black text-indigo-500 dark:text-cyan-400 hover:text-indigo-600 dark:hover:text-cyan-300 active:scale-95 transition-all shrink-0"
+                    >
+                      ดูทั้งหมด
+                      <span className="text-[10px]">→</span>
+                    </button>
+                  )}
                 </div>
               </div>
             );
