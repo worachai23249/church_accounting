@@ -38,7 +38,8 @@
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    @apply bg-blue-500 rounded-full shadow-[0_0_10px_rgba(59, 130, 246, 0.5)];
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+    background-color: rgb(59 130 246);
   }
 }
 
@@ -144,11 +145,20 @@
   }
 
   .glass-panel {
-    @apply bg-white/70 dark:bg-[#0B1121]/60 backdrop-blur-2xl border border-white/20 dark:border-white/5 shadow-[0_8px_32px_0_rgba(31, 38, 135, 0.07)] dark:shadow-[0_8px_32px_0_rgba(0, 0, 0, 0.5)];
+    @apply bg-white/70 dark:bg-[#0B1121]/60 backdrop-blur-2xl border border-white/20 dark:border-white/5;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+  }
+
+  .dark .glass-panel {
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
   }
 
   .glass-panel-hover {
-    @apply transition-all duration-500 hover:shadow-[0_10px_40px_-5px_rgba(59, 130, 246, 0.3)] hover:border-blue-500/40 hover:-translate-y-1 hover:bg-white/90 dark:hover:bg-[#0B1121]/90;
+    @apply transition-all duration-500 hover:border-blue-500/40 hover:-translate-y-1 hover:bg-white/90 dark:hover:bg-[#0B1121]/90;
+  }
+
+  .glass-panel-hover:hover {
+    box-shadow: 0 10px 40px -5px rgba(59, 130, 246, 0.3);
   }
 
   .text-glow {

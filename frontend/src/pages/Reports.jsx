@@ -46,19 +46,16 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
   if (selectedMonthDetail) {
     return (
       <div className="max-w-7xl mx-auto pb-20 mt-4 xl:mt-0 font-sans">
-        {/* Header section with Glass Back Button */}
-        <div className="mb-10 relative animate-fade-in-up">
+        {/* Header */}
+        <div className="mb-8 relative animate-fade-in-up">
           <div className="absolute -left-6 -top-6 w-24 h-24 bg-blue-500/20 rounded-full blur-2xl animate-pulse-glow"></div>
-          <div className="flex flex-col md:flex-row items-start md:items-center space-y-4 md:space-y-0 md:space-x-6 relative z-10">
-            <button
-              onClick={() => setSelectedMonthDetail(null)}
-              className="w-12 h-12 md:w-14 md:h-14 bg-white/70 dark:bg-[#0B1121]/60 backdrop-blur-md border border-white/20 dark:border-white/5 rounded-full flex items-center justify-center text-slate-500 dark:text-[#94A3B8] hover:text-blue-500 dark:hover:text-blue-400 hover:scale-110 hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:-translate-x-2 transition-all duration-300 shrink-0"
-            >
-              <ArrowLeft size={20} className="md:w-6 md:h-6" />
+          <div className="flex items-center gap-4 relative z-10">
+            <button onClick={() => setSelectedMonthDetail(null)} className="w-11 h-11 md:w-14 md:h-14 bg-white/70 dark:bg-[#0B1121]/60 backdrop-blur-md border border-white/20 dark:border-white/5 rounded-full flex items-center justify-center text-slate-500 dark:text-[#94A3B8] hover:text-blue-500 hover:scale-110 transition-all duration-300 shrink-0">
+              <ArrowLeft size={18} className="md:w-6 md:h-6" />
             </button>
             <div>
-              <h1 className="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 tracking-tighter drop-shadow-sm pb-2 mb-1">รายละเอียดประจำเดือน</h1>
-              <p className="text-slate-500 dark:text-[#94A3B8] text-[10px] md:text-xs font-bold tracking-[0.2em] uppercase flex items-center gap-2">
+              <h1 className="text-2xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 tracking-tighter drop-shadow-sm pb-1">รายละเอียดประจำเดือน</h1>
+              <p className="text-slate-500 dark:text-[#94A3B8] text-[10px] font-bold tracking-[0.2em] uppercase flex items-center gap-2">
                 <Activity size={12} className="text-blue-500" />
                 {detailMonthName} {selectedYear}
               </p>
@@ -67,114 +64,109 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
         </div>
 
         {/* Detailed Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-          <div className="glass-panel glass-panel-hover p-8 rounded-[28px] flex flex-col justify-center relative overflow-hidden group">
-            <div className="absolute -right-8 -top-8 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl group-hover:bg-emerald-500/20 transition-all duration-700"></div>
-            <div className="flex items-center gap-2 mb-3 relative z-10">
-              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
-              <span className="text-slate-500 dark:text-[#94A3B8] text-[10px] font-black uppercase tracking-[0.2em]">รายรับรวม</span>
+        <div className="grid grid-cols-3 gap-3 md:gap-6 mb-8 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+          <div className="glass-panel p-4 md:p-8 rounded-[20px] md:rounded-[28px] flex flex-col justify-center relative overflow-hidden group">
+            <div className="flex items-center gap-1.5 mb-2 relative z-10">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></div>
+              <span className="text-slate-500 dark:text-[#94A3B8] text-[10px] md:text-xs font-black uppercase tracking-[0.15em]">รายรับรวม</span>
             </div>
-            <span className="text-4xl xl:text-5xl font-black text-emerald-500 tracking-tight drop-shadow-sm relative z-10">+{fmt(detailIncome)}</span>
+            <span className="text-xl md:text-4xl xl:text-5xl font-black text-emerald-500 tracking-tight drop-shadow-sm relative z-10">+{fmt(detailIncome)}</span>
           </div>
-
-          <div className="glass-panel glass-panel-hover p-8 rounded-[28px] flex flex-col justify-center relative overflow-hidden group">
-            <div className="absolute -right-8 -top-8 w-32 h-32 bg-rose-500/10 rounded-full blur-3xl group-hover:bg-rose-500/20 transition-all duration-700"></div>
-            <div className="flex items-center gap-2 mb-3 relative z-10">
-              <div className="w-1.5 h-1.5 rounded-full bg-rose-500"></div>
-              <span className="text-slate-500 dark:text-[#94A3B8] text-[10px] font-black uppercase tracking-[0.2em]">รายจ่ายรวม</span>
+          <div className="glass-panel p-4 md:p-8 rounded-[20px] md:rounded-[28px] flex flex-col justify-center relative overflow-hidden group">
+            <div className="flex items-center gap-1.5 mb-2 relative z-10">
+              <div className="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0"></div>
+              <span className="text-slate-500 dark:text-[#94A3B8] text-[10px] md:text-xs font-black uppercase tracking-[0.15em]">รายจ่ายรวม</span>
             </div>
-            <span className="text-4xl xl:text-5xl font-black text-rose-500 tracking-tight drop-shadow-sm relative z-10">-{fmt(detailExpense)}</span>
+            <span className="text-xl md:text-4xl xl:text-5xl font-black text-rose-500 tracking-tight drop-shadow-sm relative z-10">-{fmt(detailExpense)}</span>
           </div>
-
-          <div className="glass-panel glass-panel-hover p-8 rounded-[28px] flex flex-col justify-center relative overflow-hidden group bg-gradient-to-br from-blue-50/50 to-purple-50/50 dark:from-[#0B1121]/80 dark:to-[#131C31]/80">
-            <div className="absolute -right-8 -top-8 w-32 h-32 bg-violet-500/10 rounded-full blur-3xl group-hover:bg-violet-500/20 transition-all duration-700"></div>
-            <div className="flex items-center gap-2 mb-3 relative z-10">
-              <div className={`w-1.5 h-1.5 rounded-full ${detailBalance >= 0 ? 'bg-violet-500' : 'bg-rose-500'}`}></div>
-              <span className="text-slate-500 dark:text-[#94A3B8] text-[10px] font-black uppercase tracking-[0.2em]">คงเหลือสุทธิ (Net)</span>
+          <div className="glass-panel p-4 md:p-8 rounded-[20px] md:rounded-[28px] flex flex-col justify-center relative overflow-hidden group">
+            <div className="flex items-center gap-1.5 mb-2 relative z-10">
+              <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${detailBalance >= 0 ? 'bg-violet-500' : 'bg-rose-500'}`}></div>
+              <span className="text-slate-500 dark:text-[#94A3B8] text-[10px] md:text-xs font-black uppercase tracking-[0.15em]">คงเหลือ</span>
             </div>
-            <span className={`text-4xl xl:text-5xl font-black tracking-tight drop-shadow-sm relative z-10 ${detailBalance >= 0 ? 'text-transparent bg-clip-text bg-gradient-to-r from-violet-500 to-fuchsia-500' : 'text-rose-500'}`}>
-              ฿{fmt(detailBalance)}
-            </span>
+            <span className={`text-xl md:text-4xl xl:text-5xl font-black tracking-tight drop-shadow-sm relative z-10 ${detailBalance >= 0 ? 'text-transparent bg-clip-text bg-gradient-to-r from-violet-500 to-fuchsia-500' : 'text-rose-500'}`}>฿{fmt(detailBalance)}</span>
           </div>
         </div>
 
-        {/* Details Table */}
-        <div className="glass-panel rounded-[32px] overflow-hidden animate-fade-in-up flex flex-col" style={{ animationDelay: '0.2s' }}>
-          <div className="px-8 py-6 border-b border-slate-200/50 dark:border-white/10 flex justify-between items-center bg-slate-50/50 dark:bg-[#0B1121]/50 backdrop-blur-md">
-            <div className="flex items-center gap-3">
-              <div className="w-2 h-6 bg-gradient-to-b from-blue-400 to-purple-600 rounded-full"></div>
-              <h3 className="text-lg font-black text-slate-800 dark:text-white tracking-tight">รายการธุรกรรมเดือน {detailMonthName}</h3>
+        {/* Premium Card Grid — All screens */}
+        <div className="glass-panel rounded-[28px] overflow-hidden animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+          <div className="px-5 py-4 border-b border-slate-200/50 dark:border-white/10 flex items-center gap-3 bg-slate-50/50 dark:bg-[#0B1121]/50">
+            <div className="w-1.5 h-5 bg-gradient-to-b from-blue-400 to-purple-600 rounded-full"></div>
+            <h3 className="text-base font-black text-slate-800 dark:text-white">รายการเดือน {detailMonthName}</h3>
+          </div>
+          {detailTransactions.length === 0 ? (
+            <div className="p-10 flex flex-col items-center text-slate-400 space-y-3">
+              <div className="w-14 h-14 rounded-full border-2 border-dashed border-slate-300 dark:border-[#334155] flex items-center justify-center"><Activity size={18} /></div>
+              <span className="text-xs font-black uppercase tracking-widest">No Transactions in {detailMonthName}</span>
             </div>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-center border-collapse min-w-[900px] table-fixed">
-              <thead>
-                <tr className="bg-transparent text-slate-500 dark:text-[#94A3B8] text-[11px] font-black uppercase tracking-[0.15em] border-b border-slate-200/50 dark:border-white/5">
-                  <th className="p-6 font-medium text-center">วันที่ (DATE)</th>
-                  <th className="p-6 font-medium text-center">หมวดหมู่ (CATEGORY)</th>
-                  <th className="p-6 font-medium text-center">ประเภท (TYPE)</th>
-                  <th className="p-6 font-medium text-center">หมายเหตุ (NOTES)</th>
-                  <th className="p-6 font-medium text-center">จำนวนเงิน (AMOUNT)</th>
-                  <th className="p-6 font-medium text-center">หลักฐาน (RECEIPT)</th>
-                  {isLoggedIn && <th className="p-6 font-medium text-center">จัดการ (ACTION)</th>}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100/50 dark:divide-white/5">
-                {detailTransactions.map((t) => {
-                  const isIncome = t.type === 'INCOME';
-                  return (
-                    <tr key={t.id} className="hover:bg-white/60 dark:hover:bg-white/5 transition-colors duration-200 group">
-                      <td className="p-6 text-center overflow-hidden">
-                        <div className="text-sm font-bold text-slate-600 dark:text-[#CBD5E1] whitespace-nowrap inline-block">{formatThaiDate(t.transaction_date)}</div>
-                      </td>
-                      <td className="p-6 text-center overflow-hidden">
-                        <div className="inline-flex items-center justify-center gap-3 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-[#1E293B]/50 border border-slate-200/50 dark:border-white/5 mx-auto">
-                          <span className={`w-2 h-2 rounded-full ${isIncome ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]' : 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.8)]'}`}></span>
-                          <span className="text-xs font-bold text-slate-700 dark:text-[#E2E8F0]">{t.description}</span>
-                        </div>
-                      </td>
-                      <td className="p-6 text-center overflow-hidden">
-                        <span className={`inline-flex items-center justify-center px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-[0.15em] border ${isIncome ? 'bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 dark:border-emerald-400/40 shadow-[0_0_15px_rgba(16,185,129,0.3)] dark:shadow-[0_0_20px_rgba(16,185,129,0.4)]' : 'bg-rose-500/10 dark:bg-rose-500/20 text-rose-600 dark:text-rose-400 border-rose-500/30 dark:border-rose-400/40 shadow-[0_0_15px_rgba(244,63,94,0.3)] dark:shadow-[0_0_20px_rgba(244,63,94,0.4)]'} mx-auto`}>
-                          {isIncome ? 'รายรับ' : 'รายจ่าย'}
-                        </span>
-                      </td>
-                      <td className="p-6 text-center overflow-hidden">
-                        <div className="text-sm text-slate-500 dark:text-[#94A3B8] line-clamp-1 truncate mx-auto max-w-[200px]">{t.note || '-'}</div>
-                      </td>
-                      <td className="p-6 text-center overflow-hidden">
-                        <div className={`text-base font-black tracking-tight whitespace-nowrap inline-block ${isIncome ? 'text-emerald-500 text-glow-emerald' : 'text-rose-500'}`}>
-                          ฿{fmt(t.amount)}
-                        </div>
-                      </td>
-                      <td className="p-6 text-center overflow-hidden">
-                        <button onClick={(e) => { e.stopPropagation(); t.image_url && handleViewImage(t.image_url); }} className={`relative z-10 w-10 h-10 mx-auto rounded-[12px] bg-white dark:bg-[#060A13] border border-slate-200 dark:border-[#1E293B] overflow-hidden flex items-center justify-center transition-all duration-300 group/btn ${t.image_url ? 'cursor-pointer hover:scale-110 hover:border-blue-500 hover:shadow-[0_0_15px_rgba(59,130,246,0.3)]' : 'opacity-40 cursor-default'}`}>
-                          {t.image_url ? (
-                            <><img src={t.image_url} alt="Evidence" className="w-full h-full object-cover group-hover/btn:scale-110 transition-transform duration-500" /><div className="absolute inset-0 bg-black/40 opacity-0 group-hover/btn:opacity-100 flex items-center justify-center transition-opacity duration-300"><ImageIcon size={14} className="text-white" /></div></>
-                          ) : (<ImageIcon size={14} className="text-slate-400" />)}
-                        </button>
-                      </td>
-                      {isLoggedIn && (
-                        <td className="p-6 text-center relative z-20">
-                          <div className="flex items-center justify-center space-x-3 transition-opacity duration-300 mx-auto w-max relative z-20">
-                            <button onClick={(e) => { e.stopPropagation(); handleOpenEditTransaction(t); }} className="w-9 h-9 rounded-[10px] bg-white dark:bg-[#1E293B] border border-slate-200 dark:border-[#334155] shadow-sm hover:border-blue-500 dark:hover:border-blue-500 flex items-center justify-center text-slate-400 hover:text-blue-500 hover:-translate-y-1 transition-all cursor-pointer relative z-30"><Edit size={14} /></button>
-                            <button onClick={(e) => { e.stopPropagation(); handleDeleteTransaction(t.id); }} className="w-9 h-9 rounded-[10px] bg-white dark:bg-[#1E293B] border border-slate-200 dark:border-[#334155] shadow-sm hover:border-rose-500 dark:hover:border-rose-500 flex items-center justify-center text-slate-400 hover:text-rose-500 hover:-translate-y-1 transition-all cursor-pointer relative z-30"><Trash2 size={14} /></button>
-                          </div>
-                        </td>
-                      )}
-                    </tr>
-                  );
-                })}
-                {detailTransactions.length === 0 && (
-                  <tr><td colSpan={isLoggedIn ? "7" : "6"} className="p-16 text-center">
-                    <div className="flex flex-col items-center justify-center text-slate-400 dark:text-[#64748B] space-y-3">
-                      <div className="w-16 h-16 rounded-full border-2 border-dashed border-slate-300 dark:border-[#334155] flex items-center justify-center"><Activity size={20} /></div>
-                      <span className="text-xs font-black uppercase tracking-widest block">No Transactions in {detailMonthName}</span>
+          ) : (
+            <div className="px-3 pb-3 pt-1 grid grid-cols-1 md:grid-cols-2 gap-3">
+              {detailTransactions.map((t) => {
+                const isIncome = t.type === 'INCOME';
+                return (
+                  <div
+                    key={t.id}
+                    className={`relative rounded-[22px] overflow-hidden
+                    bg-gradient-to-br from-[#0f172a] to-[#1e293b]
+                    border ${isIncome ? 'border-emerald-500/30' : 'border-rose-500/30'}
+                    ${isIncome
+                        ? 'shadow-[0_4px_30px_rgba(16,185,129,0.15),inset_0_1px_0_rgba(255,255,255,0.07)]'
+                        : 'shadow-[0_4px_30px_rgba(244,63,94,0.15),inset_0_1px_0_rgba(255,255,255,0.07)]'}
+                    backdrop-blur-xl`}
+                  >
+                    <div className={`absolute top-0 left-0 right-0 h-[2px] ${isIncome ? 'bg-gradient-to-r from-transparent via-emerald-400 to-transparent' : 'bg-gradient-to-r from-transparent via-rose-400 to-transparent'}`} />
+                    <div className={`absolute -top-8 -right-8 w-28 h-28 rounded-full blur-3xl pointer-events-none ${isIncome ? 'bg-emerald-500/20' : 'bg-rose-500/20'}`} />
+
+                    {/* HEADER */}
+                    <div className="relative flex items-center justify-between px-5 pt-4 pb-3">
+                      <div className="flex items-center gap-2.5">
+                        <div className={`w-2 h-2 rounded-full shrink-0 ${isIncome ? 'bg-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.9)]' : 'bg-rose-400 shadow-[0_0_10px_rgba(244,63,94,0.9)]'}`} />
+                        <span className={`text-sm font-black tracking-[0.25em] uppercase ${isIncome ? 'text-emerald-400' : 'text-rose-400'}`}>{isIncome ? 'รายรับ' : 'รายจ่าย'}</span>
+                      </div>
+                      <span className="text-sm text-white font-bold tracking-wide">{formatThaiDate(t.transaction_date)}</span>
                     </div>
-                  </td></tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+
+                    <div className={`mx-5 h-px ${isIncome ? 'bg-gradient-to-r from-transparent via-emerald-500/30 to-transparent' : 'bg-gradient-to-r from-transparent via-rose-500/30 to-transparent'}`} />
+
+                    {/* BODY */}
+                    <div className="relative flex items-center justify-between px-5 py-4">
+                      <div className="flex-1 min-w-0 mr-4">
+                        <p className="text-base font-black text-white mb-1.5 truncate tracking-tight">{t.description}</p>
+                        <span className={`text-2xl font-black tracking-tight ${isIncome ? 'text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 to-emerald-500' : 'text-transparent bg-clip-text bg-gradient-to-r from-rose-300 to-rose-500'}`}>
+                          {isIncome ? '+' : '-'}฿{fmt(t.amount)}
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => t.image_url && handleViewImage(t.image_url)}
+                        className={`relative w-16 h-16 rounded-2xl flex-shrink-0 flex items-center justify-center overflow-hidden transition-all duration-300 active:scale-95
+                        ${t.image_url
+                            ? `cursor-pointer border-2 ${isIncome ? 'border-emerald-500/50 shadow-[0_0_20px_rgba(16,185,129,0.3)]' : 'border-rose-500/50 shadow-[0_0_20px_rgba(244,63,94,0.3)]'}`
+                            : 'border border-white/10 bg-white/5 cursor-default opacity-40'}`}
+                      >
+                        {t.image_url ? <img src={t.image_url} alt="Evidence" className="w-full h-full object-cover" /> : <ImageIcon size={20} className="text-white/30" />}
+                      </button>
+                    </div>
+
+                    <div className={`mx-5 h-px ${isIncome ? 'bg-gradient-to-r from-transparent via-emerald-500/20 to-transparent' : 'bg-gradient-to-r from-transparent via-rose-500/20 to-transparent'}`} />
+
+                    {/* FOOTER */}
+                    <div className="flex items-center justify-between px-5 py-3.5">
+                      <div className="flex items-center gap-2 min-w-0 flex-1 mr-2">
+                        <span className="text-white/25 text-[10px] font-black uppercase tracking-widest shrink-0">NOTE</span>
+                        <span className="text-xs text-white/60 font-medium truncate">{t.note || '—'}</span>
+                      </div>
+                      {isLoggedIn && (
+                        <div className="flex items-center gap-2 shrink-0">
+                          <button onClick={(e) => { e.stopPropagation(); handleOpenEditTransaction(t); }} className="w-8 h-8 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center text-white/50 hover:text-blue-400 hover:border-blue-500/50 active:scale-95 transition-all"><Edit size={13} /></button>
+                          <button onClick={(e) => { e.stopPropagation(); handleDeleteTransaction(t.id); }} className="w-8 h-8 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center text-white/50 hover:text-rose-400 hover:border-rose-500/50 active:scale-95 transition-all"><Trash2 size={13} /></button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
     );
@@ -182,7 +174,7 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
 
   // --- Main Reports View ---
   return (
-    <div className="max-w-7xl mx-auto pb-20 mt-4 xl:mt-0 font-sans animate-fade-in">
+    <div className="max-w-7xl mx-auto pb-20 mt-4 xl:mt-0 font-sans animate-fade-in" id="reports-main">
 
       {/* Header section with Year Selector */}
       <div className="mb-10 relative">
@@ -220,14 +212,14 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
       </div>
 
       {/* Yearly Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-10">
+      <div className="grid grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6 mb-8">
 
         <div className="glass-panel glass-panel-hover p-6 rounded-[24px] flex justify-between items-start group relative overflow-hidden animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
           <div className="absolute -right-10 -top-10 w-40 h-40 bg-emerald-500/10 rounded-full blur-3xl group-hover:bg-emerald-500/20 transition-all duration-700"></div>
           <div className="relative z-10">
             <div className="flex items-center gap-2 mb-3">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
-              <div className="text-slate-500 dark:text-[#94A3B8] text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap">รายรับรวมทั้งปี</div>
+              <div className="text-slate-500 dark:text-[#94A3B8] text-xs font-black uppercase tracking-[0.15em] whitespace-nowrap">รายรับรวมทั้งปี</div>
             </div>
             <div className="text-3xl lg:text-4xl font-black text-slate-800 dark:text-white tracking-tight">฿{fmt(reportYearlyIncome)}</div>
           </div>
@@ -241,7 +233,7 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
           <div className="relative z-10">
             <div className="flex items-center gap-2 mb-3">
               <div className="w-1.5 h-1.5 rounded-full bg-rose-500"></div>
-              <div className="text-slate-500 dark:text-[#94A3B8] text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap">รายจ่ายรวมทั้งปี</div>
+              <div className="text-slate-500 dark:text-[#94A3B8] text-xs font-black uppercase tracking-[0.15em] whitespace-nowrap">รายจ่ายรวมทั้งปี</div>
             </div>
             <div className="text-3xl lg:text-4xl font-black text-slate-800 dark:text-white tracking-tight">฿{fmt(reportYearlyExpense)}</div>
           </div>
@@ -255,7 +247,7 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
           <div className="relative z-10">
             <div className="flex items-center gap-2 mb-3">
               <div className={`w-1.5 h-1.5 rounded-full ${reportYearlyBalance >= 0 ? 'bg-violet-500' : 'bg-rose-500'}`}></div>
-              <div className="text-slate-500 dark:text-[#94A3B8] text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap">ยอดคงเหลือสุทธิปีนี้</div>
+              <div className="text-slate-500 dark:text-[#94A3B8] text-xs font-black uppercase tracking-[0.15em] whitespace-nowrap">ยอดคงเหลือสุทธิปีนี้</div>
             </div>
             <div className={`text-3xl lg:text-4xl font-black tracking-tight ${reportYearlyBalance >= 0 ? 'text-transparent bg-clip-text bg-gradient-to-r from-violet-500 to-fuchsia-500' : 'text-rose-500'}`}>฿{fmt(reportYearlyBalance)}</div>
           </div>
@@ -269,7 +261,7 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
           <div className="relative z-10">
             <div className="flex items-center gap-2 mb-3">
               <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></div>
-              <div className="text-slate-500 dark:text-[#94A3B8] text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap">อัตราการออมสุทธิ</div>
+              <div className="text-slate-500 dark:text-[#94A3B8] text-xs font-black uppercase tracking-[0.15em] whitespace-nowrap">อัตราการออมสุทธิ</div>
             </div>
             <div className="flex items-baseline gap-1">
               <div className={`text-3xl lg:text-4xl font-black tracking-tight ${reportSavingsRate >= 0 ? 'text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400' : 'text-rose-500'}`}>{reportSavingsRate > 0 ? '+' : ''}{reportSavingsRate}</div>
@@ -284,10 +276,10 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
       </div>
 
       {/* Main Charts area */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 mb-12">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-10">
 
         {/* Area Chart: Income vs Expense Trend */}
-        <div className="glass-panel p-8 rounded-[32px] h-[450px] flex flex-col relative animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
+        <div className="glass-panel p-5 md:p-8 rounded-[24px] md:rounded-[32px] h-[300px] md:h-[450px] flex flex-col relative animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
           <div className="absolute top-0 right-0 w-[80%] h-full bg-gradient-to-l from-blue-500/5 to-transparent pointer-events-none rounded-r-[32px]"></div>
           <div className="mb-8 relative z-10">
             <h3 className="text-xl font-black text-slate-800 dark:text-white tracking-tight flex items-center gap-3">
@@ -336,7 +328,7 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
         </div>
 
         {/* Bar Chart: Monthly Balances */}
-        <div className="glass-panel p-8 rounded-[32px] h-[450px] flex flex-col relative animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
+        <div className="glass-panel p-5 md:p-8 rounded-[24px] md:rounded-[32px] h-[300px] md:h-[450px] flex flex-col relative animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
           <div className="absolute top-0 left-0 w-[80%] h-full bg-gradient-to-r from-purple-500/5 to-transparent pointer-events-none rounded-l-[32px]"></div>
           <div className="mb-8 relative z-10">
             <h3 className="text-xl font-black text-slate-800 dark:text-white tracking-tight flex items-center gap-3">
@@ -379,14 +371,14 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
       </div>
 
       {/* Monthly Summary Grids (12 Cards) */}
-      <div className="mb-8 mt-12 md:mt-0 relative animate-fade-in-up" style={{ animationDelay: '0.7s' }}>
+      <div className="mb-6 mt-8 md:mt-0 relative animate-fade-in-up" style={{ animationDelay: '0.7s' }}>
         <h3 className="text-xl md:text-2xl font-black text-slate-800 dark:text-white tracking-tight flex items-center gap-3">
           <LineChart className="text-blue-500 md:w-6 md:h-6" size={20} /> สรุปละเอียดรายเดือน
         </h3>
         <p className="text-[10px] md:text-xs text-slate-500 font-bold uppercase tracking-widest mt-1 ml-8 md:ml-9">Monthly Breakdown Panel (คลิกเพื่อดูรายละเอียด)</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 pb-12 animate-fade-in-up" style={{ animationDelay: '0.8s' }}>
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 pb-12 animate-fade-in-up" style={{ animationDelay: '0.8s' }}>
         {reportMonthlyStats.map((month, index) => {
           const isCurrentMonth = (index + 1) === currentMonthNum && selectedYear === currentYearNum;
           const hasData = month.income > 0 || month.expense > 0;
