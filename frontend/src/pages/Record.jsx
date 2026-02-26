@@ -1,13 +1,118 @@
-import { useState } from 'react';
-import { Plus, Edit, Trash2, Image as ImageIcon, Database, Filter } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { Plus, Edit, Trash2, Image as ImageIcon, Database, Filter, Download, Upload, FileSpreadsheet } from 'lucide-react';
+import Papa from 'papaparse';
 
 export default function Record({ transactions, formatThaiDate, fmt, handleViewImage, handleOpenAddTransaction, handleOpenEditTransaction, handleDeleteTransaction }) {
   const [filterType, setFilterType] = useState('ALL');
+  const fileInputRef = useRef(null);
 
   const filteredTransactions = transactions.filter(t => {
     if (filterType === 'ALL') return true;
     return t.type === filterType;
   });
+
+  // ========== ฟังก์ชัน Export ข้อมูล (ดาวน์โหลดเป็น CSV) ==========
+  const handleExportCSV = () => {
+    if (filteredTransactions.length === 0) {
+      alert("ไม่มีข้อมูลที่จะส่งออก");
+      return;
+    }
+
+    // แปลงข้อมูลเพื่อส่งออก (เอาพวก ID หรือ Field ที่ไม่จำเป็นออก)
+    const exportData = filteredTransactions.map(t => ({
+      วันที่: new Date(t.transaction_date).toLocaleDateString('th-TH'),
+      ประเภท: t.type === 'INCOME' ? 'รายรับ' : 'รายจ่าย',
+      หมวดหมู่: t.description,
+      จำนวนเงิน: Number(t.amount).toFixed(2),
+      หมายเหตุ: t.note || '',
+      รูปภาพ: t.image_url ? '[มีรูปภาพแนบ]' : '-'
+    }));
+
+    // แปลง Object เป็นโครงสร้าง CSV (รองรับภาษาไทย)
+    const csv = Papa.unparse(exportData);
+    // เติม BOM เพื่อให้ Excel ภาษาไทยอ่านออก ไม่เป็นต่างดาว
+    const csvData = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
+
+    // สร้างลิงก์ลับเพื่อสั่งให้เบราว์เซอร์ดาวน์โหลด
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(csvData);
+    link.setAttribute('download', `worship_data_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  // ========== ฟังก์ชัน Import ข้อมูล (อัปโหลดจาก CSV) ==========
+  const handleImportCSV = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: (results) => {
+        const data = results.data;
+        if (data.length === 0) {
+          alert("ไม่พบข้อมูลในไฟล์ หรือไฟล์ผิดรูปแบบ");
+          return;
+        }
+
+        // แปลงหัวตารางภาษาไทยกลับเป็นรูปแบบที่ฐานข้อมูลเราต้องการ
+        const formattedData = data.map(row => {
+          // พยายามแปลงวันที่ให้เป็น YYYY-MM-DD
+          let dateStr = row['วันที่'] || new Date().toISOString().split('T')[0];
+          // เผื่อคนพิมพ์วันที่ไทยมา เช่น 28/2/2569
+          if (dateStr.includes('/')) {
+            const parts = dateStr.split('/');
+            if (parts.length === 3) {
+              // สมมติว่ารูปแบบเป็น DD/MM/YYYY(ค.ศ.) แต่ถ้าเป็น พ.ศ. เอามาลบ 543
+              let year = parseInt(parts[2]);
+              if (year > 2500) year -= 543;
+              dateStr = `${year}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+            }
+          }
+
+          return {
+            transaction_date: dateStr,
+            type: row['ประเภท'] === 'รายรับ' ? 'INCOME' : 'EXPENSE',
+            description: row['หมวดหมู่'] || 'Uncategorized',
+            amount: parseFloat(row['จำนวนเงิน']?.toString().replace(/,/g, '') || 0),
+            note: row['หมายเหตุ'] || '',
+            image_url: null // ไม่รองรับการนำเข้ารูปจาก Excel เพราะยาวเกินไป
+          };
+        });
+
+        // ส่งข้อมูลทั้งก้อนไปให้ Backend ทีเดียว
+        fetch('/church_api/add_transaction.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formattedData)
+        })
+          .then(res => res.json())
+          .then(resData => {
+            if (resData.status === 'success') {
+              alert(resData.message);
+              // สั่งให้ App.jsx ดึงข้อมูลใหม่
+              if (handleOpenAddTransaction) { // Hack trick to trigger refresh by reopening and closing edit modal temporarily or we can just send a reload event via props 
+                window.location.reload(); // เร็วที่สุดคือรีเฟรชไปเลย
+              }
+            } else {
+              alert("เกิดข้อผิดพลาด: " + resData.message);
+            }
+          })
+          .catch(err => {
+            console.error(err);
+            alert("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
+          });
+
+        // ล้างอินพุตเพื่อให้เลือกไฟล์เดิมใหม่ได้ถ้ามีแก้
+        e.target.value = null;
+      },
+      error: (error) => {
+        alert("อ่านไฟล์ไม่สำเร็จ: " + error.message);
+      }
+    });
+  };
 
   return (
     <div className="max-w-7xl mx-auto pb-20 mt-4 xl:mt-0">
@@ -22,14 +127,23 @@ export default function Record({ transactions, formatThaiDate, fmt, handleViewIm
               บันทึกการเงินและรายการทั้งหมด
             </p>
           </div>
-          <button
-            onClick={handleOpenAddTransaction}
-            className="group relative flex items-center justify-center space-x-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white px-6 py-3.5 rounded-full font-black text-sm uppercase tracking-widest transition-all duration-300 shadow-[0_0_20px_rgba(79,70,229,0.4)] hover:shadow-[0_0_30px_rgba(79,70,229,0.6)] hover:-translate-y-1 active:scale-95 overflow-hidden w-full md:w-auto"
-          >
-            <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-in-out"></div>
-            <Plus size={18} className="group-hover:rotate-90 transition-transform duration-300 relative z-10" />
-            <span className="relative z-10">บันทึกรายการ</span>
-          </button>
+          <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto mt-4 md:mt-0">
+            <button
+              onClick={handleExportCSV}
+              className="group relative flex items-center justify-center space-x-2 bg-white hover:bg-slate-50 border border-slate-200 dark:border-white/10 dark:bg-white/10 dark:hover:bg-white/20 text-slate-700 dark:text-white px-5 py-3.5 md:py-3 rounded-full font-black text-xs uppercase tracking-widest transition-all duration-300 active:scale-95 shadow-sm"
+            >
+              <Download size={16} className="text-blue-400 group-hover:translate-y-1 transition-transform duration-300" />
+              <span>ส่งออก</span>
+            </button>
+            <button
+              onClick={handleOpenAddTransaction}
+              className="group relative flex items-center justify-center space-x-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white px-6 py-3.5 md:py-3 rounded-full font-black text-sm uppercase tracking-widest transition-all duration-300 shadow-[0_0_20px_rgba(79,70,229,0.4)] hover:shadow-[0_0_30px_rgba(79,70,229,0.6)] hover:-translate-y-1 active:scale-95 overflow-hidden w-full md:w-auto"
+            >
+              <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-in-out"></div>
+              <Plus size={18} className="group-hover:rotate-90 transition-transform duration-300 relative z-10" />
+              <span className="relative z-10">บันทึกรายการ</span>
+            </button>
+          </div>
         </div>
       </div>
 

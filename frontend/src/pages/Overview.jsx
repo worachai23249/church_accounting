@@ -4,6 +4,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip,
 
 export default function Overview({ transactions, categories = [], formatThaiDate, fmt, handleViewImage, setActiveMenu, isLoggedIn }) {
   const [selectedExpenseCategory, setSelectedExpenseCategory] = useState(null);
+  const [selectedIncomeCategory, setSelectedIncomeCategory] = useState(null);
   const MONTHS_TH = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
 
   const currentMonthNum = new Date().getMonth() + 1;
@@ -26,9 +27,8 @@ export default function Overview({ transactions, categories = [], formatThaiDate
       const [, month] = t.transaction_date.split('-');
       const monthName = MONTHS_TH[parseInt(month) - 1];
       if (t.type === 'INCOME') md[monthName].income += parseFloat(t.amount);
-      else md[monthName].expense += parseFloat(t.amount);
     });
-    return Object.values(md).slice(0, 6);
+    return Object.values(md).slice(0, 12);
   })();
 
   const categoryData = (() => {
@@ -42,6 +42,20 @@ export default function Overview({ transactions, categories = [], formatThaiDate
     return Object.keys(ed).map(key => {
       const cat = categories.find(c => c.name === key);
       return { name: key, value: ed[key], color: cat ? cat.color : '#94A3B8' };
+    }).sort((a, b) => b.value - a.value);
+  })();
+
+  const incomeCategoryData = (() => {
+    const id = {};
+    currentMonthTransactions.forEach(t => {
+      if (t.type === 'INCOME') {
+        const desc = t.description || 'อื่นๆ';
+        id[desc] = (id[desc] || 0) + parseFloat(t.amount);
+      }
+    });
+    return Object.keys(id).map(key => {
+      const cat = categories.find(c => c.name === key);
+      return { name: key, value: id[key], color: cat ? cat.color : '#34D399' };
     }).sort((a, b) => b.value - a.value);
   })();
 
@@ -129,16 +143,16 @@ export default function Overview({ transactions, categories = [], formatThaiDate
       </div>
 
       {/* Charts Section */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 md:gap-8 mb-8 md:mb-10">
+      <div className="flex flex-col gap-6 md:gap-8 mb-8 md:mb-10">
         {/* Bar Chart */}
-        <div className="glass-panel p-5 md:p-8 rounded-[24px] md:rounded-[32px] h-[320px] md:h-[450px] flex flex-col relative animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
+        <div className="glass-panel p-5 md:p-8 rounded-[24px] md:rounded-[32px] h-[320px] md:h-[450px] flex flex-col relative animate-fade-in-up w-full" style={{ animationDelay: '0.5s' }}>
           <div className="flex items-center justify-between mb-5 relative z-10">
             <div>
               <h3 className="text-base md:text-xl font-black text-slate-800 dark:text-white tracking-tight flex items-center gap-2 md:gap-3">
                 <span className="w-1.5 md:w-2 h-5 md:h-6 bg-gradient-to-b from-blue-400 to-blue-600 rounded-full"></span>
-                รายรับ-รายจ่าย 6 เดือนล่าสุด
+                รายรับ-รายจ่าย 12 เดือนล่าสุด
               </h3>
-              <p className="text-[10px] text-slate-500 ml-4 md:ml-5 mt-1 font-bold uppercase tracking-widest">Financial Trend (6 Months)</p>
+              <p className="text-[10px] text-slate-500 ml-4 md:ml-5 mt-1 font-bold uppercase tracking-widest">Financial Trend (12 Months)</p>
             </div>
           </div>
           <div className="flex-1 w-full relative z-10">
@@ -173,100 +187,200 @@ export default function Overview({ transactions, categories = [], formatThaiDate
           </div>
         </div>
 
-        {/* Pie Chart */}
-        <div className="glass-panel p-5 md:p-8 rounded-[24px] md:rounded-[32px] h-[320px] md:h-[450px] flex flex-col relative animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
-          <div className="flex items-center justify-between mb-4 relative z-10">
-            <div>
-              <h3 className="text-base md:text-xl font-black text-slate-800 dark:text-white tracking-tight flex items-center gap-2 md:gap-3">
-                <span className="w-1.5 md:w-2 h-5 md:h-6 bg-gradient-to-b from-purple-400 to-purple-600 rounded-full"></span>
-                สัดส่วนรายจ่าย (Expense Ratio)
-              </h3>
-              <p className="text-[10px] text-slate-500 ml-4 md:ml-5 mt-1 font-bold uppercase tracking-widest">Top Expenses Current Month</p>
+        {/* Pie Charts Grid */}
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 md:gap-8">
+          {/* Income Pie Chart */}
+          <div className="glass-panel p-5 md:p-8 rounded-[24px] md:rounded-[32px] h-[320px] md:h-[450px] flex flex-col relative animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
+            <div className="flex items-center justify-between mb-4 relative z-10">
+              <div>
+                <h3 className="text-base md:text-xl font-black text-slate-800 dark:text-white tracking-tight flex items-center gap-2 md:gap-3">
+                  <span className="w-1.5 md:w-2 h-5 md:h-6 bg-gradient-to-b from-emerald-400 to-emerald-600 rounded-full"></span>
+                  สัดส่วนรายรับ (Income Ratio)
+                </h3>
+                <p className="text-[10px] text-slate-500 ml-4 md:ml-5 mt-1 font-bold uppercase tracking-widest">Top Income Current Month</p>
+              </div>
+            </div>
+            <div className="flex-1 flex flex-col sm:flex-row items-center relative z-10 gap-4 sm:gap-2 overflow-hidden pb-2 sm:pb-0">
+              <div className="w-full sm:w-1/2 h-[140px] sm:h-full relative flex items-center justify-center shrink-0">
+                {incomeCategoryData.length > 0 ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie data={incomeCategoryData} cx="50%" cy="50%" innerRadius={40} outerRadius={70} paddingAngle={6} dataKey="value" stroke="none" cornerRadius={6} animationDuration={1500} onClick={(data) => setSelectedIncomeCategory(data.name)} style={{ cursor: 'pointer' }}>
+                        {incomeCategoryData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
+                      </Pie>
+                      <RechartsTooltip content={({ active, payload }) => {
+                        if (active && payload && payload.length) {
+                          return (<div className="bg-[#0F172A]/90 backdrop-blur-xl border border-white/10 py-3 px-4 rounded-2xl flex items-center gap-3"><div className="w-3 h-3 rounded-full" style={{ backgroundColor: payload[0].payload.color }}></div><span className="text-slate-200 font-bold text-xs">{payload[0].name}: <span className="font-black text-white ml-1">฿{fmt(payload[0].value)}</span></span></div>);
+                        }
+                        return null;
+                      }} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="flex flex-col items-center justify-center text-slate-400 space-y-3">
+                    <div className="w-16 h-16 rounded-full border-4 border-dashed border-slate-300 dark:border-[#334155] animate-spin-slow"></div>
+                    <span className="text-xs font-black uppercase tracking-widest">No Data</span>
+                  </div>
+                )}
+                {incomeCategoryData.length > 0 && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                    <span className="text-xl font-black text-slate-800 dark:text-white sm:text-2xl">{fmt(incomeCategoryData.reduce((acc, curr) => acc + curr.value, 0))}</span>
+                  </div>
+                )}
+              </div>
+              <div className="w-full sm:w-1/2 flex flex-col justify-start sm:justify-center space-y-2 overflow-y-auto custom-scrollbar pr-1 max-h-full">
+                {incomeCategoryData.map((entry, index) => (
+                  <div key={index} onClick={() => setSelectedIncomeCategory(entry.name)} className="flex justify-between items-center p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-white/10 transition-colors cursor-pointer group">
+                    <div className="flex items-center space-x-2 flex-1 min-w-0 pr-2">
+                      <span className="w-3 h-3 rounded-md shrink-0 group-hover:scale-125 transition-transform" style={{ backgroundColor: entry.color }}></span>
+                      <span className="text-slate-600 dark:text-[#E2E8F0] font-bold text-xs truncate group-hover:text-emerald-500 dark:group-hover:text-emerald-400 transition-colors">{entry.name}</span>
+                    </div>
+                    <span className="font-black text-slate-800 dark:text-white text-xs shrink-0 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">฿{fmt(entry.value)}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-          <div className="flex-1 flex flex-col sm:flex-row items-center relative z-10 gap-4 sm:gap-2 overflow-hidden pb-2 sm:pb-0">
-            <div className="w-full sm:w-1/2 h-[140px] sm:h-full relative flex items-center justify-center shrink-0">
-              {categoryData.length > 0 ? (
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie data={categoryData} cx="50%" cy="50%" innerRadius={40} outerRadius={70} paddingAngle={6} dataKey="value" stroke="none" cornerRadius={6} animationDuration={1500} onClick={(data) => setSelectedExpenseCategory(data.name)} style={{ cursor: 'pointer' }}>
-                      {categoryData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
-                    </Pie>
-                    <RechartsTooltip content={({ active, payload }) => {
-                      if (active && payload && payload.length) {
-                        return (<div className="bg-[#0F172A]/90 backdrop-blur-xl border border-white/10 py-3 px-4 rounded-2xl flex items-center gap-3"><div className="w-3 h-3 rounded-full" style={{ backgroundColor: payload[0].payload.color }}></div><span className="text-slate-200 font-bold text-xs">{payload[0].name}: <span className="font-black text-white ml-1">฿{fmt(payload[0].value)}</span></span></div>);
-                      }
-                      return null;
-                    }} />
-                  </PieChart>
-                </ResponsiveContainer>
-              ) : (
-                <div className="flex flex-col items-center justify-center text-slate-400 space-y-3">
-                  <div className="w-16 h-16 rounded-full border-4 border-dashed border-slate-300 dark:border-[#334155] animate-spin-slow"></div>
-                  <span className="text-xs font-black uppercase tracking-widest">No Data</span>
-                </div>
-              )}
-              {categoryData.length > 0 && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                  <span className="text-xl font-black text-slate-800 dark:text-white sm:text-2xl">{fmt(categoryData.reduce((acc, curr) => acc + curr.value, 0))}</span>
-                </div>
-              )}
 
+          {/* Expense Pie Chart */}
+          <div className="glass-panel p-5 md:p-8 rounded-[24px] md:rounded-[32px] h-[320px] md:h-[450px] flex flex-col relative animate-fade-in-up" style={{ animationDelay: '0.7s' }}>
+            <div className="flex items-center justify-between mb-4 relative z-10">
+              <div>
+                <h3 className="text-base md:text-xl font-black text-slate-800 dark:text-white tracking-tight flex items-center gap-2 md:gap-3">
+                  <span className="w-1.5 md:w-2 h-5 md:h-6 bg-gradient-to-b from-purple-400 to-purple-600 rounded-full"></span>
+                  สัดส่วนรายจ่าย (Expense Ratio)
+                </h3>
+                <p className="text-[10px] text-slate-500 ml-4 md:ml-5 mt-1 font-bold uppercase tracking-widest">Top Expenses Current Month</p>
+              </div>
             </div>
-            <div className="w-full sm:w-1/2 flex flex-col justify-start sm:justify-center space-y-2 overflow-y-auto custom-scrollbar pr-1 max-h-full">
-              {categoryData.map((entry, index) => (
-                <div key={index} onClick={() => setSelectedExpenseCategory(entry.name)} className="flex justify-between items-center p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-white/10 transition-colors cursor-pointer group">
-                  <div className="flex items-center space-x-2 flex-1 min-w-0 pr-2">
-                    <span className="w-3 h-3 rounded-md shrink-0 group-hover:scale-125 transition-transform" style={{ backgroundColor: entry.color }}></span>
-                    <span className="text-slate-600 dark:text-[#E2E8F0] font-bold text-xs truncate group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors">{entry.name}</span>
+            <div className="flex-1 flex flex-col sm:flex-row items-center relative z-10 gap-4 sm:gap-2 overflow-hidden pb-2 sm:pb-0">
+              <div className="w-full sm:w-1/2 h-[140px] sm:h-full relative flex items-center justify-center shrink-0">
+                {categoryData.length > 0 ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie data={categoryData} cx="50%" cy="50%" innerRadius={40} outerRadius={70} paddingAngle={6} dataKey="value" stroke="none" cornerRadius={6} animationDuration={1500} onClick={(data) => setSelectedExpenseCategory(data.name)} style={{ cursor: 'pointer' }}>
+                        {categoryData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
+                      </Pie>
+                      <RechartsTooltip content={({ active, payload }) => {
+                        if (active && payload && payload.length) {
+                          return (<div className="bg-[#0F172A]/90 backdrop-blur-xl border border-white/10 py-3 px-4 rounded-2xl flex items-center gap-3"><div className="w-3 h-3 rounded-full" style={{ backgroundColor: payload[0].payload.color }}></div><span className="text-slate-200 font-bold text-xs">{payload[0].name}: <span className="font-black text-white ml-1">฿{fmt(payload[0].value)}</span></span></div>);
+                        }
+                        return null;
+                      }} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="flex flex-col items-center justify-center text-slate-400 space-y-3">
+                    <div className="w-16 h-16 rounded-full border-4 border-dashed border-slate-300 dark:border-[#334155] animate-spin-slow"></div>
+                    <span className="text-xs font-black uppercase tracking-widest">No Data</span>
                   </div>
-                  <span className="font-black text-slate-800 dark:text-white text-xs shrink-0 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">฿{fmt(entry.value)}</span>
-                </div>
-              ))}
+                )}
+                {categoryData.length > 0 && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                    <span className="text-xl font-black text-slate-800 dark:text-white sm:text-2xl">{fmt(categoryData.reduce((acc, curr) => acc + curr.value, 0))}</span>
+                  </div>
+                )}
+
+              </div>
+              <div className="w-full sm:w-1/2 flex flex-col justify-start sm:justify-center space-y-2 overflow-y-auto custom-scrollbar pr-1 max-h-full">
+                {categoryData.map((entry, index) => (
+                  <div key={index} onClick={() => setSelectedExpenseCategory(entry.name)} className="flex justify-between items-center p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-white/10 transition-colors cursor-pointer group">
+                    <div className="flex items-center space-x-2 flex-1 min-w-0 pr-2">
+                      <span className="w-3 h-3 rounded-md shrink-0 group-hover:scale-125 transition-transform" style={{ backgroundColor: entry.color }}></span>
+                      <span className="text-slate-600 dark:text-[#E2E8F0] font-bold text-xs truncate group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors">{entry.name}</span>
+                    </div>
+                    <span className="font-black text-slate-800 dark:text-white text-xs shrink-0 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">฿{fmt(entry.value)}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       {/* Expense Detail Modal */}
-      {selectedExpenseCategory && (
-        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-slate-900/60 dark:bg-[#030610]/80 backdrop-blur-sm animate-fade-in" onClick={() => setSelectedExpenseCategory(null)}></div>
-          <div className="relative glass-panel w-full max-w-lg rounded-[24px] md:rounded-[32px] overflow-hidden shadow-2xl flex flex-col max-h-[85vh] animate-zoom-in">
-            <div className="flex items-center justify-between p-5 md:p-6 border-b border-slate-200/50 dark:border-white/5 bg-slate-50/50 dark:bg-[#0A101D]/50 backdrop-blur-md">
-              <div className="flex items-center gap-3">
-                <div className="w-3 h-6 rounded-full" style={{ backgroundColor: categories.find(c => c.name === selectedExpenseCategory)?.color || '#94A3B8' }}></div>
-                <div>
-                  <h3 className="text-lg md:text-xl font-black text-slate-800 dark:text-white tracking-tight">{selectedExpenseCategory}</h3>
-                  <p className="text-xs text-slate-500 font-bold uppercase tracking-widest mt-0.5">Expense Details</p>
-                </div>
-              </div>
-              <button onClick={() => setSelectedExpenseCategory(null)} className="w-10 h-10 rounded-full bg-slate-200/50 dark:bg-white/5 flex items-center justify-center text-slate-500 hover:text-rose-500 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all">
-                <X size={18} />
-              </button>
-            </div>
-            <div className="p-4 md:p-6 overflow-y-auto custom-scrollbar flex-1 space-y-3">
-              {currentMonthTransactions.filter(t => t.type === 'EXPENSE' && (t.description === selectedExpenseCategory || (!t.description && selectedExpenseCategory === 'อื่นๆ'))).map((t, idx) => (
-                <div key={idx} className="flex flex-col p-4 rounded-2xl bg-slate-50 dark:bg-white/[0.02] border border-slate-200 dark:border-white/5 hover:border-slate-300 dark:hover:border-white/10 transition-colors">
-                  <div className="flex justify-between items-start mb-2">
-                    <span className="text-sm font-black text-slate-800 dark:text-white">{formatThaiDate(t.transaction_date)}</span>
-                    <span className="font-black text-rose-500 text-lg tracking-tight">-฿{fmt(t.amount)}</span>
+      {
+        selectedExpenseCategory && (
+          <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-slate-900/60 dark:bg-[#030610]/80 backdrop-blur-sm animate-fade-in" onClick={() => setSelectedExpenseCategory(null)}></div>
+            <div className="relative glass-panel w-full max-w-lg rounded-[24px] md:rounded-[32px] overflow-hidden shadow-2xl flex flex-col max-h-[85vh] animate-zoom-in">
+              <div className="flex items-center justify-between p-5 md:p-6 border-b border-slate-200/50 dark:border-white/5 bg-slate-50/50 dark:bg-[#0A101D]/50 backdrop-blur-md">
+                <div className="flex items-center gap-3">
+                  <div className="w-3 h-6 rounded-full" style={{ backgroundColor: categories.find(c => c.name === selectedExpenseCategory)?.color || '#94A3B8' }}></div>
+                  <div>
+                    <h3 className="text-lg md:text-xl font-black text-slate-800 dark:text-white tracking-tight">{selectedExpenseCategory}</h3>
+                    <p className="text-xs text-slate-500 font-bold uppercase tracking-widest mt-0.5">Expense Details</p>
                   </div>
-                  {t.note && (
-                    <div className="flex gap-2">
-                      <span className="text-[10px] uppercase font-black tracking-widest text-slate-400 dark:text-slate-500 shrink-0 mt-0.5">NOTE:</span>
-                      <p className="text-xs font-medium text-slate-600 dark:text-white/70">{t.note}</p>
-                    </div>
-                  )}
                 </div>
-              ))}
-              {currentMonthTransactions.filter(t => t.type === 'EXPENSE' && (t.description === selectedExpenseCategory || (!t.description && selectedExpenseCategory === 'อื่นๆ'))).length === 0 && (
-                <div className="text-center py-8 text-slate-500 font-black tracking-widest text-sm uppercase">ไม่มีรายการ</div>
-              )}
+                <button onClick={() => setSelectedExpenseCategory(null)} className="w-10 h-10 rounded-full bg-slate-200/50 dark:bg-white/5 flex items-center justify-center text-slate-500 hover:text-rose-500 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all">
+                  <X size={18} />
+                </button>
+              </div>
+              <div className="p-4 md:p-6 overflow-y-auto custom-scrollbar flex-1 space-y-3">
+                {currentMonthTransactions.filter(t => t.type === 'EXPENSE' && (t.description === selectedExpenseCategory || (!t.description && selectedExpenseCategory === 'อื่นๆ'))).map((t, idx) => (
+                  <div key={idx} className="flex flex-col p-4 rounded-2xl bg-slate-50 dark:bg-white/[0.02] border border-slate-200 dark:border-white/5 hover:border-slate-300 dark:hover:border-white/10 transition-colors">
+                    <div className="flex justify-between items-start mb-2">
+                      <span className="text-sm font-black text-slate-800 dark:text-white">{formatThaiDate(t.transaction_date)}</span>
+                      <span className="font-black text-rose-500 text-lg tracking-tight">-฿{fmt(t.amount)}</span>
+                    </div>
+                    {t.note && (
+                      <div className="flex gap-2">
+                        <span className="text-[10px] uppercase font-black tracking-widest text-slate-400 dark:text-slate-500 shrink-0 mt-0.5">NOTE:</span>
+                        <p className="text-xs font-medium text-slate-600 dark:text-white/70">{t.note}</p>
+                      </div>
+                    )}
+                  </div>
+                ))}
+                {currentMonthTransactions.filter(t => t.type === 'EXPENSE' && (t.description === selectedExpenseCategory || (!t.description && selectedExpenseCategory === 'อื่นๆ'))).length === 0 && (
+                  <div className="text-center py-8 text-slate-500 font-black tracking-widest text-sm uppercase">ไม่มีรายการ</div>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )
+      }
+
+      {/* Income Detail Modal */}
+      {
+        selectedIncomeCategory && (
+          <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-slate-900/60 dark:bg-[#030610]/80 backdrop-blur-sm animate-fade-in" onClick={() => setSelectedIncomeCategory(null)}></div>
+            <div className="relative glass-panel w-full max-w-lg rounded-[24px] md:rounded-[32px] overflow-hidden shadow-2xl flex flex-col max-h-[85vh] animate-zoom-in">
+              <div className="flex items-center justify-between p-5 md:p-6 border-b border-slate-200/50 dark:border-white/5 bg-slate-50/50 dark:bg-[#0A101D]/50 backdrop-blur-md">
+                <div className="flex items-center gap-3">
+                  <div className="w-3 h-6 rounded-full" style={{ backgroundColor: categories.find(c => c.name === selectedIncomeCategory)?.color || '#34D399' }}></div>
+                  <div>
+                    <h3 className="text-lg md:text-xl font-black text-slate-800 dark:text-white tracking-tight">{selectedIncomeCategory}</h3>
+                    <p className="text-xs text-slate-500 font-bold uppercase tracking-widest mt-0.5">Income Details</p>
+                  </div>
+                </div>
+                <button onClick={() => setSelectedIncomeCategory(null)} className="w-10 h-10 rounded-full bg-slate-200/50 dark:bg-white/5 flex items-center justify-center text-slate-500 hover:text-emerald-500 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 transition-all">
+                  <X size={18} />
+                </button>
+              </div>
+              <div className="p-4 md:p-6 overflow-y-auto custom-scrollbar flex-1 space-y-3">
+                {currentMonthTransactions.filter(t => t.type === 'INCOME' && (t.description === selectedIncomeCategory || (!t.description && selectedIncomeCategory === 'อื่นๆ'))).map((t, idx) => (
+                  <div key={idx} className="flex flex-col p-4 rounded-2xl bg-slate-50 dark:bg-white/[0.02] border border-slate-200 dark:border-white/5 hover:border-slate-300 dark:hover:border-white/10 transition-colors">
+                    <div className="flex justify-between items-start mb-2">
+                      <span className="text-sm font-black text-slate-800 dark:text-white">{formatThaiDate(t.transaction_date)}</span>
+                      <span className="font-black text-emerald-500 text-lg tracking-tight">+฿{fmt(t.amount)}</span>
+                    </div>
+                    {t.note && (
+                      <div className="flex gap-2">
+                        <span className="text-[10px] uppercase font-black tracking-widest text-slate-400 dark:text-slate-500 shrink-0 mt-0.5">NOTE:</span>
+                        <p className="text-xs font-medium text-slate-600 dark:text-white/70">{t.note}</p>
+                      </div>
+                    )}
+                  </div>
+                ))}
+                {currentMonthTransactions.filter(t => t.type === 'INCOME' && (t.description === selectedIncomeCategory || (!t.description && selectedIncomeCategory === 'อื่นๆ'))).length === 0 && (
+                  <div className="text-center py-8 text-slate-500 font-black tracking-widest text-sm uppercase">ไม่มีรายการ</div>
+                )}
+              </div>
+            </div>
+          </div>
+        )
+      }
 
       {/* Recent Transactions — Card on mobile, Table on desktop */}
       <div className="glass-panel rounded-[24px] md:rounded-[32px] overflow-hidden animate-fade-in-up flex flex-col" style={{ animationDelay: '0.7s' }}>

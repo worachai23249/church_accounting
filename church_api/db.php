@@ -1,9 +1,9 @@
 <?php
 // ไฟล์ db.php สำหรับเชื่อมต่อ MySQL ด้วย PDO
-$host = "localhost";
-$dbname = "church_accounting";
-$username = "root"; // ใส่ username ของฐานข้อมูล (ค่าเริ่มต้น xampp คือ root)
-$password = "";     // ใส่รหัสผ่าน (ค่าเริ่มต้น xampp คือ ปล่อยว่าง)
+$host = "sql211.infinityfree.com";
+$dbname = "if0_40693934_church_db";
+$username = "if0_40693934"; // ใส่ username ของฐานข้อมูล (ค่าเริ่มต้น xampp คือ root)
+$password = "FABYtPKCRAGLi";     // ใส่รหัสผ่าน (ค่าเริ่มต้น xampp คือ ปล่อยว่าง)
 
 try {
     $conn = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);

@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { ChevronLeft, ChevronRight, TrendingUp, TrendingDown, Wallet, Activity, ArrowLeft, Edit, Trash2, Image as ImageIcon, PieChart as PieIcon, LineChart } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { ChevronLeft, ChevronRight, TrendingUp, TrendingDown, Wallet, Activity, ArrowLeft, Edit, Trash2, Image as ImageIcon, PieChart as PieIcon, LineChart, Download, Upload } from 'lucide-react';
+import Papa from 'papaparse';
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Cell, ReferenceLine } from 'recharts';
 
 const MONTHS_TH = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
@@ -11,6 +12,7 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
 
   const [selectedYear, setSelectedYear] = useState(currentYearNum);
   const [selectedMonthDetail, setSelectedMonthDetail] = useState(null);
+  const fileInputRef = useRef(null);
 
   const reportTransactions = transactions.filter(t => t.transaction_date.startsWith(selectedYear.toString()));
   const reportYearlyIncome = reportTransactions.filter(t => t.type === 'INCOME').reduce((sum, t) => sum + parseFloat(t.amount), 0);
@@ -42,6 +44,96 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
     detailTransactions.sort((a, b) => new Date(b.transaction_date) - new Date(a.transaction_date));
   }
 
+  // ========== ฟังก์ชัน Export ข้อมูล (ดาวน์โหลดเป็น CSV) ==========
+  const handleExportCSV = (dataToExport, filenamePrefix) => {
+    if (!dataToExport || dataToExport.length === 0) {
+      alert("ไม่มีข้อมูลที่จะส่งออก");
+      return;
+    }
+
+    const exportData = dataToExport.map(t => ({
+      วันที่: new Date(t.transaction_date).toLocaleDateString('th-TH'),
+      ประเภท: t.type === 'INCOME' ? 'รายรับ' : 'รายจ่าย',
+      หมวดหมู่: t.description,
+      จำนวนเงิน: Number(t.amount).toFixed(2),
+      หมายเหตุ: t.note || '',
+      รูปภาพ: t.image_url ? '[มีรูปภาพแนบ]' : '-'
+    }));
+
+    const csv = Papa.unparse(exportData);
+    const csvData = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
+
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(csvData);
+    link.setAttribute('download', `${filenamePrefix}_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  // ========== ฟังก์ชัน Import ข้อมูล (อัปโหลดจาก CSV) ==========
+  const handleImportCSV = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: (results) => {
+        const data = results.data;
+        if (data.length === 0) {
+          alert("ไม่พบข้อมูลในไฟล์ หรือไฟล์ผิดรูปแบบ");
+          return;
+        }
+
+        const formattedData = data.map(row => {
+          let dateStr = row['วันที่'] || new Date().toISOString().split('T')[0];
+          if (dateStr.includes('/')) {
+            const parts = dateStr.split('/');
+            if (parts.length === 3) {
+              let year = parseInt(parts[2]);
+              if (year > 2500) year -= 543;
+              dateStr = `${year}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+            }
+          }
+
+          return {
+            transaction_date: dateStr,
+            type: row['ประเภท'] === 'รายรับ' ? 'INCOME' : 'EXPENSE',
+            description: row['หมวดหมู่'] || 'Uncategorized',
+            amount: parseFloat(row['จำนวนเงิน']?.toString().replace(/,/g, '') || 0),
+            note: row['หมายเหตุ'] || '',
+            image_url: null
+          };
+        });
+
+        fetch('/church_api/add_transaction.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formattedData)
+        })
+          .then(res => res.json())
+          .then(resData => {
+            if (resData.status === 'success') {
+              alert(resData.message);
+              window.location.reload();
+            } else {
+              alert("เกิดข้อผิดพลาด: " + resData.message);
+            }
+          })
+          .catch(err => {
+            console.error(err);
+            alert("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
+          });
+
+        e.target.value = null;
+      },
+      error: (error) => {
+        alert("อ่านไฟล์ไม่สำเร็จ: " + error.message);
+      }
+    });
+  };
+
   // --- Render Month Details View ---
   if (selectedMonthDetail) {
     return (
@@ -60,6 +152,15 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
                 {detailMonthName} {selectedYear}
               </p>
             </div>
+          </div>
+          <div className="flex gap-3 mt-4 md:mt-0 md:absolute md:right-0 md:top-1/2 md:-translate-y-1/2">
+            <button
+              onClick={() => handleExportCSV(detailTransactions, `worship_data_${selectedYear}_${selectedMonthDetail.toString().padStart(2, '0')}`)}
+              className="group relative flex flex-1 md:flex-none items-center justify-center space-x-2 bg-white hover:bg-slate-50 border border-slate-200 dark:border-white/10 dark:bg-white/10 dark:hover:bg-white/20 text-slate-700 dark:text-white px-5 py-3 rounded-full font-black text-xs uppercase tracking-widest transition-all duration-300 active:scale-95 shadow-sm"
+            >
+              <Download size={16} className="text-blue-400 group-hover:translate-y-1 transition-transform duration-300" />
+              <span>ส่งออกรายเดือน</span>
+            </button>
           </div>
         </div>
 
@@ -186,22 +287,34 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
           </div>
 
           {/* Glass Year Selector */}
-          <div className="glass-panel p-1 rounded-2xl flex items-center justify-between md:justify-start w-full md:w-auto shadow-lg shadow-blue-500/5 mt-4 md:mt-0">
-            <button
-              onClick={() => setSelectedYear(y => y - 1)}
-              className="p-4 md:p-3 text-slate-400 dark:text-[#64748B] hover:text-blue-500 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-white/5 rounded-xl transition-all duration-300"
-            >
-              <ChevronLeft size={24} className="md:w-5 md:h-5" />
-            </button>
-            <div className="px-4 md:px-8 font-black text-2xl md:text-2xl text-slate-800 dark:text-white tracking-widest text-glow-emerald">
-              {selectedYear}
+          <div className="flex flex-col md:flex-row items-center gap-4 mt-4 md:mt-0">
+            <div className="flex gap-3 w-full md:w-auto">
+              <button
+                onClick={() => handleExportCSV(reportTransactions, `worship_data_yearly_${selectedYear}`)}
+                className="group relative flex flex-1 md:flex-none items-center justify-center space-x-2 bg-white hover:bg-slate-50 border border-slate-200 dark:border-white/10 dark:bg-white/10 dark:hover:bg-white/20 text-slate-700 dark:text-white px-4 py-3 md:py-2.5 rounded-full font-black text-xs uppercase tracking-widest transition-all duration-300 active:scale-95 shadow-sm"
+              >
+                <Download size={14} className="text-blue-400 group-hover:translate-y-1 transition-transform duration-300" />
+                <span className="whitespace-nowrap">ส่งออกรายปี</span>
+              </button>
             </div>
-            <button
-              onClick={() => setSelectedYear(y => y + 1)}
-              className="p-4 md:p-3 text-slate-400 dark:text-[#64748B] hover:text-blue-500 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-white/5 rounded-xl transition-all duration-300"
-            >
-              <ChevronRight size={24} className="md:w-5 md:h-5" />
-            </button>
+
+            <div className="glass-panel p-1 rounded-2xl flex items-center justify-between md:justify-start w-full md:w-auto shadow-lg shadow-blue-500/5">
+              <button
+                onClick={() => setSelectedYear(y => y - 1)}
+                className="p-4 md:p-3 text-slate-400 dark:text-[#64748B] hover:text-blue-500 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-white/5 rounded-xl transition-all duration-300"
+              >
+                <ChevronLeft size={24} className="md:w-5 md:h-5" />
+              </button>
+              <div className="px-4 md:px-8 font-black text-2xl md:text-2xl text-slate-800 dark:text-white tracking-widest text-glow-emerald">
+                {selectedYear}
+              </div>
+              <button
+                onClick={() => setSelectedYear(y => y + 1)}
+                className="p-4 md:p-3 text-slate-400 dark:text-[#64748B] hover:text-blue-500 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-white/5 rounded-xl transition-all duration-300"
+              >
+                <ChevronRight size={24} className="md:w-5 md:h-5" />
+              </button>
+            </div>
           </div>
         </div>
       </div>

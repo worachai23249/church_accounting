@@ -10,7 +10,12 @@ $sql = "SELECT * FROM transactions ORDER BY transaction_date DESC, id DESC";
 $stmt = $conn->prepare($sql);
 $stmt->execute();
 $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-echo json_encode($results);
+$json = json_encode($results, JSON_INVALID_UTF8_SUBSTITUTE);
+if ($json === false) {
+    echo json_encode(["error" => json_last_error_msg()]);
+} else {
+    echo $json;
+}
 } catch(PDOException $e) {
 echo json_encode(["error" => $e->getMessage()]);
 }

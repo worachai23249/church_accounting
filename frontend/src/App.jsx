@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import {
   LayoutDashboard, ArrowLeftRight, Tags, PieChart as PieChartIcon,
-  Sun, Moon, LogOut, X, Trash2, Upload, Lock, AlertTriangle, CheckCircle, Menu
+  Sun, Moon, LogOut, X, Trash2, Upload, Lock, AlertTriangle, CheckCircle, Menu, Bell
 } from 'lucide-react';
 
 import Overview from './pages/Overview';
@@ -30,23 +30,25 @@ function App() {
     }, 2500);
   };
 
-  // สีหมวดหมู่เริ่มต้นอิงตามรูปตัวอย่าง โหลดจาก LocalStorage ถ้ามี
-  const [categories, setCategories] = useState(() => {
-    const savedCategories = localStorage.getItem('categories');
-    if (savedCategories) {
-      return JSON.parse(savedCategories);
+  const requestNotificationPermission = async () => {
+    try {
+      if (!('Notification' in window)) {
+        alert('เบราว์เซอร์หรืออุปกรณ์ของคุณไม่รองรับการแจ้งเตือนแบบ Push');
+        return;
+      }
+      const permission = await Notification.requestPermission();
+      if (permission === 'granted') {
+        alert('✅ อนุญาตการเข้าถึงการแจ้งเตือนแล้ว!\n(ในการแจ้งเตือนแบบ Real-time หลังจากนี้ จะต้องเชื่อมต่อระบบหลังบ้านเข้ากับ Firebase Messaging เพิ่มเติมครับ)');
+      } else {
+        alert('❌ คุณได้ปฏิเสธการแจ้งเตือน (สามารถไปเปิดได้ในการตั้งค่าเบราว์เซอร์)');
+      }
+    } catch (error) {
+      console.error(error);
+      alert('เกิดข้อผิดพลาดในการขอสิทธิ์');
     }
-    return [
-      { id: 1, name: 'ถุงถวาย', type: 'INCOME', color: '#10B981' },
-      { id: 2, name: 'เงินสนับสนุน', type: 'INCOME', color: '#3B82F6' },
-      { id: 3, name: 'ค่าไฟ', type: 'EXPENSE', color: '#8B5CF6' }, // สีม่วง
-      { id: 4, name: 'ค่าซ่อมบำรุง', type: 'EXPENSE', color: '#F43F5E' }, // สีแดงอมชมพู
-    ];
-  });
+  };
 
-  useEffect(() => {
-    localStorage.setItem('categories', JSON.stringify(categories));
-  }, [categories]);
+  const [categories, setCategories] = useState([]);
 
   const [loading, setLoading] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -73,12 +75,18 @@ function App() {
 
   const fetchTransactions = (showLoading = false) => {
     if (showLoading) setLoading(true);
-    fetch('http://localhost/church_accounting/church_api/get_transactions.php')
+    fetch('/church_api/get_transactions.php')
       .then(res => res.json()).then(data => setTransactions(Array.isArray(data) ? data : []))
       .catch(() => setTransactions([])).finally(() => { if (showLoading) setLoading(false); });
   };
 
-  useEffect(() => { fetchTransactions(true); }, []);
+  const fetchCategories = () => {
+    fetch('/church_api/get_categories.php')
+      .then(res => res.json()).then(data => setCategories(Array.isArray(data) ? data : []))
+      .catch(() => setCategories([]));
+  };
+
+  useEffect(() => { fetchTransactions(true); fetchCategories(); }, []);
 
   const handleOpenAddTransaction = () => {
     setEditingId(null); setFormData({ transaction_date: new Date().toISOString().split('T')[0], type: 'EXPENSE', description: '', amount: '', note: '' });
@@ -102,7 +110,7 @@ function App() {
 
   const confirmDelete = () => {
     if (deleteModal.type === 'TRANSACTION') {
-      fetch('http://localhost/church_accounting/church_api/delete_transaction.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: deleteModal.id }) })
+      fetch('/church_api/delete_transaction.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: deleteModal.id }) })
         .then(res => res.json()).then(data => {
           if (data.status === 'success') {
             fetchTransactions();
@@ -111,8 +119,14 @@ function App() {
         })
         .catch(() => alert("เกิดข้อผิดพลาด"));
     } else if (deleteModal.type === 'CATEGORY') {
-      setCategories(categories.filter(c => c.id !== deleteModal.id));
-      showSuccess('ลบสำเร็จ', 'หมวดหมู่ถูกลบเรียบร้อยแล้ว');
+      fetch('/church_api/delete_category.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: deleteModal.id }) })
+        .then(res => res.json()).then(data => {
+          if (data.status === 'success') {
+            fetchCategories();
+            showSuccess('ลบสำเร็จ', 'หมวดหมู่ถูกลบเรียบร้อยแล้ว');
+          }
+        })
+        .catch(() => alert("เกิดข้อผิดพลาด"));
     }
     setDeleteModal({ ...deleteModal, isOpen: false });
   };
@@ -137,7 +151,7 @@ function App() {
 
   const handleSubmitTransaction = (e) => {
     e.preventDefault();
-    const url = editingId ? 'http://localhost/church_accounting/church_api/update_transaction.php' : 'http://localhost/church_accounting/church_api/add_transaction.php';
+    const url = editingId ? '/church_api/update_transaction.php' : '/church_api/add_transaction.php';
     const isEdit = !!editingId;
     fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...formData, id: editingId, image_url: imagePreview }) })
       .then(res => res.json()).then(data => {
@@ -145,9 +159,14 @@ function App() {
           fetchTransactions();
           setIsFormOpen(false);
           showSuccess(isEdit ? 'แก้ไขสำเร็จ' : 'เพิ่มสำเร็จ', isEdit ? 'ข้อมูลรายการถูกอัปเดตเรียบร้อยแล้ว' : 'สร้างรายการใหม่เรียบร้อยแล้ว');
+        } else {
+          alert("ไม่สามารถบันทึกได้: " + (data.message || JSON.stringify(data)));
         }
       })
-      .catch(() => alert("บันทึกไม่สำเร็จ"));
+      .catch((err) => {
+        console.error(err);
+        alert("เซิร์ฟเวอร์มีปัญหา กรุณาลองใหม่");
+      });
   };
 
   const handleOpenAddCategory = () => { setCategoryFormData({ id: null, name: '', type: 'EXPENSE', color: CATEGORY_COLORS[11] }); setIsCategoryFormOpen(true); };
@@ -165,16 +184,32 @@ function App() {
   const handleCategorySubmit = (e) => {
     e.preventDefault();
     const isEdit = !!categoryFormData.id;
-    if (isEdit) setCategories(categories.map(c => c.id === categoryFormData.id ? categoryFormData : c));
-    else setCategories([...categories, { ...categoryFormData, id: Date.now() }]);
-    setIsCategoryFormOpen(false);
-    showSuccess(isEdit ? 'แก้ไขสำเร็จ' : 'เพิ่มสำเร็จ', `หมวดหมู่ "${categoryFormData.name}" ${isEdit ? 'ถูกแก้ไขเรียบร้อยแล้ว' : 'ถูกสร้างเรียบร้อยแล้ว'}`);
+    const url = isEdit ? '/church_api/update_category.php' : '/church_api/add_category.php';
+
+    fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(categoryFormData) })
+      .then(res => res.json()).then(data => {
+        if (data.status === 'success') {
+          fetchCategories();
+          setIsCategoryFormOpen(false);
+          showSuccess(isEdit ? 'แก้ไขสำเร็จ' : 'เพิ่มสำเร็จ', `หมวดหมู่ "${categoryFormData.name}" ${isEdit ? 'ถูกแก้ไขเรียบร้อยแล้ว' : 'ถูกสร้างเรียบร้อยแล้ว'}`);
+        } else {
+          alert(data.message);
+        }
+      })
+      .catch(() => alert("บันทึกไม่สำเร็จ"));
   };
 
   const fmt = (n) => Number(n || 0).toLocaleString('th-TH');
   const formatThaiDate = (d) => d ? new Date(d).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' }) : '-';
 
-  if (loading) return <div className="h-screen bg-slate-50 dark:bg-[#060A13] flex items-center justify-center font-black text-slate-400 animate-pulse text-2xl tracking-[0.5em]">WORSHIP</div>;
+  if (loading) return (
+    <div className="h-screen bg-slate-50 dark:bg-[#060A13] flex flex-col items-center justify-center">
+      <div className="font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 dark:from-blue-400 dark:via-indigo-400 dark:to-purple-500 animate-pulse drop-shadow-sm flex flex-col items-center">
+        <span className="text-sm md:text-lg leading-[1.6em] tracking-[0.2em] uppercase">The House of worship</span>
+        <span className="text-md md:text-xl leading-[1.2em] tracking-[0.15em] mt-1 uppercase">and prayer</span>
+      </div>
+    </div>
+  );
   if (!isLoggedIn && showLoginScreen) return <Login onLogin={() => { sessionStorage.setItem('isLoggedIn', 'true'); setIsLoggedIn(true); setShowLoginScreen(false); }} onBack={() => setShowLoginScreen(false)} />;
 
   return (
@@ -262,6 +297,19 @@ function App() {
             </div>
             <span className="relative z-10 text-[10px] uppercase tracking-[0.2em] group-hover:text-blue-700 dark:group-hover:text-blue-400 transition-colors translate-y-[1px]">{isDarkMode ? 'Light Mode' : 'Dark Mode'}</span>
           </button>
+
+          {isLoggedIn && (
+            <button
+              onClick={requestNotificationPermission}
+              className="group relative w-full flex items-center space-x-4 px-5 py-4 rounded-[18px] bg-slate-50/80 dark:bg-[#0A101D]/80 border border-slate-200/80 dark:border-white/5 text-slate-600 dark:text-slate-400 font-black overflow-hidden transition-all duration-500 hover:border-emerald-400/50 dark:hover:border-emerald-500/30 hover:shadow-[0_0_20px_rgba(52,211,153,0.15)] hover:bg-white dark:hover:bg-[#0F172A]"
+            >
+              <div className="absolute inset-0 bg-gradient-to-b from-emerald-500/0 to-emerald-500/5 dark:to-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <div className="relative z-10 flex items-center justify-center p-2 rounded-[12px] bg-transparent group-hover:bg-emerald-50 dark:group-hover:bg-emerald-500/20 transition-all duration-500">
+                <Bell size={18} className="text-emerald-500 drop-shadow-[0_0_8px_rgba(52,211,153,0.6)] group-hover:animate-bounce" />
+              </div>
+              <span className="relative z-10 text-[10px] uppercase tracking-[0.2em] group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors translate-y-[1px]">เปิดการแจ้งเตือน</span>
+            </button>
+          )}
 
           {!isLoggedIn ? (
             <button
