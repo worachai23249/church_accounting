@@ -41,6 +41,32 @@
     box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
     background-color: rgb(59 130 246);
   }
+
+  /* Login input: override browser autofill white background */
+  .login-input {
+    background-color: rgba(255, 255, 255, 0.04) !important;
+    color: white !important;
+  }
+
+  .login-input:-webkit-autofill,
+  .login-input:-webkit-autofill:hover,
+  .login-input:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0px 1000px #0d1525 inset !important;
+    -webkit-text-fill-color: #e2e8f0 !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+    caret-color: white;
+    transition: background-color 9999s ease-in-out 0s;
+  }
+
+  .login-input::placeholder {
+    color: #475569;
+  }
+
+  .login-input:focus {
+    background-color: rgba(255, 255, 255, 0.06) !important;
+    border-color: rgba(59, 130, 246, 0.5) !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
 }
 
 @layer utilities {

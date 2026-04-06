@@ -6,6 +6,7 @@ header("Access-Control-Allow-Headers: Content-Type, Authorization");
 
 if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') { http_response_code(200); exit(); }
 
+require_once 'auth_check.php';
 include_once 'db.php'; 
 
 $data = json_decode(file_get_contents("php://input"));

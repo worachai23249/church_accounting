@@ -6,6 +6,7 @@ header("Access-Control-Max-Age: 3600");
 header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 
 // เปลี่ยนชื่อเรียกไฟล์ฐานข้อมูลให้ตรงกับของคุณ (db.php)
+require_once 'auth_check.php';
 include_once 'db.php'; 
 
 $data = json_decode(file_get_contents("php://input"));

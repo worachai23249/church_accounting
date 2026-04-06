@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+
 import { ChevronLeft, ChevronRight, TrendingUp, TrendingDown, Wallet, Activity, ArrowLeft, Edit, Trash2, Image as ImageIcon, PieChart as PieIcon, LineChart, Download, Upload } from 'lucide-react';
 import Papa from 'papaparse';
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Cell, ReferenceLine } from 'recharts';
@@ -107,7 +108,7 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
           };
         });
 
-        fetch('/church_api/add_transaction.php', {
+        fetch(`./church_api/add_transaction.php`, { credentials: 'include',
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(formattedData)
@@ -153,7 +154,7 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
               </p>
             </div>
           </div>
-          <div className="flex gap-3 mt-4 md:mt-0 md:absolute md:right-0 md:top-1/2 md:-translate-y-1/2">
+          <div className="flex gap-3 mt-4 md:mt-0 md:absolute md:right-0 md:top-1/2 md:-translate-y-1/2 relative z-10">
             <button
               onClick={() => handleExportCSV(detailTransactions, `worship_data_${selectedYear}_${selectedMonthDetail.toString().padStart(2, '0')}`)}
               className="group relative flex flex-1 md:flex-none items-center justify-center space-x-2 bg-white hover:bg-slate-50 border border-slate-200 dark:border-white/10 dark:bg-white/10 dark:hover:bg-white/20 text-slate-700 dark:text-white px-5 py-3 rounded-full font-black text-xs uppercase tracking-widest transition-all duration-300 active:scale-95 shadow-sm"

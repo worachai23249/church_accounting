@@ -6,6 +6,7 @@ header("Access-Control-Allow-Headers: Content-Type, Authorization");
 
 if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') { http_response_code(200); exit(); }
 
+require_once 'auth_check.php';
 include_once 'db.php'; 
 
 // ตรวจสอบและแก้ไขชนิดข้อมูลของคอลัมน์รูปภาพอัตโนมัติ (เผื่อข้อมูลยาวเกิน TEXT = 65KB ทำให้เซฟไม่ติด)
@@ -77,6 +78,12 @@ if(is_array($data)) {
         $stmt->bindParam(":image_url", $image_url);
 
         if($stmt->execute()) {
+            require_once 'send_push.php';
+            $titleMsg = ($data->type == 'INCOME') ? "📥 เงินเข้าใหม่!" : "📤 เงินออก";
+            $amountMsg = number_format($data->amount, 2);
+            $descMsg = mb_substr($data->description, 0, 30, 'UTF-8');
+            sendOneSignalPush($titleMsg, "รายการ " . $descMsg . " จำนวน ฿" . $amountMsg);
+
             echo json_encode(array("status" => "success", "message" => "บันทึกข้อมูลสำเร็จ"));
         } else {
             echo json_encode(array("status" => "error", "message" => "ไม่สามารถบันทึกข้อมูลได้: " . implode(", ", $stmt->errorInfo())));

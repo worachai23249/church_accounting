@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
+
 import {
   LayoutDashboard, ArrowLeftRight, Tags, PieChart as PieChartIcon,
-  Sun, Moon, LogOut, X, Trash2, Upload, Lock, AlertTriangle, CheckCircle, Menu, Bell
+  Sun, Moon, LogOut, X, Trash2, Upload, Lock, AlertTriangle, CheckCircle, Menu, Bell, Camera
 } from 'lucide-react';
 
 import Overview from './pages/Overview';
@@ -20,43 +21,75 @@ function App() {
     return savedTheme ? savedTheme === 'dark' : true;
   });
   const [transactions, setTransactions] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, id: null, type: '', title: '', message: '' });
   const [successModal, setSuccessModal] = useState({ isOpen: false, title: '', message: '' });
 
   const showSuccess = (title, message) => {
     setSuccessModal({ isOpen: true, title, message });
-    setTimeout(() => {
-      setSuccessModal(prev => ({ ...prev, isOpen: false }));
-    }, 2500);
+    setTimeout(() => setSuccessModal(prev => ({ ...prev, isOpen: false })), 2500);
   };
 
-  const requestNotificationPermission = async () => {
+  const playAppNotificationSound = () => {
     try {
-      if (!('Notification' in window)) {
-        alert('เบราว์เซอร์หรืออุปกรณ์ของคุณไม่รองรับการแจ้งเตือนแบบ Push');
-        return;
-      }
-      const permission = await Notification.requestPermission();
-      if (permission === 'granted') {
-        alert('✅ อนุญาตการเข้าถึงการแจ้งเตือนแล้ว!\n(ในการแจ้งเตือนแบบ Real-time หลังจากนี้ จะต้องเชื่อมต่อระบบหลังบ้านเข้ากับ Firebase Messaging เพิ่มเติมครับ)');
-      } else {
-        alert('❌ คุณได้ปฏิเสธการแจ้งเตือน (สามารถไปเปิดได้ในการตั้งค่าเบราว์เซอร์)');
-      }
-    } catch (error) {
-      console.error(error);
-      alert('เกิดข้อผิดพลาดในการขอสิทธิ์');
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const oscillator = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+      oscillator.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+      oscillator.type = 'sine';
+      oscillator.frequency.setValueAtTime(800, audioCtx.currentTime); 
+      oscillator.frequency.exponentialRampToValueAtTime(1500, audioCtx.currentTime + 0.1);
+      gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+      gainNode.gain.linearRampToValueAtTime(0.3, audioCtx.currentTime + 0.05);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+      oscillator.start(audioCtx.currentTime);
+      oscillator.stop(audioCtx.currentTime + 0.3);
+    } catch(e) {}
+  };
+
+  const setUnreadBadge = (count) => {
+    if ('setAppBadge' in navigator) {
+      if (count > 0) navigator.setAppBadge(count).catch(console.error);
+      else navigator.clearAppBadge().catch(console.error);
     }
   };
 
-  const [categories, setCategories] = useState([]);
+  const setupPWAWorker = () => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/OneSignalSDKWorker.js').catch(err => console.error('SW Config:', err));
+    }
+  };
+
+  const requestNotificationPermission = async (showTest = false) => {
+    try {
+      setupPWAWorker();
+      if (window.OneSignalDeferred) {
+        window.OneSignalDeferred.push(function(OneSignal) {
+          OneSignal.Slidedown.promptPush();
+        });
+      }
+      if (!('Notification' in window)) {
+        if (showTest) alert('อุปกรณ์ของคุณไม่รองรับการแจ้งเตือนแบบ Push');
+        return;
+      }
+      const permission = await Notification.requestPermission();
+      if (permission === 'granted' && showTest) {
+        playAppNotificationSound();
+        setUnreadBadge(1);
+        new Notification("The House of Worship", { body: "ระบบพร้อมส่งแจ้งเตือนเข้ามือถือแล้ว! (แบบจำลอง)", icon: "/logo.png?v=3", vibrate: [200, 100, 200] });
+        setTimeout(() => setUnreadBadge(0), 5000);
+      } else if (permission !== 'granted' && showTest) {
+        alert('❌ คุณปฏิเสธการแจ้งเตือน (แก้ได้ในการตั้งค่าเบราว์เซอร์)');
+      }
+    } catch(e) {}
+  };
 
   const [loading, setLoading] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState(() => sessionStorage.getItem('activeMenu') || 'overview');
-
-  useEffect(() => {
-    sessionStorage.setItem('activeMenu', activeMenu);
-  }, [activeMenu]);
+  
+  useEffect(() => { sessionStorage.setItem('activeMenu', activeMenu); }, [activeMenu]);
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isCategoryFormOpen, setIsCategoryFormOpen] = useState(false);
@@ -67,26 +100,51 @@ function App() {
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [viewImageUrl, setViewImageUrl] = useState(null);
   const fileInputRef = useRef(null);
+  const cameraInputRef = useRef(null);
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', isDarkMode);
     localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
   }, [isDarkMode]);
 
-  const fetchTransactions = (showLoading = false) => {
-    if (showLoading) setLoading(true);
-    fetch('/church_api/get_transactions.php')
-      .then(res => res.json()).then(data => setTransactions(Array.isArray(data) ? data : []))
-      .catch(() => setTransactions([])).finally(() => { if (showLoading) setLoading(false); });
+  const fetchTransactions = () => {
+    return fetch('./church_api/get_transactions.php')
+      .then(res => res.json())
+      .then(data => setTransactions(Array.isArray(data) ? data : []))
+      .catch(() => setTransactions([]));
   };
 
   const fetchCategories = () => {
-    fetch('/church_api/get_categories.php')
-      .then(res => res.json()).then(data => setCategories(Array.isArray(data) ? data : []))
+    return fetch('./church_api/get_categories.php')
+      .then(res => res.json())
+      .then(data => setCategories(Array.isArray(data) ? data : []))
       .catch(() => setCategories([]));
   };
 
-  useEffect(() => { fetchTransactions(true); fetchCategories(); }, []);
+  useEffect(() => {
+    // โหลดทุก API พร้อมกันด้วย Promise.all (เร็วกว่ารอทีละตัว)
+    const authCheck = fetch('./church_api/check_auth.php')
+      .then(res => res.json())
+      .then(data => {
+        if (data.is_logged_in) {
+          setIsLoggedIn(true);
+          sessionStorage.setItem('isLoggedIn', 'true');
+        } else {
+          setIsLoggedIn(false);
+          sessionStorage.removeItem('isLoggedIn');
+        }
+      })
+      .catch(() => console.error('Auth check failed'));
+
+    Promise.all([fetchTransactions(), fetchCategories(), authCheck])
+      .finally(() => setLoading(false));
+
+    // ขอสิทธิ์ PWA หลังจากหน้าโหลดเสร็จ (ไม่ให้บล็อก UI)
+    setupPWAWorker();
+    if ('Notification' in window && Notification.permission === 'default') {
+      setTimeout(() => requestNotificationPermission(false), 3000);
+    }
+  }, []);
 
   const handleOpenAddTransaction = () => {
     setEditingId(null); setFormData({ transaction_date: new Date().toISOString().split('T')[0], type: 'EXPENSE', description: '', amount: '', note: '' });
@@ -110,7 +168,7 @@ function App() {
 
   const confirmDelete = () => {
     if (deleteModal.type === 'TRANSACTION') {
-      fetch('/church_api/delete_transaction.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: deleteModal.id }) })
+      fetch('./church_api/delete_transaction.php', { credentials: 'include', method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: deleteModal.id }) })
         .then(res => res.json()).then(data => {
           if (data.status === 'success') {
             fetchTransactions();
@@ -119,7 +177,7 @@ function App() {
         })
         .catch(() => alert("เกิดข้อผิดพลาด"));
     } else if (deleteModal.type === 'CATEGORY') {
-      fetch('/church_api/delete_category.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: deleteModal.id }) })
+      fetch('./church_api/delete_category.php', { credentials: 'include', method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: deleteModal.id }) })
         .then(res => res.json()).then(data => {
           if (data.status === 'success') {
             fetchCategories();
@@ -151,9 +209,9 @@ function App() {
 
   const handleSubmitTransaction = (e) => {
     e.preventDefault();
-    const url = editingId ? '/church_api/update_transaction.php' : '/church_api/add_transaction.php';
+    const url = editingId ? `./church_api/update_transaction.php` : `./church_api/add_transaction.php`;
     const isEdit = !!editingId;
-    fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...formData, id: editingId, image_url: imagePreview }) })
+    fetch(url, { credentials: 'include', method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...formData, id: editingId, image_url: imagePreview }) })
       .then(res => res.json()).then(data => {
         if (data.status === 'success') {
           fetchTransactions();
@@ -184,9 +242,9 @@ function App() {
   const handleCategorySubmit = (e) => {
     e.preventDefault();
     const isEdit = !!categoryFormData.id;
-    const url = isEdit ? '/church_api/update_category.php' : '/church_api/add_category.php';
+    const url = isEdit ? `./church_api/update_category.php` : `./church_api/add_category.php`;
 
-    fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(categoryFormData) })
+    fetch(url, { credentials: 'include', method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(categoryFormData) })
       .then(res => res.json()).then(data => {
         if (data.status === 'success') {
           fetchCategories();
@@ -203,22 +261,109 @@ function App() {
   const formatThaiDate = (d) => d ? new Date(d).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' }) : '-';
 
   if (loading) return (
-    <div className="h-screen bg-slate-50 dark:bg-[#060A13] flex flex-col items-center justify-center">
-      <div className="font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 dark:from-blue-400 dark:via-indigo-400 dark:to-purple-500 animate-pulse drop-shadow-sm flex flex-col items-center">
-        <span className="text-sm md:text-lg leading-[1.6em] tracking-[0.2em] uppercase">The House of worship</span>
-        <span className="text-md md:text-xl leading-[1.2em] tracking-[0.15em] mt-1 uppercase">and prayer</span>
+    <div className="h-screen bg-[#060A13] flex flex-col items-center justify-center gap-6 overflow-hidden relative">
+
+      {/* Background glow */}
+      <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full bg-indigo-600/10 blur-[120px] pointer-events-none" />
+      <div className="absolute -bottom-32 left-1/2 -translate-x-1/2 w-[400px] h-[300px] rounded-full bg-purple-600/10 blur-[100px] pointer-events-none" />
+
+      {/* Logo */}
+      <div className="relative flex items-center justify-center">
+        <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 opacity-20 blur-[50px]" />
+        <img src="/logo.png?v=3" alt="Logo" className="w-24 h-24 md:w-32 md:h-32 object-contain relative z-10 drop-shadow-[0_0_24px_rgba(99,102,241,0.6)]" style={{ animation: 'floatLogo 3s ease-in-out infinite' }} />
       </div>
+
+      {/* Church name */}
+      <div className="font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 flex flex-col items-center">
+        <span className="text-sm md:text-base leading-[1.6em] tracking-[0.25em] uppercase">The House of Worship</span>
+        <span className="text-base md:text-lg leading-[1.2em] tracking-[0.18em] mt-0.5 uppercase">and Prayer</span>
+      </div>
+
+      {/* ═══ Jesus Progress Bar ═══ */}
+      <div className="w-72 md:w-96 flex flex-col items-center gap-3 mt-2">
+
+        {/* Track */}
+        <div className="relative w-full h-3 md:h-4 bg-white/5 rounded-full overflow-visible border border-white/8 shadow-inner">
+
+          {/* Fill bar */}
+          <div className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-600"
+            style={{ animation: 'fillBar 3.5s cubic-bezier(0.4,0,0.2,1) forwards', boxShadow: '0 0 12px rgba(99,102,241,0.7)' }} />
+
+          {/* Shimmer */}
+          <div className="absolute inset-0 rounded-full overflow-hidden">
+            <div className="absolute inset-0 w-full h-full" style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%)', animation: 'shimmer 1.8s ease-in-out infinite', backgroundSize: '200% 100%' }} />
+          </div>
+
+          {/* Jesus carrying cross — moves along bar */}
+          <div className="absolute -top-10 md:-top-12" style={{ animation: 'moveJesus 3.5s cubic-bezier(0.4,0,0.2,1) forwards', left: '0%' }}>
+            <svg width="40" height="44" viewBox="0 0 40 44" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'drop-shadow(0 0 6px rgba(250,204,21,0.8))' }}>
+              {/* Halo */}
+              <ellipse cx="14" cy="4" rx="5" ry="2" fill="none" stroke="#facc15" strokeWidth="1.5" opacity="0.9"/>
+              {/* Head */}
+              <circle cx="14" cy="8" r="4" fill="#f5d7b0" stroke="#e8c090" strokeWidth="0.8"/>
+              {/* Body */}
+              <path d="M14 12 Q12 20 11 26" stroke="#c7d2fe" strokeWidth="2" strokeLinecap="round"/>
+              {/* Robe bottom */}
+              <path d="M11 26 Q9 32 8 36 M11 26 Q13 32 14 36" stroke="#c7d2fe" strokeWidth="1.8" strokeLinecap="round"/>
+              {/* Arms carrying cross */}
+              <path d="M12 15 Q8 18 6 20" stroke="#c7d2fe" strokeWidth="2" strokeLinecap="round"/>
+              <path d="M14 15 Q18 14 22 13" stroke="#c7d2fe" strokeWidth="2" strokeLinecap="round"/>
+              {/* Cross vertical */}
+              <rect x="22" y="8" width="3" height="30" rx="1" fill="#a16207" stroke="#92400e" strokeWidth="0.5"/>
+              {/* Cross horizontal */}
+              <rect x="15" y="14" width="17" height="3" rx="1" fill="#a16207" stroke="#92400e" strokeWidth="0.5"/>
+              {/* Shine on cross */}
+              <rect x="22.5" y="8.5" width="1" height="12" rx="0.5" fill="rgba(255,255,255,0.25)"/>
+            </svg>
+          </div>
+        </div>
+
+        {/* Loading text */}
+        <p className="text-[10px] tracking-[0.25em] uppercase text-slate-600 font-bold" style={{ animation: 'fadeText 3.5s ease-in-out forwards' }}>กำลังโหลดระบบ...</p>
+      </div>
+
+      {/* Keyframes */}
+      <style>{`
+        @keyframes fillBar {
+          0%   { width: 0%; }
+          100% { width: 100%; }
+        }
+        @keyframes moveJesus {
+          0%   { left: 0%; transform: translateX(-4px); }
+          100% { left: calc(100% - 36px); transform: translateX(0px); }
+        }
+        @keyframes shimmer {
+          0%   { background-position: 200% 0; }
+          100% { background-position: -200% 0; }
+        }
+        @keyframes floatLogo {
+          0%, 100% { transform: translateY(0px);   opacity: 1; }
+          50%       { transform: translateY(-8px);  opacity: 0.85; }
+        }
+        @keyframes fadeText {
+          0%, 80% { opacity: 0.5; }
+          90%     { opacity: 1; }
+          100%    { opacity: 0.5; }
+        }
+      `}</style>
     </div>
   );
-  if (!isLoggedIn && showLoginScreen) return <Login onLogin={() => { sessionStorage.setItem('isLoggedIn', 'true'); setIsLoggedIn(true); setShowLoginScreen(false); }} onBack={() => setShowLoginScreen(false)} />;
+  if (!isLoggedIn && showLoginScreen) return <Login onLogin={() => { 
+    sessionStorage.setItem('isLoggedIn', 'true'); 
+    setIsLoggedIn(true); 
+    setShowLoginScreen(false); 
+    if ('Notification' in window && Notification.permission !== 'granted' && Notification.permission !== 'denied') {
+      setTimeout(() => requestNotificationPermission(true), 500);
+    }
+  }} onBack={() => setShowLoginScreen(false)} />;
 
   return (
     <div className="h-screen bg-slate-50 dark:bg-[#060A13] text-slate-800 dark:text-white font-sans flex overflow-hidden relative transition-colors duration-500">
 
       {/* Background & Aura Effects */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080801a_1px,transparent_1px),linear-gradient(to_bottom,#8080801a_1px,transparent_1px)] bg-[size:64px_64px] pointer-events-none"></div>
-      <div className="fixed top-[-10%] left-[-5%] w-[600px] h-[600px] rounded-full bg-blue-500/10 dark:bg-blue-600/20 blur-[120px] pointer-events-none"></div>
-      <div className="fixed bottom-[-10%] right-[-5%] w-[600px] h-[600px] rounded-full bg-purple-500/10 dark:bg-purple-600/20 blur-[120px] pointer-events-none"></div>
+      <div className="fixed top-[-10%] left-[-5%] w-[500px] h-[500px] rounded-full bg-blue-500/5 dark:bg-blue-600/10 blur-[180px] pointer-events-none"></div>
+      <div className="fixed bottom-[-10%] right-[-5%] w-[500px] h-[500px] rounded-full bg-purple-500/5 dark:bg-purple-600/10 blur-[180px] pointer-events-none"></div>
 
       {/* Sidebar ล็อกติดหน้าจอ (Hi-Tech Version) & Mobile Drawer */}
       {isMobileMenuOpen && (
@@ -227,15 +372,15 @@ function App() {
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}
-      <aside className={`w-72 h-full border-r border-slate-200/50 dark:border-white/5 bg-slate-50/95 dark:bg-[#030610]/95 backdrop-blur-2xl flex flex-col justify-between shrink-0 z-[100] shadow-[10px_0_30px_-10px_rgba(0,0,0,0.1)] fixed lg:relative transition-transform duration-300 ease-in-out ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'} left-0`}>
+      <aside className={`w-72 h-full border-r border-slate-200/50 dark:border-white/5 bg-slate-50/95 dark:bg-[#030610]/95 backdrop-blur-2xl flex flex-col justify-between shrink-0 z-[100] shadow-[10px_0_30px_-10px_rgba(0,0,0,0.1)] fixed lg:relative transition-transform duration-300 ease-in-out ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'} left-0 overflow-y-auto custom-scrollbar`}>
         <div>
           <div className="p-8 border-b border-slate-200/50 dark:border-white/5 flex flex-col items-center relative overflow-hidden group">
             <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-blue-500/10 dark:from-blue-600/10 to-transparent pointer-events-none opacity-50 group-hover:opacity-100 transition-opacity duration-700"></div>
 
             <div className="relative mb-6 transition-transform duration-700 z-10 flex justify-center items-center group-hover:-translate-y-2">
               <div className="absolute inset-2 rounded-full bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 opacity-60 blur-[30px] group-hover:opacity-100 group-hover:blur-[40px] transition-all duration-1000 animate-pulse-glow"></div>
-              <div className="w-36 h-36 relative z-10">
-                <img src="/logo.png" alt="Logo" className="w-full h-full object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.1)] transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-700" />
+              <div className="w-56 h-56 xl:w-64 xl:h-64 relative z-10">
+                <img src="/logo.png?v=3" alt="Logo" className="w-full h-full object-contain scale-[1.35] drop-shadow-[0_0_15px_rgba(255,255,255,0.1)] transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-700" />
               </div>
             </div>
 
@@ -298,18 +443,7 @@ function App() {
             <span className="relative z-10 text-[10px] uppercase tracking-[0.2em] group-hover:text-blue-700 dark:group-hover:text-blue-400 transition-colors translate-y-[1px]">{isDarkMode ? 'Light Mode' : 'Dark Mode'}</span>
           </button>
 
-          {isLoggedIn && (
-            <button
-              onClick={requestNotificationPermission}
-              className="group relative w-full flex items-center space-x-4 px-5 py-4 rounded-[18px] bg-slate-50/80 dark:bg-[#0A101D]/80 border border-slate-200/80 dark:border-white/5 text-slate-600 dark:text-slate-400 font-black overflow-hidden transition-all duration-500 hover:border-emerald-400/50 dark:hover:border-emerald-500/30 hover:shadow-[0_0_20px_rgba(52,211,153,0.15)] hover:bg-white dark:hover:bg-[#0F172A]"
-            >
-              <div className="absolute inset-0 bg-gradient-to-b from-emerald-500/0 to-emerald-500/5 dark:to-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              <div className="relative z-10 flex items-center justify-center p-2 rounded-[12px] bg-transparent group-hover:bg-emerald-50 dark:group-hover:bg-emerald-500/20 transition-all duration-500">
-                <Bell size={18} className="text-emerald-500 drop-shadow-[0_0_8px_rgba(52,211,153,0.6)] group-hover:animate-bounce" />
-              </div>
-              <span className="relative z-10 text-[10px] uppercase tracking-[0.2em] group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors translate-y-[1px]">เปิดการแจ้งเตือน</span>
-            </button>
-          )}
+
 
           {!isLoggedIn ? (
             <button
@@ -324,7 +458,13 @@ function App() {
             </button>
           ) : (
             <button
-              onClick={() => { sessionStorage.removeItem('isLoggedIn'); setIsLoggedIn(false); setActiveMenu('overview'); setIsMobileMenuOpen(false); }}
+              onClick={async () => { 
+                await fetch('./church_api/logout.php');
+                sessionStorage.removeItem('isLoggedIn'); 
+                setIsLoggedIn(false); 
+                setActiveMenu('overview'); 
+                setIsMobileMenuOpen(false); 
+              }}
               className="group relative w-full flex items-center space-x-4 px-5 py-4 rounded-[18px] bg-slate-50/80 dark:bg-[#0A101D]/80 border border-slate-200/80 dark:border-white/5 text-slate-600 dark:text-slate-400 font-black overflow-hidden transition-all duration-500 hover:border-rose-400/50 dark:hover:border-rose-500/30 hover:shadow-[0_0_20px_rgba(244,63,94,0.15)] hover:bg-white dark:hover:bg-[#0F172A]"
             >
               <div className="absolute inset-0 bg-gradient-to-b from-rose-500/0 to-rose-500/5 dark:to-rose-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -342,7 +482,7 @@ function App() {
         <button onClick={() => setIsMobileMenuOpen(true)} className="p-2 -ml-2 text-slate-600 dark:text-slate-300 hover:text-blue-500">
           <Menu size={24} />
         </button>
-        <img src="/logo.png" alt="Logo" className="w-8 h-8 object-contain ml-2 shrink-0 drop-shadow-[0_0_8px_rgba(255,255,255,0.2)]" />
+        <img src="/logo.png?v=3" alt="Logo" className="w-8 h-8 object-contain ml-2 shrink-0 drop-shadow-[0_0_8px_rgba(255,255,255,0.2)]" />
         <span className="ml-2 text-[11px] uppercase font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-600 dark:from-blue-400 dark:via-purple-400 dark:to-indigo-500 whitespace-nowrap">The House of Worship and Prayer</span>
       </div>
 
@@ -395,17 +535,25 @@ function App() {
               <div>
                 <label className="block text-[10px] font-black text-slate-500 dark:text-[#64748B] mb-3 uppercase tracking-[0.2em] ml-1">หลักฐานการทำรายการ</label>
                 <input type="file" accept="image/*" className="hidden" ref={fileInputRef} onChange={handleImageChange} />
-                {imagePreview ? (
-                  <div className="relative w-full h-48 rounded-[20px] overflow-hidden border-2 border-slate-200/50 dark:border-[#1E293B] group shadow-sm">
+                <input type="file" accept="image/*" capture="environment" className="hidden" ref={cameraInputRef} onChange={handleImageChange} />
+                {!imagePreview && (
+                  <div className="flex gap-2 w-full">
+                    <div onClick={() => fileInputRef.current.click()} className="flex-1 py-8 bg-white/40 dark:bg-[#060A13]/40 border-2 border-slate-300 dark:border-[#1E293B] border-dashed rounded-[20px] flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 dark:hover:border-blue-500 transition-all group backdrop-blur-sm hover:shadow-[0_0_20px_rgba(59,130,246,0.1)]">
+                      <Upload size={28} className="text-slate-400 dark:text-[#334155] mb-2 group-hover:text-blue-500 group-hover:animate-bounce transition-colors" />
+                      <span className="text-[10px] font-black text-slate-500 dark:text-[#64748B] uppercase tracking-[0.1em] group-hover:text-blue-500 px-2 text-center">อัปโหลดสลิป</span>
+                    </div>
+                    <div onClick={() => cameraInputRef.current.click()} className="flex-1 py-8 bg-white/40 dark:bg-[#060A13]/40 border-2 border-slate-300 dark:border-[#1E293B] border-dashed rounded-[20px] flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 dark:hover:border-blue-500 transition-all group backdrop-blur-sm hover:shadow-[0_0_20px_rgba(59,130,246,0.1)]">
+                      <Camera size={28} className="text-slate-400 dark:text-[#334155] mb-2 group-hover:text-blue-500 group-hover:animate-bounce transition-colors" />
+                      <span className="text-[10px] font-black text-slate-500 dark:text-[#64748B] uppercase tracking-[0.1em] group-hover:text-blue-500 px-2 text-center">ถ่ายรูป</span>
+                    </div>
+                  </div>
+                )}
+                {imagePreview && (
+                  <div className="relative w-full h-48 mt-4 rounded-[20px] overflow-hidden border-2 border-slate-200/50 dark:border-[#1E293B] group shadow-sm">
                     <img src={imagePreview} alt="Preview" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                     <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all backdrop-blur-sm">
                       <button type="button" onClick={() => setImagePreview(null)} className="p-3 bg-rose-500 text-white rounded-xl font-black tracking-wider uppercase text-xs shadow-[0_0_20px_rgba(244,63,94,0.5)] flex items-center space-x-2 hover:bg-rose-600 transition-colors hover:scale-105 active:scale-95"><Trash2 size={16} /><span>ลบรูปภาพ</span></button>
                     </div>
-                  </div>
-                ) : (
-                  <div onClick={() => fileInputRef.current.click()} className="w-full py-10 bg-white/40 dark:bg-[#060A13]/40 border-2 border-slate-300 dark:border-[#1E293B] border-dashed rounded-[20px] flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 dark:hover:border-blue-500 transition-all group backdrop-blur-sm hover:shadow-[0_0_20px_rgba(59,130,246,0.1)]">
-                    <Upload size={32} className="text-slate-400 dark:text-[#334155] mb-3 group-hover:text-blue-500 group-hover:animate-bounce transition-colors" />
-                    <span className="text-[10px] font-black text-slate-500 dark:text-[#64748B] uppercase tracking-[0.2em] group-hover:text-blue-500">คลิกเพื่ออัปโหลดสลิป</span>
                   </div>
                 )}
               </div>

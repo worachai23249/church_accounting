@@ -27,6 +27,7 @@ export default function Overview({ transactions, categories = [], formatThaiDate
       const [, month] = t.transaction_date.split('-');
       const monthName = MONTHS_TH[parseInt(month) - 1];
       if (t.type === 'INCOME') md[monthName].income += parseFloat(t.amount);
+      if (t.type === 'EXPENSE') md[monthName].expense += parseFloat(t.amount);
     });
     return Object.values(md).slice(0, 12);
   })();
