@@ -7,5 +7,5 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
-  base: './', // สำคัญมากสำหรับรันบน Shared Host / InfinityFree
+  base: '/', // Cloudflare Pages ใช้ absolute path
 })

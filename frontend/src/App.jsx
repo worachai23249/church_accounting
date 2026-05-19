@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { api } from './api';
 
 import {
   LayoutDashboard, ArrowLeftRight, Tags, PieChart as PieChartIcon,
@@ -108,14 +109,14 @@ function App() {
   }, [isDarkMode]);
 
   const fetchTransactions = () => {
-    return fetch('./church_api/get_transactions.php')
+    return fetch(api('get_transactions.php'))
       .then(res => res.json())
       .then(data => setTransactions(Array.isArray(data) ? data : []))
       .catch(() => setTransactions([]));
   };
 
   const fetchCategories = () => {
-    return fetch('./church_api/get_categories.php')
+    return fetch(api('get_categories.php'))
       .then(res => res.json())
       .then(data => setCategories(Array.isArray(data) ? data : []))
       .catch(() => setCategories([]));
@@ -123,7 +124,7 @@ function App() {
 
   useEffect(() => {
     // โหลดทุก API พร้อมกันด้วย Promise.all (เร็วกว่ารอทีละตัว)
-    const authCheck = fetch('./church_api/check_auth.php')
+    const authCheck = fetch(api('check_auth.php'), { credentials: 'include' })
       .then(res => res.json())
       .then(data => {
         if (data.is_logged_in) {
@@ -168,7 +169,7 @@ function App() {
 
   const confirmDelete = () => {
     if (deleteModal.type === 'TRANSACTION') {
-      fetch('./church_api/delete_transaction.php', { credentials: 'include', method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: deleteModal.id }) })
+      fetch(api('delete_transaction.php'), { credentials: 'include', method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: deleteModal.id }) })
         .then(res => res.json()).then(data => {
           if (data.status === 'success') {
             fetchTransactions();
@@ -177,7 +178,7 @@ function App() {
         })
         .catch(() => alert("เกิดข้อผิดพลาด"));
     } else if (deleteModal.type === 'CATEGORY') {
-      fetch('./church_api/delete_category.php', { credentials: 'include', method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: deleteModal.id }) })
+      fetch(api('delete_category.php'), { credentials: 'include', method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: deleteModal.id }) })
         .then(res => res.json()).then(data => {
           if (data.status === 'success') {
             fetchCategories();
@@ -209,7 +210,7 @@ function App() {
 
   const handleSubmitTransaction = (e) => {
     e.preventDefault();
-    const url = editingId ? `./church_api/update_transaction.php` : `./church_api/add_transaction.php`;
+    const url = editingId ? api('update_transaction.php') : api('add_transaction.php');
     const isEdit = !!editingId;
     fetch(url, { credentials: 'include', method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...formData, id: editingId, image_url: imagePreview }) })
       .then(res => res.json()).then(data => {
@@ -242,7 +243,7 @@ function App() {
   const handleCategorySubmit = (e) => {
     e.preventDefault();
     const isEdit = !!categoryFormData.id;
-    const url = isEdit ? `./church_api/update_category.php` : `./church_api/add_category.php`;
+    const url = isEdit ? api('update_category.php') : api('add_category.php');
 
     fetch(url, { credentials: 'include', method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(categoryFormData) })
       .then(res => res.json()).then(data => {
@@ -459,7 +460,7 @@ function App() {
           ) : (
             <button
               onClick={async () => { 
-                await fetch('./church_api/logout.php');
+                await fetch(api('logout.php'), { credentials: 'include' });
                 sessionStorage.removeItem('isLoggedIn'); 
                 setIsLoggedIn(false); 
                 setActiveMenu('overview'); 

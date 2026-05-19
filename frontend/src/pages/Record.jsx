@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { api } from '../api';
 
 import { Plus, Edit, Trash2, Image as ImageIcon, Database, Filter, Download, Upload, FileSpreadsheet } from 'lucide-react';
 import Papa from 'papaparse';
@@ -84,7 +85,7 @@ export default function Record({ transactions, formatThaiDate, fmt, handleViewIm
         });
 
         // ส่งข้อมูลทั้งก้อนไปให้ Backend ทีเดียว
-        fetch(`./church_api/add_transaction.php`, { credentials: 'include',
+        fetch(api('add_transaction.php'), { credentials: 'include',
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(formattedData)

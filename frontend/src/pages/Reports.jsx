@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { api } from '../api';
 
 import { ChevronLeft, ChevronRight, TrendingUp, TrendingDown, Wallet, Activity, ArrowLeft, Edit, Trash2, Image as ImageIcon, PieChart as PieIcon, LineChart, Download, Upload } from 'lucide-react';
 import Papa from 'papaparse';
@@ -108,7 +109,7 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
           };
         });
 
-        fetch(`./church_api/add_transaction.php`, { credentials: 'include',
+        fetch(api('add_transaction.php'), { credentials: 'include',
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(formattedData)

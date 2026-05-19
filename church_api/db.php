@@ -1,9 +1,11 @@
 <?php
 // ไฟล์ db.php สำหรับเชื่อมต่อ MySQL ด้วย PDO
-$host = "sql305.infinityfree.com";
-$dbname = "if0_41253899_church_db";
-$username = "if0_41253899";
-$password = "GQVlj2611PQTo";
+// Clever Cloud จะ inject environment variables ให้อัตโนมัติ
+// ถ้ารันใน local (XAMPP) จะใช้ fallback ค่า localhost
+$host     = getenv('MYSQL_ADDON_HOST')     ?: 'localhost';
+$dbname   = getenv('MYSQL_ADDON_DB')       ?: 'church_db';
+$username = getenv('MYSQL_ADDON_USER')     ?: 'root';
+$password = getenv('MYSQL_ADDON_PASSWORD') ?: '';
 
 try {
     $conn = new PDO(

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { api } from '../api';
 import { Mail, Lock, Eye, EyeOff, ArrowRight, ShieldCheck, Database, Activity, PieChart, LineChart, X } from 'lucide-react';
 
 export default function Login({ onLogin, onBack }) {
@@ -13,7 +14,7 @@ export default function Login({ onLogin, onBack }) {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const response = await fetch('./church_api/login.php', {
+      const response = await fetch(api('login.php'), {
         credentials: 'include',
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
