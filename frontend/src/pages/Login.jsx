@@ -67,13 +67,13 @@ export default function Login({ onLogin, onBack }) {
         {/* ═══════════════════════════════════════
             LEFT — Branding
         ═══════════════════════════════════════ */}
-        <div className="hidden lg:flex w-[55%] xl:w-3/5 p-8 xl:p-12 2xl:p-20 flex-col justify-between relative overflow-hidden border-r border-slate-200/50 dark:border-white/5 group">
+        <div className="hidden lg:flex w-1/2 p-8 xl:p-12 2xl:p-16 flex-col justify-between relative overflow-hidden border-r border-slate-200/50 dark:border-white/5 group">
           <div className="absolute inset-0 bg-gradient-to-br from-blue-100/30 to-purple-100/30 dark:from-blue-900/10 dark:to-purple-900/10 z-0" />
 
           <div className="relative z-10 flex flex-col flex-1 justify-center items-center text-center">
 
             {/* Logo */}
-            <div className="w-64 h-64 xl:w-96 xl:h-96 2xl:w-[28rem] 2xl:h-[28rem] shrink-0 flex items-center justify-center mb-6 xl:mb-10 2xl:mb-14 relative group-hover:scale-105 transition-transform duration-1000">
+            <div className="w-56 h-56 xl:w-72 xl:h-72 2xl:w-80 2xl:h-80 shrink-0 flex items-center justify-center mb-6 xl:mb-8 relative group-hover:scale-105 transition-transform duration-1000">
               <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 opacity-20 blur-[40px] rounded-full group-hover:opacity-40 transition-all duration-700" />
               <div className="w-full h-full rounded-full p-[2px] bg-gradient-to-b from-white/50 to-transparent dark:from-white/10 dark:to-transparent relative shadow-xl">
                 <div className="absolute inset-0 bg-white/20 dark:bg-black/20 rounded-full backdrop-blur-md" />
@@ -87,14 +87,14 @@ export default function Login({ onLogin, onBack }) {
 
             {/* Title */}
             <div className="space-y-4">
-              <h1 className="text-4xl xl:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-600 dark:from-blue-400 dark:via-indigo-400 dark:to-purple-400 uppercase tracking-tighter drop-shadow-sm filter flex flex-col items-center">
+              <h1 className="text-3xl xl:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-600 dark:from-blue-400 dark:via-indigo-400 dark:to-purple-400 uppercase tracking-tighter drop-shadow-sm filter flex flex-col items-center">
                 <span>The House of</span>
                 <span className="text-[0.7em] tracking-[0.1em] mt-2">worship and prayer</span>
               </h1>
             </div>
 
             {/* Feature boxes */}
-            <div className="mt-8 xl:mt-10 2xl:mt-14 grid grid-cols-4 gap-3 2xl:gap-5 w-full max-w-3xl shrink-0">
+            <div className="mt-6 xl:mt-8 grid grid-cols-4 gap-3 w-full max-w-xl shrink-0">
               {[
                 { Icon: Activity,  label: 'ติดตามรายรับรายจ่าย\nแบบ Real-time',   color: 'blue'    },
                 { Icon: LineChart, label: 'วิเคราะห์แนวโน้ม\nการเงินด้วยกราฟ',    color: 'indigo'  },
@@ -118,7 +118,7 @@ export default function Login({ onLogin, onBack }) {
         {/* ═══════════════════════════════════════
             RIGHT — Login Form
         ═══════════════════════════════════════ */}
-        <div className="w-full h-full lg:w-[45%] xl:w-2/5 p-8 sm:p-12 xl:p-16 flex flex-col justify-center relative bg-white/40 dark:bg-[#0B1121]/40 overflow-y-auto">
+        <div className="w-full h-full lg:w-1/2 p-8 sm:p-12 xl:p-14 flex flex-col justify-center relative bg-white/40 dark:bg-[#0B1121]/40 overflow-y-auto">
 
           {onBack && (
             <button
@@ -131,7 +131,7 @@ export default function Login({ onLogin, onBack }) {
             </button>
           )}
 
-          <div className="max-w-[400px] mx-auto w-full relative z-10">
+          <div className="max-w-[440px] mx-auto w-full relative z-10">
 
             {/* Mobile logo */}
             <div className="lg:hidden flex flex-col items-center justify-center mb-8">
