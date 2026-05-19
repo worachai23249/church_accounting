@@ -1,8 +1,6 @@
 <?php
-header("Access-Control-Allow-Origin: *");
+require_once 'cors.php';
 header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
 
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 

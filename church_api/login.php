@@ -1,14 +1,8 @@
 <?php
+require_once 'cors.php';
 require 'auth_config.php';
-header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Methods: POST, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
 
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit;
-}
 
 $json = file_get_contents('php://input');
 $data = json_decode($json, true);
@@ -20,7 +14,7 @@ if (!$data || !isset($data['email']) || !isset($data['password'])) {
 }
 
 if ($data['email'] === $ADMIN_EMAIL && $data['password'] === $ADMIN_PASSWORD) {
-    if (session_status() === PHP_SESSION_NONE) { session_start(); }
+    session_start();
     session_regenerate_id(true); // ป้องกัน Fixation
 
     $_SESSION['admin_logged_in'] = true;

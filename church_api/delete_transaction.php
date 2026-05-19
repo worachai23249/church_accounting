@@ -1,9 +1,7 @@
 <?php
-header("Access-Control-Allow-Origin: *");
+require_once 'cors.php';
 header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Methods: POST");
 header("Access-Control-Max-Age: 3600");
-header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 
 // เปลี่ยนชื่อเรียกไฟล์ฐานข้อมูลให้ตรงกับของคุณ (db.php)
 require_once 'auth_check.php';
