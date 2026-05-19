@@ -11,6 +11,7 @@ import Record from './pages/Record';
 import Categories from './pages/Categories';
 import Reports from './pages/Reports';
 import Login from './pages/Login';
+import NotificationToast from './components/NotificationToast';
 
 const CATEGORY_COLORS = ['#EF4444', '#F87171', '#F97316', '#EAB308', '#84CC16', '#10B981', '#059669', '#14B8A6', '#06B6D4', '#0EA5E9', '#3B82F6', '#6366F1', '#8B5CF6', '#A855F7', '#D946EF', '#EC4899', '#64748B'];
 
@@ -25,11 +26,16 @@ function App() {
   const [categories, setCategories] = useState([]);
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, id: null, type: '', title: '', message: '' });
   const [successModal, setSuccessModal] = useState({ isOpen: false, title: '', message: '' });
+  const [toasts, setToasts] = useState([]);
+  const [notifCount, setNotifCount] = useState(0);
+  const lastIdRef = useRef(null);
 
   const showSuccess = (title, message) => {
     setSuccessModal({ isOpen: true, title, message });
     setTimeout(() => setSuccessModal(prev => ({ ...prev, isOpen: false })), 2500);
   };
+
+  const dismissToast = (id) => setToasts(prev => prev.filter(t => t.id !== id));
 
   const playAppNotificationSound = () => {
     try {
@@ -145,6 +151,40 @@ function App() {
     if ('Notification' in window && Notification.permission === 'default') {
       setTimeout(() => requestNotificationPermission(false), 3000);
     }
+  }, []);
+
+  // ── Set initial lastId once transactions load ──
+  useEffect(() => {
+    if (lastIdRef.current === null && transactions.length > 0) {
+      lastIdRef.current = Math.max(...transactions.map(t => parseInt(t.id) || 0));
+    }
+  }, [transactions]);
+
+  // ── Poll for new transactions every 30s ──
+  useEffect(() => {
+    let interval;
+    const startPolling = () => {
+      interval = setInterval(async () => {
+        if (lastIdRef.current === null) return;
+        try {
+          const res = await fetch(api(`get_new_transactions.php?last_id=${lastIdRef.current}`));
+          const data = await res.json();
+          if (Array.isArray(data) && data.length > 0) {
+            const maxId = Math.max(...data.map(t => parseInt(t.id) || 0));
+            lastIdRef.current = maxId;
+            playAppNotificationSound();
+            setNotifCount(prev => prev + data.length);
+            setToasts(prev => [
+              ...prev.slice(-4),
+              ...data.map(t => ({ ...t, id: `toast-${t.id}-${Date.now()}` }))
+            ]);
+            fetchTransactions();
+          }
+        } catch(e) {}
+      }, 30000);
+    };
+    const timeout = setTimeout(startPolling, 5000);
+    return () => { clearTimeout(timeout); clearInterval(interval); };
   }, []);
 
   const handleOpenAddTransaction = () => {
@@ -446,6 +486,23 @@ function App() {
 
 
 
+          {/* Notification Bell */}
+          <button
+            onClick={() => { requestNotificationPermission(true); setNotifCount(0); }}
+            className="group relative w-full flex items-center space-x-4 px-5 py-4 rounded-[18px] bg-slate-50/80 dark:bg-[#0A101D]/80 border border-slate-200/80 dark:border-white/5 text-slate-600 dark:text-slate-400 font-black overflow-hidden transition-all duration-500 hover:border-amber-400/50 dark:hover:border-amber-500/30 hover:shadow-[0_0_20px_rgba(251,191,36,0.15)] hover:bg-white dark:hover:bg-[#0F172A]"
+          >
+            <div className="absolute inset-0 bg-gradient-to-b from-amber-500/0 to-amber-500/5 dark:to-amber-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="relative z-10 flex items-center justify-center p-2 rounded-[12px] bg-transparent group-hover:bg-amber-50 dark:group-hover:bg-amber-500/20 transition-all duration-500">
+              <Bell size={18} className="group-hover:animate-[wiggle_0.4s_ease-in-out] group-hover:text-amber-500 dark:group-hover:text-amber-400 transition-colors" />
+            </div>
+            <span className="relative z-10 text-[10px] uppercase tracking-[0.2em] group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors translate-y-[1px]">การแจ้งเตือน</span>
+            {notifCount > 0 && (
+              <span className="ml-auto relative z-10 bg-rose-500 text-white text-[9px] font-black min-w-[20px] h-5 px-1 rounded-full flex items-center justify-center shadow-[0_0_10px_rgba(239,68,68,0.6)] animate-pulse">
+                {notifCount > 9 ? '9+' : notifCount}
+              </span>
+            )}
+          </button>
+
           {!isLoggedIn ? (
             <button
               onClick={() => { setShowLoginScreen(true); setIsMobileMenuOpen(false); }}
@@ -494,6 +551,9 @@ function App() {
         {activeMenu === 'categories' && <Categories categories={categories} transactions={transactions} handleOpenAddCategory={handleOpenAddCategory} handleOpenEditCategory={handleOpenEditCategory} handleDeleteCategory={handleDeleteCategory} />}
         {activeMenu === 'reports' && <Reports transactions={transactions} categories={categories} fmt={fmt} formatThaiDate={formatThaiDate} handleViewImage={(url) => { setViewImageUrl(url); setIsImageModalOpen(true); }} handleOpenEditTransaction={handleOpenEditTransaction} handleDeleteTransaction={handleDeleteTransaction} isLoggedIn={isLoggedIn} />}
       </main>
+
+      {/* Real-time Toast Notifications */}
+      <NotificationToast toasts={toasts} onDismiss={dismissToast} />
 
       {/* 1. Modal บันทึกรายการ */}
       {isFormOpen && (
