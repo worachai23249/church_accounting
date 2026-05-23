@@ -146,7 +146,7 @@ export default function Overview({ transactions, categories = [], formatThaiDate
       {/* Charts Section */}
       <div className="flex flex-col gap-6 md:gap-8 mb-8 md:mb-10">
         {/* Bar Chart */}
-        <div className="glass-panel p-5 md:p-8 rounded-[24px] md:rounded-[32px] h-[320px] md:h-[450px] flex flex-col relative animate-fade-in-up w-full" style={{ animationDelay: '0.5s' }}>
+        <div className="glass-panel p-5 md:p-8 rounded-[24px] md:rounded-[32px] h-[360px] md:h-[450px] flex flex-col relative animate-fade-in-up w-full" style={{ animationDelay: '0.5s' }}>
           <div className="flex items-center justify-between mb-5 relative z-10">
             <div>
               <h3 className="text-base md:text-xl font-black text-slate-800 dark:text-white tracking-tight flex items-center gap-2 md:gap-3">
@@ -158,7 +158,7 @@ export default function Overview({ transactions, categories = [], formatThaiDate
           </div>
           <div className="flex-1 w-full relative z-10">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={monthlyData} margin={{ top: 10, right: 5, left: -15, bottom: 0 }}>
+              <BarChart data={monthlyData} margin={{ top: 10, right: 5, left: -15, bottom: 30 }}>
                 <defs>
                   <linearGradient id="colorIncome" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="#34D399" stopOpacity={1} />
@@ -170,7 +170,18 @@ export default function Overview({ transactions, categories = [], formatThaiDate
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" className="text-slate-200 dark:text-[#1E293B]" opacity={0.5} />
-                <XAxis dataKey="name" fontSize={11} tickLine={false} axisLine={false} tick={{ fill: '#64748B', fontWeight: 700 }} dy={10} />
+                <XAxis
+                  dataKey="name"
+                  fontSize={10}
+                  tickLine={false}
+                  axisLine={false}
+                  interval={0}
+                  tick={{ fill: '#64748B', fontWeight: 700 }}
+                  angle={-45}
+                  textAnchor="end"
+                  dy={4}
+                  dx={-2}
+                />
                 <YAxis fontSize={11} tickLine={false} axisLine={false} tick={{ fill: '#64748B', fontWeight: 700 }} tickFormatter={(val) => val >= 1000 ? (val / 1000) + 'k' : val} dx={-5} />
                 <RechartsTooltip cursor={{ fill: 'rgba(255,255,255,0.05)' }} content={({ active, payload, label }) => {
                   if (active && payload && payload.length) {
