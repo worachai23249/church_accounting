@@ -3,7 +3,7 @@ import { api } from './api';
 
 import {
   LayoutDashboard, ArrowLeftRight, Tags, PieChart as PieChartIcon,
-  Sun, Moon, LogOut, X, Trash2, Upload, Lock, AlertTriangle, CheckCircle, Menu, Bell, Camera
+  Sun, Moon, LogOut, X, Trash2, Upload, Lock, AlertTriangle, CheckCircle, Menu, Camera
 } from 'lucide-react';
 
 import Overview from './pages/Overview';
@@ -57,37 +57,48 @@ function App() {
 
   const setUnreadBadge = (count) => {
     if ('setAppBadge' in navigator) {
-      if (count > 0) navigator.setAppBadge(count).catch(console.error);
-      else navigator.clearAppBadge().catch(console.error);
+      if (count > 0) navigator.setAppBadge(count).catch(() => {});
+      else navigator.clearAppBadge().catch(() => {});
     }
   };
 
   const setupPWAWorker = () => {
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/OneSignalSDKWorker.js').catch(err => console.error('SW Config:', err));
+      navigator.serviceWorker.register('/sw.js').catch(() => {});
     }
   };
 
-  const requestNotificationPermission = async (showTest = false) => {
+  // ส่ง Web Notification จริงไปยัง notification bar ของมือถือ/คอม
+  const sendWebNotification = (title, body) => {
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+    try {
+      // ใช้ Service Worker showNotification (รองรับมือถือดีกว่า new Notification)
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.ready.then(reg => {
+          reg.showNotification(title, {
+            body,
+            icon: '/logo.png?v=3',
+            badge: '/pwa-192x192.png',
+            vibrate: [200, 100, 200],
+            tag: 'hwp-transaction',
+            renotify: true,
+            data: { url: '/' }
+          });
+        }).catch(() => {
+          new Notification(title, { body, icon: '/logo.png?v=3' });
+        });
+      } else {
+        new Notification(title, { body, icon: '/logo.png?v=3', vibrate: [200, 100, 200] });
+      }
+    } catch(e) {}
+  };
+
+  const requestNotificationPermission = async () => {
     try {
       setupPWAWorker();
-      if (window.OneSignalDeferred) {
-        window.OneSignalDeferred.push(function(OneSignal) {
-          OneSignal.Slidedown.promptPush();
-        });
-      }
-      if (!('Notification' in window)) {
-        if (showTest) alert('อุปกรณ์ของคุณไม่รองรับการแจ้งเตือนแบบ Push');
-        return;
-      }
-      const permission = await Notification.requestPermission();
-      if (permission === 'granted' && showTest) {
-        playAppNotificationSound();
-        setUnreadBadge(1);
-        new Notification("The House of Worship", { body: "ระบบพร้อมส่งแจ้งเตือนเข้ามือถือแล้ว! (แบบจำลอง)", icon: "/logo.png?v=3", vibrate: [200, 100, 200] });
-        setTimeout(() => setUnreadBadge(0), 5000);
-      } else if (permission !== 'granted' && showTest) {
-        alert('❌ คุณปฏิเสธการแจ้งเตือน (แก้ได้ในการตั้งค่าเบราว์เซอร์)');
+      if (!('Notification' in window)) return;
+      if (Notification.permission === 'default') {
+        await Notification.requestPermission();
       }
     } catch(e) {}
   };
@@ -146,11 +157,26 @@ function App() {
     Promise.all([fetchTransactions(), fetchCategories(), authCheck])
       .finally(() => setLoading(false));
 
-    // ขอสิทธิ์ PWA หลังจากหน้าโหลดเสร็จ (ไม่ให้บล็อก UI)
+    // Register Service Worker + ขอสิทธิ์แจ้งเตือนอัตโนมัติ
     setupPWAWorker();
     if ('Notification' in window && Notification.permission === 'default') {
-      setTimeout(() => requestNotificationPermission(false), 3000);
+      setTimeout(() => requestNotificationPermission(), 3000);
     }
+  }, []);
+
+  // ── เคลียร์ badge เมื่อผู้ใช้เปิดแอพ/โฟกัสที่หน้าต่าง ──
+  useEffect(() => {
+    const clearOnFocus = () => {
+      setNotifCount(0);
+      if ('clearAppBadge' in navigator) navigator.clearAppBadge().catch(() => {});
+    };
+    const onVisibility = () => { if (!document.hidden) clearOnFocus(); };
+    document.addEventListener('visibilitychange', onVisibility);
+    window.addEventListener('focus', clearOnFocus);
+    return () => {
+      document.removeEventListener('visibilitychange', onVisibility);
+      window.removeEventListener('focus', clearOnFocus);
+    };
   }, []);
 
   // ── Set initial lastId once transactions load ──
@@ -173,7 +199,20 @@ function App() {
             const maxId = Math.max(...data.map(t => parseInt(t.id) || 0));
             lastIdRef.current = maxId;
             playAppNotificationSound();
-            setNotifCount(prev => prev + data.length);
+            const newCount = data.length;
+            setNotifCount(prev => {
+              const total = prev + newCount;
+              setUnreadBadge(total);
+              return total;
+            });
+            // ส่ง Web Notification เข้า notification bar มือถือ
+            const first = data[0];
+            const typeLabel = first.type === 'INCOME' ? 'รายรับใหม่' : 'รายจ่ายใหม่';
+            const amountLabel = `฿${Number(first.amount).toLocaleString('th-TH')}`;
+            sendWebNotification(
+              `HWP — ${typeLabel}${newCount > 1 ? ` (+${newCount} รายการ)` : ''}`,
+              `${first.description}: ${amountLabel}`
+            );
             setToasts(prev => [
               ...prev.slice(-4),
               ...data.map(t => ({ ...t, id: `toast-${t.id}-${Date.now()}` }))
@@ -258,6 +297,20 @@ function App() {
           fetchTransactions();
           setIsFormOpen(false);
           showSuccess(isEdit ? 'แก้ไขสำเร็จ' : 'เพิ่มสำเร็จ', isEdit ? 'ข้อมูลรายการถูกอัปเดตเรียบร้อยแล้ว' : 'สร้างรายการใหม่เรียบร้อยแล้ว');
+          // ส่ง Web Notification เข้า notification bar มือถือ
+          if (!isEdit) {
+            const typeLabel = formData.type === 'INCOME' ? 'บันทึกรายรับ' : 'บันทึกรายจ่าย';
+            const amountLabel = `฿${Number(formData.amount).toLocaleString('th-TH')}`;
+            sendWebNotification(
+              `HWP — ${typeLabel}สำเร็จ`,
+              `${formData.description}: ${amountLabel}`
+            );
+            setNotifCount(prev => {
+              const total = prev + 1;
+              setUnreadBadge(total);
+              return total;
+            });
+          }
         } else {
           alert("ไม่สามารถบันทึกได้: " + (data.message || JSON.stringify(data)));
         }
@@ -394,7 +447,7 @@ function App() {
     setIsLoggedIn(true); 
     setShowLoginScreen(false); 
     if ('Notification' in window && Notification.permission !== 'granted' && Notification.permission !== 'denied') {
-      setTimeout(() => requestNotificationPermission(true), 500);
+      setTimeout(() => requestNotificationPermission(), 500);
     }
   }} onBack={() => setShowLoginScreen(false)} />;
 
@@ -486,22 +539,7 @@ function App() {
 
 
 
-          {/* Notification Bell */}
-          <button
-            onClick={() => { requestNotificationPermission(true); setNotifCount(0); }}
-            className="group relative w-full flex items-center space-x-4 px-5 py-4 rounded-[18px] bg-slate-50/80 dark:bg-[#0A101D]/80 border border-slate-200/80 dark:border-white/5 text-slate-600 dark:text-slate-400 font-black overflow-hidden transition-all duration-500 hover:border-amber-400/50 dark:hover:border-amber-500/30 hover:shadow-[0_0_20px_rgba(251,191,36,0.15)] hover:bg-white dark:hover:bg-[#0F172A]"
-          >
-            <div className="absolute inset-0 bg-gradient-to-b from-amber-500/0 to-amber-500/5 dark:to-amber-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            <div className="relative z-10 flex items-center justify-center p-2 rounded-[12px] bg-transparent group-hover:bg-amber-50 dark:group-hover:bg-amber-500/20 transition-all duration-500">
-              <Bell size={18} className="group-hover:animate-[wiggle_0.4s_ease-in-out] group-hover:text-amber-500 dark:group-hover:text-amber-400 transition-colors" />
-            </div>
-            <span className="relative z-10 text-[10px] uppercase tracking-[0.2em] group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors translate-y-[1px]">การแจ้งเตือน</span>
-            {notifCount > 0 && (
-              <span className="ml-auto relative z-10 bg-rose-500 text-white text-[9px] font-black min-w-[20px] h-5 px-1 rounded-full flex items-center justify-center shadow-[0_0_10px_rgba(239,68,68,0.6)] animate-pulse">
-                {notifCount > 9 ? '9+' : notifCount}
-              </span>
-            )}
-          </button>
+
 
           {!isLoggedIn ? (
             <button
