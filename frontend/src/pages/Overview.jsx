@@ -178,6 +178,7 @@ export default function Overview({ transactions, categories = [], formatThaiDate
                   dy={8}
                   tick={(props) => {
                     const { x, y, payload } = props;
+                    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
                     return (
                       <g transform={`translate(${x},${y})`}>
                         <text
@@ -185,7 +186,7 @@ export default function Overview({ transactions, categories = [], formatThaiDate
                           textAnchor="middle"
                           fill="#64748B"
                           fontWeight={700}
-                          fontSize={9}
+                          fontSize={isMobile ? 9 : 11}
                           style={{ fontFamily: 'inherit' }}
                         >
                           {payload.value}

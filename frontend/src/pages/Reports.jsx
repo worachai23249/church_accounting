@@ -415,9 +415,10 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
                   dy={8}
                   tick={(props) => {
                     const { x, y, payload } = props;
+                    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
                     return (
                       <g transform={`translate(${x},${y})`}>
-                        <text x={0} y={0} textAnchor="middle" fill="#64748B" fontWeight={700} fontSize={9} style={{ fontFamily: 'inherit' }}>
+                        <text x={0} y={0} textAnchor="middle" fill="#64748B" fontWeight={700} fontSize={isMobile ? 9 : 11} style={{ fontFamily: 'inherit' }}>
                           {payload.value}
                         </text>
                       </g>
@@ -476,9 +477,10 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
                   dy={8}
                   tick={(props) => {
                     const { x, y, payload } = props;
+                    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
                     return (
                       <g transform={`translate(${x},${y})`}>
-                        <text x={0} y={0} textAnchor="middle" fill="#64748B" fontWeight={700} fontSize={9} style={{ fontFamily: 'inherit' }}>
+                        <text x={0} y={0} textAnchor="middle" fill="#64748B" fontWeight={700} fontSize={isMobile ? 9 : 11} style={{ fontFamily: 'inherit' }}>
                           {payload.value}
                         </text>
                       </g>
