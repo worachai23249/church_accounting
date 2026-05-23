@@ -389,7 +389,7 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-10">
 
         {/* Area Chart: Income vs Expense Trend */}
-        <div className="glass-panel p-5 md:p-8 rounded-[24px] md:rounded-[32px] h-[300px] md:h-[450px] flex flex-col relative animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
+        <div className="glass-panel p-5 md:p-8 rounded-[24px] md:rounded-[32px] h-[340px] md:h-[450px] flex flex-col relative animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
           <div className="absolute top-0 right-0 w-[80%] h-full bg-gradient-to-l from-blue-500/5 to-transparent pointer-events-none rounded-r-[32px]"></div>
           <div className="mb-8 relative z-10">
             <h3 className="text-xl font-black text-slate-800 dark:text-white tracking-tight flex items-center gap-3">
@@ -401,13 +401,29 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
 
           <div className="flex-1 w-full relative z-10">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={reportMonthlyStats} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+              <AreaChart data={reportMonthlyStats} margin={{ top: 10, right: 10, left: -10, bottom: 5 }}>
                 <defs>
                   <linearGradient id="colorIncAreaLine" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#34D399" stopOpacity={0.4} /><stop offset="95%" stopColor="#34D399" stopOpacity={0} /></linearGradient>
                   <linearGradient id="colorExpAreaLine" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#FB7185" stopOpacity={0.4} /><stop offset="95%" stopColor="#FB7185" stopOpacity={0} /></linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" className="text-slate-200 dark:text-[#1E293B]" opacity={0.5} />
-                <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} tick={{ fill: '#64748B', fontWeight: 700 }} dy={10} />
+                <XAxis
+                  dataKey="name"
+                  tickLine={false}
+                  axisLine={false}
+                  interval={0}
+                  dy={8}
+                  tick={(props) => {
+                    const { x, y, payload } = props;
+                    return (
+                      <g transform={`translate(${x},${y})`}>
+                        <text x={0} y={0} textAnchor="middle" fill="#64748B" fontWeight={700} fontSize={9} style={{ fontFamily: 'inherit' }}>
+                          {payload.value}
+                        </text>
+                      </g>
+                    );
+                  }}
+                />
                 <YAxis fontSize={12} tickLine={false} axisLine={false} tick={{ fill: '#64748B', fontWeight: 700 }} tickFormatter={(val) => val >= 1000 ? (val / 1000) + 'k' : val} dx={-10} />
                 <RechartsTooltip
                   cursor={{ stroke: 'rgba(255,255,255,0.1)', strokeWidth: 2, strokeDasharray: '4 4' }}
@@ -438,7 +454,7 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
         </div>
 
         {/* Bar Chart: Monthly Balances */}
-        <div className="glass-panel p-5 md:p-8 rounded-[24px] md:rounded-[32px] h-[300px] md:h-[450px] flex flex-col relative animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
+        <div className="glass-panel p-5 md:p-8 rounded-[24px] md:rounded-[32px] h-[340px] md:h-[450px] flex flex-col relative animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
           <div className="absolute top-0 left-0 w-[80%] h-full bg-gradient-to-r from-purple-500/5 to-transparent pointer-events-none rounded-l-[32px]"></div>
           <div className="mb-8 relative z-10">
             <h3 className="text-xl font-black text-slate-800 dark:text-white tracking-tight flex items-center gap-3">
@@ -449,10 +465,26 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
           </div>
           <div className="flex-1 w-full relative z-10">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={reportMonthlyStats} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+              <BarChart data={reportMonthlyStats} margin={{ top: 10, right: 10, left: -10, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" className="text-slate-200 dark:text-[#1E293B]" opacity={0.5} />
                 <ReferenceLine y={0} stroke="#64748B" strokeWidth={2} opacity={0.5} />
-                <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} tick={{ fill: '#64748B', fontWeight: 700 }} dy={10} />
+                <XAxis
+                  dataKey="name"
+                  tickLine={false}
+                  axisLine={false}
+                  interval={0}
+                  dy={8}
+                  tick={(props) => {
+                    const { x, y, payload } = props;
+                    return (
+                      <g transform={`translate(${x},${y})`}>
+                        <text x={0} y={0} textAnchor="middle" fill="#64748B" fontWeight={700} fontSize={9} style={{ fontFamily: 'inherit' }}>
+                          {payload.value}
+                        </text>
+                      </g>
+                    );
+                  }}
+                />
                 <YAxis fontSize={12} tickLine={false} axisLine={false} tick={{ fill: '#64748B', fontWeight: 700 }} tickFormatter={(val) => val >= 1000 ? (val / 1000) + 'k' : (val <= -1000 ? (val / 1000) + 'k' : val)} dx={-10} />
                 <RechartsTooltip
                   cursor={{ fill: 'rgba(255,255,255,0.02)' }}
