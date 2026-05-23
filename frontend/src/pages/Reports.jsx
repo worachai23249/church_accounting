@@ -401,7 +401,7 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
 
           <div className="flex-1 w-full relative z-10">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={reportMonthlyStats} margin={{ top: 10, right: 10, left: -10, bottom: 5 }}>
+              <AreaChart data={reportMonthlyStats} margin={{ top: 10, right: 10, left: -10, bottom: 20 }}>
                 <defs>
                   <linearGradient id="colorIncAreaLine" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#34D399" stopOpacity={0.4} /><stop offset="95%" stopColor="#34D399" stopOpacity={0} /></linearGradient>
                   <linearGradient id="colorExpAreaLine" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#FB7185" stopOpacity={0.4} /><stop offset="95%" stopColor="#FB7185" stopOpacity={0} /></linearGradient>
@@ -466,7 +466,7 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
           </div>
           <div className="flex-1 w-full relative z-10">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={reportMonthlyStats} margin={{ top: 10, right: 10, left: -10, bottom: 5 }}>
+              <BarChart data={reportMonthlyStats} margin={{ top: 10, right: 10, left: -10, bottom: 20 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" className="text-slate-200 dark:text-[#1E293B]" opacity={0.5} />
                 <ReferenceLine y={0} stroke="#64748B" strokeWidth={2} opacity={0.5} />
                 <XAxis
