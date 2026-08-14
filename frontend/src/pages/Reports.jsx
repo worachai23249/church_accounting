@@ -27,7 +27,15 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
     const monthTx = reportTransactions.filter(t => t.transaction_date.startsWith(`${selectedYear}-${monthIndexStr}`));
     let inc = 0, exp = 0;
     monthTx.forEach(t => { if (t.type === 'INCOME') inc += parseFloat(t.amount); else exp += parseFloat(t.amount); });
-    return { name: monthName, income: inc, expense: exp, balance: inc - exp };
+    const net = inc - exp;
+    return { 
+      name: monthName, 
+      income: inc, 
+      expense: exp, 
+      balance: net,
+      displayBalance: Math.abs(net),
+      isNegative: net < 0
+    };
   });
 
   let detailTransactions = [];
@@ -464,7 +472,6 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={reportMonthlyStats} margin={{ top: 10, right: 10, left: -10, bottom: 20 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" className="text-slate-200 dark:text-[#1E293B]" opacity={0.5} />
-                <ReferenceLine y={0} stroke="#64748B" strokeWidth={2} opacity={0.5} />
                 <XAxis
                   dataKey="name"
                   tickLine={false}
@@ -483,17 +490,19 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
                     );
                   }}
                 />
-                <YAxis fontSize={12} tickLine={false} axisLine={false} tick={{ fill: '#64748B', fontWeight: 700 }} tickFormatter={(val) => val >= 1000 ? (val / 1000) + 'k' : (val <= -1000 ? (val / 1000) + 'k' : val)} dx={-10} />
+                <YAxis domain={[0, 'auto']} fontSize={12} tickLine={false} axisLine={false} tick={{ fill: '#64748B', fontWeight: 700 }} tickFormatter={(val) => val >= 1000 ? (val / 1000) + 'k' : val} dx={-10} />
                 <RechartsTooltip
                   cursor={{ fill: 'rgba(255,255,255,0.02)' }}
                   content={({ active, payload, label }) => {
                     if (active && payload && payload.length) {
+                      const item = payload[0].payload;
+                      const isPos = item.balance >= 0;
                       return (
                         <div className="bg-[#0F172A]/90 backdrop-blur-xl border border-white/10 p-4 rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.8)]">
                           <p className="text-slate-400 font-bold text-[10px] uppercase tracking-widest mb-3">{label}</p>
                           <div className="flex items-center gap-3">
-                            <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: payload[0].payload.balance >= 0 ? '#8B5CF6' : '#F43F5E', boxShadow: `0 0 10px ${payload[0].payload.balance >= 0 ? '#8B5CF6' : '#F43F5E'}` }}></div>
-                            <span className="text-slate-200 font-bold text-xs">{payload[0].name}: <span className="font-black text-white ml-1">฿{fmt(payload[0].value)}</span></span>
+                            <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: isPos ? '#8B5CF6' : '#F43F5E', boxShadow: `0 0 10px ${isPos ? '#8B5CF6' : '#F43F5E'}` }}></div>
+                            <span className="text-slate-200 font-bold text-xs">{isPos ? 'คงเหลือสุทธิ' : 'ขาดทุนสุทธิ'}: <span className={`font-black ml-1 ${isPos ? 'text-violet-400' : 'text-rose-400'}`}>{isPos ? '+' : '-'}฿{fmt(Math.abs(item.balance))}</span></span>
                           </div>
                         </div>
                       );
@@ -501,7 +510,7 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
                     return null;
                   }}
                 />
-                <Bar dataKey="balance" name="คงเหลือ" radius={[6, 6, 6, 6]} maxBarSize={24} animationDuration={600} animationEasing="ease-out">
+                <Bar dataKey="displayBalance" name="คงเหลือ" radius={[6, 6, 0, 0]} maxBarSize={24} animationDuration={600} animationEasing="ease-out">
                   {reportMonthlyStats.map((entry, index) => (<Cell key={`cell-${index}`} fill={entry.balance >= 0 ? '#8B5CF6' : '#F43F5E'} className="drop-shadow-sm hover:opacity-80 transition-opacity" />))}
                 </Bar>
               </BarChart>
