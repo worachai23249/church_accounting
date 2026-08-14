@@ -141,26 +141,26 @@ export default function Record({ transactions, formatThaiDate, fmt, handleViewIm
       </div>
 
       {/* Filter Tabs */}
-      <div className="flex bg-white/70 dark:bg-[#0B1121]/60 backdrop-blur-md border border-white/20 dark:border-white/5 rounded-[20px] p-1 mb-6 max-w-lg shadow-[0_8px_32px_0_rgba(31,38,135,0.07)] dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.5)] animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-        <button onClick={() => setFilterType('ALL')} className={`group flex-1 py-2.5 rounded-[16px] text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-1.5 transition-all duration-300 ${filterType === 'ALL' ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg' : 'text-slate-500 dark:text-[#94A3B8] hover:text-slate-800 dark:hover:text-white'}`}>
+      <div className="flex bg-white/70 dark:bg-[#0B1121]/60 backdrop-blur-md border border-white/20 dark:border-white/5 rounded-[20px] p-1 mb-6 max-w-lg shadow-sm animate-fade-in-up">
+        <button onClick={() => setFilterType('ALL')} className={`group flex-1 py-2.5 rounded-[16px] text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-1.5 transition-all duration-200 ${filterType === 'ALL' ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-sm' : 'text-slate-500 dark:text-[#94A3B8] hover:text-slate-800 dark:hover:text-white'}`}>
           <Filter size={12} className={filterType === 'ALL' ? 'text-white' : 'text-slate-400 group-hover:text-blue-500'} />
           ทั้งหมด
         </button>
-        <button onClick={() => setFilterType('INCOME')} className={`flex-1 py-2.5 rounded-[16px] text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-1.5 transition-all duration-300 ${filterType === 'INCOME' ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-[0_0_15px_rgba(16,185,129,0.4)]' : 'text-slate-500 dark:text-[#94A3B8] hover:text-emerald-500'}`}>
+        <button onClick={() => setFilterType('INCOME')} className={`flex-1 py-2.5 rounded-[16px] text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-1.5 transition-all duration-200 ${filterType === 'INCOME' ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-sm' : 'text-slate-500 dark:text-[#94A3B8] hover:text-emerald-500'}`}>
           <span className={`w-1.5 h-1.5 rounded-full ${filterType === 'INCOME' ? 'bg-white' : 'bg-emerald-500'}`}></span>
           รายรับ
         </button>
-        <button onClick={() => setFilterType('EXPENSE')} className={`flex-1 py-2.5 rounded-[16px] text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-1.5 transition-all duration-300 ${filterType === 'EXPENSE' ? 'bg-gradient-to-r from-rose-500 to-rose-600 text-white shadow-[0_0_15px_rgba(244,63,94,0.4)]' : 'text-slate-500 dark:text-[#94A3B8] hover:text-rose-500'}`}>
+        <button onClick={() => setFilterType('EXPENSE')} className={`flex-1 py-2.5 rounded-[16px] text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-1.5 transition-all duration-200 ${filterType === 'EXPENSE' ? 'bg-gradient-to-r from-rose-500 to-rose-600 text-white shadow-sm' : 'text-slate-500 dark:text-[#94A3B8] hover:text-rose-500'}`}>
           <span className={`w-1.5 h-1.5 rounded-full ${filterType === 'EXPENSE' ? 'bg-white' : 'bg-rose-500'}`}></span>
           รายจ่าย
         </button>
       </div>
 
       {/* Premium Card Grid — All screens */}
-      <div className="animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+      <div className="animate-fade-in-up">
         {filteredTransactions.length === 0 ? (
           <div className="glass-panel rounded-[24px] p-12 flex flex-col items-center text-slate-400 space-y-4">
-            <div className="w-16 h-16 rounded-full border-4 border-dashed border-slate-300 dark:border-[#334155] flex items-center justify-center animate-spin-slow"><Database size={22} className="animate-none" /></div>
+            <div className="w-14 h-14 rounded-full border-2 border-slate-300 dark:border-[#334155] border-t-blue-500 flex items-center justify-center"><Database size={20} className="text-slate-400" /></div>
             <span className="text-sm font-black uppercase tracking-widest text-slate-500 dark:text-[#94A3B8]">No Data Found</span>
             <span className="text-xs text-slate-400">ไม่พบข้อมูลในหมวดหมู่นี้</span>
           </div>

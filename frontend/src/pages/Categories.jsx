@@ -35,55 +35,54 @@ export default function Categories({ categories = [], transactions = [], handleO
       </div>
 
       {/* Tabs แบบ Glassmorphism */}
-      <div className="flex bg-white/70 dark:bg-[#0B1121]/60 backdrop-blur-md border border-white/20 dark:border-white/5 rounded-[24px] p-1 md:p-2 mb-8 max-w-2xl shadow-[0_8px_32px_0_rgba(31,38,135,0.07)] dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.5)] animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+      <div className="flex bg-white/70 dark:bg-[#0B1121]/60 backdrop-blur-md border border-white/20 dark:border-white/5 rounded-[24px] p-1 md:p-2 mb-8 max-w-2xl shadow-sm animate-fade-in-up">
         <button
           onClick={() => setCategoryTab('INCOME')}
-          className={`flex-1 py-3 md:py-3.5 rounded-[18px] text-[10px] md:text-xs font-black uppercase tracking-widest flex items-center justify-center gap-1.5 md:gap-3 transition-all duration-300 ${categoryTab === 'INCOME' ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-[0_0_15px_rgba(16,185,129,0.4)]' : 'text-slate-500 dark:text-[#94A3B8] hover:text-emerald-500 hover:bg-emerald-50/50 dark:hover:bg-emerald-500/10'}`}>
+          className={`flex-1 py-3 md:py-3.5 rounded-[18px] text-[10px] md:text-xs font-black uppercase tracking-widest flex items-center justify-center gap-1.5 md:gap-3 transition-all duration-200 ${categoryTab === 'INCOME' ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-sm' : 'text-slate-500 dark:text-[#94A3B8] hover:text-emerald-500 hover:bg-emerald-50/50 dark:hover:bg-emerald-500/10'}`}>
           <span className={`w-1.5 h-1.5 md:w-2 md:h-2 rounded-full ${categoryTab === 'INCOME' ? 'bg-white' : 'bg-emerald-500'}`}></span>
           <span className="hidden sm:inline">หมวดหมู่รายรับ ({incomeCategories.length})</span><span className="sm:hidden">รายรับ ({incomeCategories.length})</span>
         </button>
         <button
           onClick={() => setCategoryTab('EXPENSE')}
-          className={`flex-1 py-3 md:py-3.5 rounded-[18px] text-[10px] md:text-xs font-black uppercase tracking-widest flex items-center justify-center gap-1.5 md:gap-3 transition-all duration-300 ${categoryTab === 'EXPENSE' ? 'bg-gradient-to-r from-rose-500 to-rose-600 text-white shadow-[0_0_15px_rgba(244,63,94,0.4)]' : 'text-slate-500 dark:text-[#94A3B8] hover:text-rose-500 hover:bg-rose-50/50 dark:hover:bg-rose-500/10'}`}>
+          className={`flex-1 py-3 md:py-3.5 rounded-[18px] text-[10px] md:text-xs font-black uppercase tracking-widest flex items-center justify-center gap-1.5 md:gap-3 transition-all duration-200 ${categoryTab === 'EXPENSE' ? 'bg-gradient-to-r from-rose-500 to-rose-600 text-white shadow-sm' : 'text-slate-500 dark:text-[#94A3B8] hover:text-rose-500 hover:bg-rose-50/50 dark:hover:bg-rose-500/10'}`}>
           <span className={`w-1.5 h-1.5 md:w-2 md:h-2 rounded-full ${categoryTab === 'EXPENSE' ? 'bg-white' : 'bg-rose-500'}`}></span>
           <span className="hidden sm:inline">หมวดหมู่รายจ่าย ({expenseCategories.length})</span><span className="sm:hidden">รายจ่าย ({expenseCategories.length})</span>
         </button>
       </div>
 
       {/* Grid การ์ดหมวดหมู่ */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-        {currentCategories.map((c, idx) => {
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 animate-fade-in-up">
+        {currentCategories.map((c) => {
           const usageCount = transactions.filter(t => t.description === c.name).length;
           return (
             <div
               key={c.id}
-              className="group glass-panel glass-panel-hover p-6 rounded-[28px] flex flex-col justify-between relative overflow-hidden h-[180px] animate-fade-in-up"
-              style={{ animationDelay: `${0.1 + (idx * 0.05)}s` }}
+              className="group glass-panel glass-panel-hover p-6 rounded-[28px] flex flex-col justify-between relative overflow-hidden h-[180px]"
             >
               {/* Background gradient flare on hover */}
               <div
-                className="absolute -right-12 -bottom-12 w-32 h-32 rounded-full blur-3xl opacity-0 group-hover:opacity-30 transition-all duration-700 ease-in-out"
+                className="absolute -right-12 -bottom-12 w-32 h-32 rounded-full blur-3xl opacity-0 group-hover:opacity-20 transition-opacity duration-300 ease-in-out"
                 style={{ backgroundColor: c.color }}
               ></div>
 
               <div className="flex justify-between items-start relative z-10">
                 {/* ไอคอนกล่องดำ + จุดสีเรืองแสง */}
-                <div className="w-14 h-14 rounded-2xl bg-slate-50 dark:bg-[#060A13] border border-slate-200 dark:border-[#1E293B] shadow-inner flex items-center justify-center relative overflow-hidden group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
-                  <div className="w-3.5 h-3.5 rounded-full relative z-10 transition-transform duration-300 group-hover:scale-125 group-hover:animate-pulse" style={{ backgroundColor: c.color, boxShadow: `0 0 12px ${c.color}, 0 0 24px ${c.color}` }}></div>
-                  <div className="absolute inset-0 opacity-20 blur-xl group-hover:opacity-40 transition-opacity duration-300" style={{ backgroundColor: c.color }}></div>
+                <div className="w-14 h-14 rounded-2xl bg-slate-50 dark:bg-[#060A13] border border-slate-200 dark:border-[#1E293B] shadow-inner flex items-center justify-center relative overflow-hidden group-hover:scale-105 transition-transform duration-200">
+                  <div className="w-3.5 h-3.5 rounded-full relative z-10" style={{ backgroundColor: c.color, boxShadow: `0 0 10px ${c.color}` }}></div>
+                  <div className="absolute inset-0 opacity-15 blur-xl group-hover:opacity-30 transition-opacity duration-200" style={{ backgroundColor: c.color }}></div>
                 </div>
 
-                <div className="flex space-x-2 opacity-50 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="flex space-x-2 opacity-60 group-hover:opacity-100 transition-opacity duration-200">
                   <button
                     onClick={() => handleOpenEditCategory(c)}
-                    className="w-10 h-10 flex items-center justify-center bg-white dark:bg-[#1E293B] border border-slate-200 dark:border-[#334155] rounded-xl text-slate-400 dark:text-[#94A3B8] hover:text-white dark:hover:text-white hover:bg-blue-500 dark:hover:bg-blue-500 hover:border-blue-500 shadow-sm transition-all hover:-translate-y-1 hover:shadow-[0_0_15px_rgba(59,130,246,0.5)]"
+                    className="w-10 h-10 flex items-center justify-center bg-white dark:bg-[#1E293B] border border-slate-200 dark:border-[#334155] rounded-xl text-slate-400 dark:text-[#94A3B8] hover:text-white dark:hover:text-white hover:bg-blue-500 dark:hover:bg-blue-500 hover:border-blue-500 shadow-sm transition-colors duration-200"
                     title="แก้ไขหมวดหมู่"
                   >
                     <Edit2 size={16} />
                   </button>
                   <button
                     onClick={() => handleDeleteCategory(c.id)}
-                    className="w-10 h-10 flex items-center justify-center bg-white dark:bg-[#1E293B] border border-slate-200 dark:border-[#334155] rounded-xl text-slate-400 dark:text-[#94A3B8] hover:text-white dark:hover:text-white hover:bg-rose-500 dark:hover:bg-rose-500 hover:border-rose-500 shadow-sm transition-all hover:-translate-y-1 hover:shadow-[0_0_15px_rgba(244,63,94,0.5)]"
+                    className="w-10 h-10 flex items-center justify-center bg-white dark:bg-[#1E293B] border border-slate-200 dark:border-[#334155] rounded-xl text-slate-400 dark:text-[#94A3B8] hover:text-white dark:hover:text-white hover:bg-rose-500 dark:hover:bg-rose-500 hover:border-rose-500 shadow-sm transition-colors duration-200"
                     title="ลบหมวดหมู่"
                   >
                     <Trash2 size={16} />
@@ -92,7 +91,7 @@ export default function Categories({ categories = [], transactions = [], handleO
               </div>
 
               <div className="relative z-10 mt-auto">
-                <div className="text-slate-800 dark:text-white font-black text-xl tracking-tight mb-1 group-hover:translate-x-1 transition-transform duration-300">{c.name}</div>
+                <div className="text-slate-800 dark:text-white font-black text-xl tracking-tight mb-1">{c.name}</div>
                 <div className="text-slate-500 dark:text-[#64748B] text-[10px] font-bold uppercase tracking-[0.2em] flex items-center gap-1.5">
                   <Box size={10} />
                   {usageCount} Used Records
@@ -103,7 +102,7 @@ export default function Categories({ categories = [], transactions = [], handleO
         })}
         {currentCategories.length === 0 && (
           <div className="col-span-full py-16 flex flex-col items-center justify-center glass-panel rounded-[32px]">
-            <Layers size={48} className="text-slate-300 dark:text-[#334155] mb-4 animate-float" />
+            <Layers size={48} className="text-slate-300 dark:text-[#334155] mb-4" />
             <span className="text-sm font-black uppercase tracking-widest block text-slate-500 dark:text-[#94A3B8]">No Categories Found</span>
             <span className="text-xs text-slate-400 mt-2 block">คลิกที่ "เพิ่มหมวดหมู่ใหม่" ด้านบนเพื่อเริ่มสร้าง</span>
           </div>

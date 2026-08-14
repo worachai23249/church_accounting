@@ -367,90 +367,34 @@ function App() {
 
   if (loading) return (
     <div className="h-screen bg-[#060A13] flex flex-col items-center justify-center gap-6 overflow-hidden relative">
+      {/* Ambient background aura */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-blue-600/10 blur-[140px] pointer-events-none" />
 
-      {/* Background glow */}
-      <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full bg-indigo-600/10 blur-[120px] pointer-events-none" />
-      <div className="absolute -bottom-32 left-1/2 -translate-x-1/2 w-[400px] h-[300px] rounded-full bg-purple-600/10 blur-[100px] pointer-events-none" />
-
-      {/* Logo */}
+      {/* Logo with smooth pulse */}
       <div className="relative flex items-center justify-center">
-        <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 opacity-20 blur-[50px]" />
-        <img src="/logo.png?v=3" alt="Logo" className="w-24 h-24 md:w-32 md:h-32 object-contain relative z-10 drop-shadow-[0_0_24px_rgba(99,102,241,0.6)]" style={{ animation: 'floatLogo 3s ease-in-out infinite' }} />
+        <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 opacity-25 blur-[40px] animate-pulse" />
+        <div className="w-28 h-28 md:w-36 md:h-36 relative z-10 flex items-center justify-center">
+          <img
+            src="/logo.png?v=3"
+            alt="Logo"
+            className="w-full h-full object-contain drop-shadow-[0_0_20px_rgba(99,102,241,0.5)] transition-transform duration-700 hover:scale-105"
+          />
+        </div>
       </div>
 
-      {/* Church name */}
-      <div className="font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 flex flex-col items-center">
+      {/* Church title */}
+      <div className="font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 flex flex-col items-center text-center">
         <span className="text-sm md:text-base leading-[1.6em] tracking-[0.25em] uppercase">The House of Worship</span>
         <span className="text-base md:text-lg leading-[1.2em] tracking-[0.18em] mt-0.5 uppercase">and Prayer</span>
       </div>
 
-      {/* ═══ Jesus Progress Bar ═══ */}
-      <div className="w-72 md:w-96 flex flex-col items-center gap-3 mt-2">
-
-        {/* Track */}
-        <div className="relative w-full h-3 md:h-4 bg-white/5 rounded-full overflow-visible border border-white/8 shadow-inner">
-
-          {/* Fill bar */}
-          <div className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-600"
-            style={{ animation: 'fillBar 3.5s cubic-bezier(0.4,0,0.2,1) forwards', boxShadow: '0 0 12px rgba(99,102,241,0.7)' }} />
-
-          {/* Shimmer */}
-          <div className="absolute inset-0 rounded-full overflow-hidden">
-            <div className="absolute inset-0 w-full h-full" style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%)', animation: 'shimmer 1.8s ease-in-out infinite', backgroundSize: '200% 100%' }} />
-          </div>
-
-          {/* Jesus carrying cross — moves along bar */}
-          <div className="absolute -top-10 md:-top-12" style={{ animation: 'moveJesus 3.5s cubic-bezier(0.4,0,0.2,1) forwards', left: '0%' }}>
-            <svg width="40" height="44" viewBox="0 0 40 44" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'drop-shadow(0 0 6px rgba(250,204,21,0.8))' }}>
-              {/* Halo */}
-              <ellipse cx="14" cy="4" rx="5" ry="2" fill="none" stroke="#facc15" strokeWidth="1.5" opacity="0.9"/>
-              {/* Head */}
-              <circle cx="14" cy="8" r="4" fill="#f5d7b0" stroke="#e8c090" strokeWidth="0.8"/>
-              {/* Body */}
-              <path d="M14 12 Q12 20 11 26" stroke="#c7d2fe" strokeWidth="2" strokeLinecap="round"/>
-              {/* Robe bottom */}
-              <path d="M11 26 Q9 32 8 36 M11 26 Q13 32 14 36" stroke="#c7d2fe" strokeWidth="1.8" strokeLinecap="round"/>
-              {/* Arms carrying cross */}
-              <path d="M12 15 Q8 18 6 20" stroke="#c7d2fe" strokeWidth="2" strokeLinecap="round"/>
-              <path d="M14 15 Q18 14 22 13" stroke="#c7d2fe" strokeWidth="2" strokeLinecap="round"/>
-              {/* Cross vertical */}
-              <rect x="22" y="8" width="3" height="30" rx="1" fill="#a16207" stroke="#92400e" strokeWidth="0.5"/>
-              {/* Cross horizontal */}
-              <rect x="15" y="14" width="17" height="3" rx="1" fill="#a16207" stroke="#92400e" strokeWidth="0.5"/>
-              {/* Shine on cross */}
-              <rect x="22.5" y="8.5" width="1" height="12" rx="0.5" fill="rgba(255,255,255,0.25)"/>
-            </svg>
-          </div>
+      {/* Smooth Loading Indicator */}
+      <div className="flex flex-col items-center gap-3 mt-2">
+        <div className="w-48 h-1.5 bg-white/5 rounded-full overflow-hidden border border-white/10 relative">
+          <div className="absolute inset-y-0 left-0 w-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 rounded-full animate-pulse" />
         </div>
-
-        {/* Loading text */}
-        <p className="text-[10px] tracking-[0.25em] uppercase text-slate-600 font-bold" style={{ animation: 'fadeText 3.5s ease-in-out forwards' }}>กำลังโหลดระบบ...</p>
+        <p className="text-[11px] tracking-[0.2em] uppercase text-slate-500 font-bold">กำลังโหลดระบบ...</p>
       </div>
-
-      {/* Keyframes */}
-      <style>{`
-        @keyframes fillBar {
-          0%   { width: 0%; }
-          100% { width: 100%; }
-        }
-        @keyframes moveJesus {
-          0%   { left: 0%; transform: translateX(-4px); }
-          100% { left: calc(100% - 36px); transform: translateX(0px); }
-        }
-        @keyframes shimmer {
-          0%   { background-position: 200% 0; }
-          100% { background-position: -200% 0; }
-        }
-        @keyframes floatLogo {
-          0%, 100% { transform: translateY(0px);   opacity: 1; }
-          50%       { transform: translateY(-8px);  opacity: 0.85; }
-        }
-        @keyframes fadeText {
-          0%, 80% { opacity: 0.5; }
-          90%     { opacity: 1; }
-          100%    { opacity: 0.5; }
-        }
-      `}</style>
     </div>
   );
   if (!isLoggedIn && showLoginScreen) return <Login onLogin={() => { 

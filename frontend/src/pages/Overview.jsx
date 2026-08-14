@@ -83,8 +83,8 @@ export default function Overview({ transactions, categories = [], formatThaiDate
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
-        <div className="glass-panel glass-panel-hover p-4 md:p-6 rounded-[20px] md:rounded-[24px] flex justify-between items-start group relative overflow-hidden animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-          <div className="absolute -right-10 -top-10 w-40 h-40 bg-emerald-500/10 rounded-full blur-3xl group-hover:bg-emerald-500/20 transition-all duration-700 ease-out"></div>
+        <div className="glass-panel glass-panel-hover p-4 md:p-6 rounded-[20px] md:rounded-[24px] flex justify-between items-start group relative overflow-hidden animate-fade-in-up">
+          <div className="absolute -right-10 -top-10 w-40 h-40 bg-emerald-500/10 rounded-full blur-3xl group-hover:bg-emerald-500/15 transition-colors duration-500 ease-out"></div>
           <div className="relative z-10">
             <div className="flex items-center gap-1.5 mb-2">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
@@ -92,13 +92,13 @@ export default function Overview({ transactions, categories = [], formatThaiDate
             </div>
             <div className="text-2xl md:text-3xl lg:text-4xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-emerald-700 dark:from-emerald-400 dark:to-emerald-500">฿{fmt(totalIncome)}</div>
           </div>
-          <div className="relative z-10 w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl bg-gradient-to-br from-emerald-400/20 to-emerald-600/5 border border-emerald-500/20 flex items-center justify-center group-hover:scale-110 group-hover:rotate-12 transition-all duration-500">
-            <TrendingUp size={18} className="md:w-6 md:h-6 text-emerald-500 drop-shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
+          <div className="relative z-10 w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl bg-gradient-to-br from-emerald-400/20 to-emerald-600/5 border border-emerald-500/20 flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
+            <TrendingUp size={18} className="md:w-6 md:h-6 text-emerald-500 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
           </div>
         </div>
 
-        <div className="glass-panel glass-panel-hover p-4 md:p-6 rounded-[20px] md:rounded-[24px] flex justify-between items-start group relative overflow-hidden animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-          <div className="absolute -right-10 -top-10 w-40 h-40 bg-rose-500/10 rounded-full blur-3xl group-hover:bg-rose-500/20 transition-all duration-700 ease-out"></div>
+        <div className="glass-panel glass-panel-hover p-4 md:p-6 rounded-[20px] md:rounded-[24px] flex justify-between items-start group relative overflow-hidden animate-fade-in-up">
+          <div className="absolute -right-10 -top-10 w-40 h-40 bg-rose-500/10 rounded-full blur-3xl group-hover:bg-rose-500/15 transition-colors duration-500 ease-out"></div>
           <div className="relative z-10">
             <div className="flex items-center gap-1.5 mb-2">
               <div className="w-1.5 h-1.5 rounded-full bg-rose-500"></div>
@@ -106,13 +106,13 @@ export default function Overview({ transactions, categories = [], formatThaiDate
             </div>
             <div className="text-2xl md:text-3xl lg:text-4xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-rose-700 dark:from-rose-400 dark:to-rose-500">฿{fmt(totalExpense)}</div>
           </div>
-          <div className="relative z-10 w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl bg-gradient-to-br from-rose-400/20 to-rose-600/5 border border-rose-500/20 flex items-center justify-center group-hover:scale-110 group-hover:-rotate-12 transition-all duration-500">
-            <TrendingDown size={18} className="md:w-6 md:h-6 text-rose-500 drop-shadow-[0_0_8px_rgba(244,63,94,0.8)]" />
+          <div className="relative z-10 w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl bg-gradient-to-br from-rose-400/20 to-rose-600/5 border border-rose-500/20 flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
+            <TrendingDown size={18} className="md:w-6 md:h-6 text-rose-500 drop-shadow-[0_0_8px_rgba(244,63,94,0.5)]" />
           </div>
         </div>
 
-        <div className="glass-panel glass-panel-hover p-4 md:p-6 rounded-[20px] md:rounded-[24px] flex justify-between items-start group relative overflow-hidden animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
-          <div className="absolute -right-10 -top-10 w-40 h-40 bg-violet-500/10 rounded-full blur-3xl group-hover:bg-violet-500/20 transition-all duration-700 ease-out"></div>
+        <div className="glass-panel glass-panel-hover p-4 md:p-6 rounded-[20px] md:rounded-[24px] flex justify-between items-start group relative overflow-hidden animate-fade-in-up">
+          <div className="absolute -right-10 -top-10 w-40 h-40 bg-violet-500/10 rounded-full blur-3xl group-hover:bg-violet-500/15 transition-colors duration-500 ease-out"></div>
           <div className="relative z-10">
             <div className="flex items-center gap-1.5 mb-2">
               <div className={`w-1.5 h-1.5 rounded-full ${balance >= 0 ? 'bg-violet-500' : 'bg-rose-500'}`}></div>
@@ -120,16 +120,16 @@ export default function Overview({ transactions, categories = [], formatThaiDate
             </div>
             <div className={`text-2xl md:text-3xl lg:text-4xl font-black tracking-tight ${balance >= 0 ? 'text-transparent bg-clip-text bg-gradient-to-r from-violet-500 to-fuchsia-500' : 'text-rose-500'}`}>฿{fmt(balance)}</div>
           </div>
-          <div className="relative z-10 w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl bg-gradient-to-br from-violet-400/20 to-violet-600/5 border border-violet-500/20 flex items-center justify-center group-hover:scale-110 group-hover:rotate-12 transition-all duration-500">
-            <Wallet size={18} className="md:w-6 md:h-6 text-violet-500 dark:text-[#A78BFA] drop-shadow-[0_0_8px_rgba(139,92,246,0.8)]" />
+          <div className="relative z-10 w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl bg-gradient-to-br from-violet-400/20 to-violet-600/5 border border-violet-500/20 flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
+            <Wallet size={18} className="md:w-6 md:h-6 text-violet-500 dark:text-[#A78BFA] drop-shadow-[0_0_8px_rgba(139,92,246,0.5)]" />
           </div>
         </div>
 
-        <div className="glass-panel glass-panel-hover p-4 md:p-6 rounded-[20px] md:rounded-[24px] flex justify-between items-start group relative overflow-hidden animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
-          <div className="absolute -right-10 -top-10 w-40 h-40 bg-blue-500/10 rounded-full blur-3xl group-hover:bg-blue-500/20 transition-all duration-700 ease-out"></div>
+        <div className="glass-panel glass-panel-hover p-4 md:p-6 rounded-[20px] md:rounded-[24px] flex justify-between items-start group relative overflow-hidden animate-fade-in-up">
+          <div className="absolute -right-10 -top-10 w-40 h-40 bg-blue-500/10 rounded-full blur-3xl group-hover:bg-blue-500/15 transition-colors duration-500 ease-out"></div>
           <div className="relative z-10">
             <div className="flex items-center gap-1.5 mb-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></div>
+              <div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
               <div className="text-slate-500 dark:text-[#94A3B8] text-[10px] md:text-xs font-black uppercase tracking-widest md:tracking-[0.2em]">รายการทั้งหมด</div>
             </div>
             <div className="flex items-baseline gap-1">
@@ -137,8 +137,8 @@ export default function Overview({ transactions, categories = [], formatThaiDate
               <div className="text-xs text-slate-500 font-bold uppercase tracking-wider">Txns</div>
             </div>
           </div>
-          <div className="relative z-10 w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl bg-gradient-to-br from-blue-400/20 to-blue-600/5 border border-blue-500/20 flex items-center justify-center group-hover:scale-110 group-hover:-rotate-12 transition-all duration-500">
-            <Receipt size={18} className="md:w-6 md:h-6 text-blue-500 dark:text-[#60A5FA] drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]" />
+          <div className="relative z-10 w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl bg-gradient-to-br from-blue-400/20 to-blue-600/5 border border-blue-500/20 flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
+            <Receipt size={18} className="md:w-6 md:h-6 text-blue-500 dark:text-[#60A5FA] drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
           </div>
         </div>
       </div>
@@ -146,7 +146,7 @@ export default function Overview({ transactions, categories = [], formatThaiDate
       {/* Charts Section */}
       <div className="flex flex-col gap-6 md:gap-8 mb-8 md:mb-10">
         {/* Bar Chart */}
-        <div className="glass-panel p-5 md:p-8 rounded-[24px] md:rounded-[32px] h-[340px] md:h-[450px] flex flex-col relative animate-fade-in-up w-full" style={{ animationDelay: '0.5s' }}>
+        <div className="glass-panel p-5 md:p-8 rounded-[24px] md:rounded-[32px] h-[340px] md:h-[450px] flex flex-col relative animate-fade-in-up w-full">
           <div className="flex items-center justify-between mb-5 relative z-10">
             <div>
               <h3 className="text-base md:text-xl font-black text-slate-800 dark:text-white tracking-tight flex items-center gap-2 md:gap-3">
@@ -205,8 +205,8 @@ export default function Overview({ transactions, categories = [], formatThaiDate
                   }
                   return null;
                 }} />
-                <Bar dataKey="income" name="รายรับ" fill="url(#colorIncome)" radius={[6, 6, 3, 3]} maxBarSize={18} animationDuration={1500} animationEasing="ease-out" />
-                <Bar dataKey="expense" name="รายจ่าย" fill="url(#colorExpense)" radius={[6, 6, 3, 3]} maxBarSize={18} animationDuration={1500} animationEasing="ease-out" />
+                <Bar dataKey="income" name="รายรับ" fill="url(#colorIncome)" radius={[6, 6, 3, 3]} maxBarSize={18} animationDuration={600} animationEasing="ease-out" />
+                <Bar dataKey="expense" name="รายจ่าย" fill="url(#colorExpense)" radius={[6, 6, 3, 3]} maxBarSize={18} animationDuration={600} animationEasing="ease-out" />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -215,7 +215,7 @@ export default function Overview({ transactions, categories = [], formatThaiDate
         {/* Pie Charts Grid */}
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 md:gap-8">
           {/* Income Pie Chart */}
-          <div className="glass-panel p-5 md:p-8 rounded-[24px] md:rounded-[32px] h-[320px] md:h-[450px] flex flex-col relative animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
+          <div className="glass-panel p-5 md:p-8 rounded-[24px] md:rounded-[32px] h-[320px] md:h-[450px] flex flex-col relative animate-fade-in-up">
             <div className="flex items-center justify-between mb-4 relative z-10">
               <div>
                 <h3 className="text-base md:text-xl font-black text-slate-800 dark:text-white tracking-tight flex items-center gap-2 md:gap-3">
@@ -230,7 +230,7 @@ export default function Overview({ transactions, categories = [], formatThaiDate
                 {incomeCategoryData.length > 0 ? (
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
-                      <Pie data={incomeCategoryData} cx="50%" cy="50%" innerRadius={40} outerRadius={70} paddingAngle={6} dataKey="value" stroke="none" cornerRadius={6} animationDuration={1500} onClick={(data) => setSelectedIncomeCategory(data.name)} style={{ cursor: 'pointer' }}>
+                      <Pie data={incomeCategoryData} cx="50%" cy="50%" innerRadius={40} outerRadius={70} paddingAngle={6} dataKey="value" stroke="none" cornerRadius={6} animationDuration={600} onClick={(data) => setSelectedIncomeCategory(data.name)} style={{ cursor: 'pointer' }}>
                         {incomeCategoryData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
                       </Pie>
                       <RechartsTooltip content={({ active, payload }) => {
@@ -243,8 +243,8 @@ export default function Overview({ transactions, categories = [], formatThaiDate
                   </ResponsiveContainer>
                 ) : (
                   <div className="flex flex-col items-center justify-center text-slate-400 space-y-3">
-                    <div className="w-16 h-16 rounded-full border-4 border-dashed border-slate-300 dark:border-[#334155] animate-spin-slow"></div>
-                    <span className="text-xs font-black uppercase tracking-widest">No Data</span>
+                    <div className="w-12 h-12 rounded-full border-2 border-slate-300 dark:border-[#334155] border-t-blue-500 animate-spin"></div>
+                    <span className="text-xs font-bold uppercase tracking-widest">No Data</span>
                   </div>
                 )}
                 {incomeCategoryData.length > 0 && (
@@ -257,7 +257,7 @@ export default function Overview({ transactions, categories = [], formatThaiDate
                 {incomeCategoryData.map((entry, index) => (
                   <div key={index} onClick={() => setSelectedIncomeCategory(entry.name)} className="flex justify-between items-center p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-white/10 transition-colors cursor-pointer group">
                     <div className="flex items-center space-x-2 flex-1 min-w-0 pr-2">
-                      <span className="w-3 h-3 rounded-md shrink-0 group-hover:scale-125 transition-transform" style={{ backgroundColor: entry.color }}></span>
+                      <span className="w-3 h-3 rounded-md shrink-0 group-hover:scale-110 transition-transform duration-200" style={{ backgroundColor: entry.color }}></span>
                       <span className="text-slate-600 dark:text-[#E2E8F0] font-bold text-xs truncate group-hover:text-emerald-500 dark:group-hover:text-emerald-400 transition-colors">{entry.name}</span>
                     </div>
                     <span className="font-black text-slate-800 dark:text-white text-xs shrink-0 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">฿{fmt(entry.value)}</span>
@@ -268,7 +268,7 @@ export default function Overview({ transactions, categories = [], formatThaiDate
           </div>
 
           {/* Expense Pie Chart */}
-          <div className="glass-panel p-5 md:p-8 rounded-[24px] md:rounded-[32px] h-[320px] md:h-[450px] flex flex-col relative animate-fade-in-up" style={{ animationDelay: '0.7s' }}>
+          <div className="glass-panel p-5 md:p-8 rounded-[24px] md:rounded-[32px] h-[320px] md:h-[450px] flex flex-col relative animate-fade-in-up">
             <div className="flex items-center justify-between mb-4 relative z-10">
               <div>
                 <h3 className="text-base md:text-xl font-black text-slate-800 dark:text-white tracking-tight flex items-center gap-2 md:gap-3">
@@ -283,7 +283,7 @@ export default function Overview({ transactions, categories = [], formatThaiDate
                 {categoryData.length > 0 ? (
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
-                      <Pie data={categoryData} cx="50%" cy="50%" innerRadius={40} outerRadius={70} paddingAngle={6} dataKey="value" stroke="none" cornerRadius={6} animationDuration={1500} onClick={(data) => setSelectedExpenseCategory(data.name)} style={{ cursor: 'pointer' }}>
+                      <Pie data={categoryData} cx="50%" cy="50%" innerRadius={40} outerRadius={70} paddingAngle={6} dataKey="value" stroke="none" cornerRadius={6} animationDuration={600} onClick={(data) => setSelectedExpenseCategory(data.name)} style={{ cursor: 'pointer' }}>
                         {categoryData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
                       </Pie>
                       <RechartsTooltip content={({ active, payload }) => {
@@ -296,8 +296,8 @@ export default function Overview({ transactions, categories = [], formatThaiDate
                   </ResponsiveContainer>
                 ) : (
                   <div className="flex flex-col items-center justify-center text-slate-400 space-y-3">
-                    <div className="w-16 h-16 rounded-full border-4 border-dashed border-slate-300 dark:border-[#334155] animate-spin-slow"></div>
-                    <span className="text-xs font-black uppercase tracking-widest">No Data</span>
+                    <div className="w-12 h-12 rounded-full border-2 border-slate-300 dark:border-[#334155] border-t-purple-500 animate-spin"></div>
+                    <span className="text-xs font-bold uppercase tracking-widest">No Data</span>
                   </div>
                 )}
                 {categoryData.length > 0 && (
@@ -311,7 +311,7 @@ export default function Overview({ transactions, categories = [], formatThaiDate
                 {categoryData.map((entry, index) => (
                   <div key={index} onClick={() => setSelectedExpenseCategory(entry.name)} className="flex justify-between items-center p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-white/10 transition-colors cursor-pointer group">
                     <div className="flex items-center space-x-2 flex-1 min-w-0 pr-2">
-                      <span className="w-3 h-3 rounded-md shrink-0 group-hover:scale-125 transition-transform" style={{ backgroundColor: entry.color }}></span>
+                      <span className="w-3 h-3 rounded-md shrink-0 group-hover:scale-110 transition-transform duration-200" style={{ backgroundColor: entry.color }}></span>
                       <span className="text-slate-600 dark:text-[#E2E8F0] font-bold text-xs truncate group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors">{entry.name}</span>
                     </div>
                     <span className="font-black text-slate-800 dark:text-white text-xs shrink-0 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">฿{fmt(entry.value)}</span>
