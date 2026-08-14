@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { api } from '../api';
+import { login } from '../supabase';
 import { Mail, Lock, Eye, EyeOff, ArrowRight, ShieldCheck, Database, Activity, PieChart, LineChart, X } from 'lucide-react';
 
 export default function Login({ onLogin, onBack }) {
@@ -14,13 +14,7 @@ export default function Login({ onLogin, onBack }) {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const response = await fetch(api('login.php'), {
-        credentials: 'include',
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-      });
-      const data = await response.json();
+      const data = await login(email, password);
       if (data.status === 'success') {
         if (rememberMe) {
           localStorage.setItem('savedEmail', email);

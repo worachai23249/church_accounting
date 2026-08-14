@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { api } from '../api';
+import { addTransaction } from '../supabase';
 
 import { ChevronLeft, ChevronRight, TrendingUp, TrendingDown, Wallet, Activity, ArrowLeft, Edit, Trash2, Image as ImageIcon, PieChart as PieIcon, LineChart, Download, Upload } from 'lucide-react';
 import Papa from 'papaparse';
@@ -38,22 +38,24 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
 
   if (selectedMonthDetail) {
     const monthIndexStr = selectedMonthDetail.toString().padStart(2, '0');
-    detailTransactions = transactions.filter(t => t.transaction_date.startsWith(`${selectedYear}-${monthIndexStr}`));
-    detailIncome = detailTransactions.filter(t => t.type === 'INCOME').reduce((sum, t) => sum + parseFloat(t.amount), 0);
-    detailExpense = detailTransactions.filter(t => t.type === 'EXPENSE').reduce((sum, t) => sum + parseFloat(t.amount), 0);
+    detailTransactions = reportTransactions.filter(t => t.transaction_date.startsWith(`${selectedYear}-${monthIndexStr}`));
+    detailTransactions.forEach(t => {
+      if (t.type === 'INCOME') detailIncome += parseFloat(t.amount);
+      else detailExpense += parseFloat(t.amount);
+    });
     detailBalance = detailIncome - detailExpense;
     detailMonthName = FULL_MONTHS_TH[selectedMonthDetail - 1];
     detailTransactions.sort((a, b) => new Date(b.transaction_date) - new Date(a.transaction_date));
   }
 
   // ========== ฟังก์ชัน Export ข้อมูล (ดาวน์โหลดเป็น CSV) ==========
-  const handleExportCSV = (dataToExport, filenamePrefix) => {
-    if (!dataToExport || dataToExport.length === 0) {
+  const handleExportCSV = () => {
+    if (reportTransactions.length === 0) {
       alert("ไม่มีข้อมูลที่จะส่งออก");
       return;
     }
 
-    const exportData = dataToExport.map(t => ({
+    const exportData = reportTransactions.map(t => ({
       วันที่: new Date(t.transaction_date).toLocaleDateString('th-TH'),
       ประเภท: t.type === 'INCOME' ? 'รายรับ' : 'รายจ่าย',
       หมวดหมู่: t.description,
@@ -67,7 +69,7 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
 
     const link = document.createElement('a');
     link.href = URL.createObjectURL(csvData);
-    link.setAttribute('download', `${filenamePrefix}_${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute('download', `worship_report_${selectedYear}_${new Date().toISOString().split('T')[0]}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -81,7 +83,7 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
     Papa.parse(file, {
       header: true,
       skipEmptyLines: true,
-      complete: (results) => {
+      complete: async (results) => {
         const data = results.data;
         if (data.length === 0) {
           alert("ไม่พบข้อมูลในไฟล์ หรือไฟล์ผิดรูปแบบ");
@@ -109,24 +111,18 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
           };
         });
 
-        fetch(api('add_transaction.php'), { credentials: 'include',
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(formattedData)
-        })
-          .then(res => res.json())
-          .then(resData => {
-            if (resData.status === 'success') {
-              alert(resData.message);
-              window.location.reload();
-            } else {
-              alert("เกิดข้อผิดพลาด: " + resData.message);
-            }
-          })
-          .catch(err => {
-            console.error(err);
-            alert("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
-          });
+        try {
+          const resData = await addTransaction(formattedData);
+          if (resData.status === 'success') {
+            alert(resData.message);
+            window.location.reload();
+          } else {
+            alert("เกิดข้อผิดพลาด: " + resData.message);
+          }
+        } catch (err) {
+          console.error(err);
+          alert("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
+        }
 
         e.target.value = null;
       },

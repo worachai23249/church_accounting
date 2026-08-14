@@ -1,5 +1,18 @@
 import { useState, useEffect, useRef } from 'react';
-import { api } from './api';
+import {
+  getTransactions,
+  getCategories,
+  addTransaction,
+  updateTransaction,
+  deleteTransaction,
+  addCategory,
+  updateCategory,
+  deleteCategory,
+  getNewTransactions,
+  checkAuth,
+  logout,
+  sendOneSignalPush
+} from './supabase';
 
 import {
   LayoutDashboard, ArrowLeftRight, Tags, PieChart as PieChartIcon,
@@ -126,23 +139,15 @@ function App() {
   }, [isDarkMode]);
 
   const fetchTransactions = () => {
-    return fetch(api('get_transactions.php'))
-      .then(res => res.json())
-      .then(data => setTransactions(Array.isArray(data) ? data : []))
-      .catch(() => setTransactions([]));
+    return getTransactions().then(data => setTransactions(data));
   };
 
   const fetchCategories = () => {
-    return fetch(api('get_categories.php'))
-      .then(res => res.json())
-      .then(data => setCategories(Array.isArray(data) ? data : []))
-      .catch(() => setCategories([]));
+    return getCategories().then(data => setCategories(data));
   };
 
   useEffect(() => {
-    // โหลดทุก API พร้อมกันด้วย Promise.all (เร็วกว่ารอทีละตัว)
-    const authCheck = fetch(api('check_auth.php'), { credentials: 'include' })
-      .then(res => res.json())
+    const authCheck = checkAuth()
       .then(data => {
         if (data.is_logged_in) {
           setIsLoggedIn(true);
@@ -193,8 +198,7 @@ function App() {
       interval = setInterval(async () => {
         if (lastIdRef.current === null) return;
         try {
-          const res = await fetch(api(`get_new_transactions.php?last_id=${lastIdRef.current}`));
-          const data = await res.json();
+          const data = await getNewTransactions(lastIdRef.current);
           if (Array.isArray(data) && data.length > 0) {
             const maxId = Math.max(...data.map(t => parseInt(t.id) || 0));
             lastIdRef.current = maxId;
@@ -246,25 +250,23 @@ function App() {
     });
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (deleteModal.type === 'TRANSACTION') {
-      fetch(api('delete_transaction.php'), { credentials: 'include', method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: deleteModal.id }) })
-        .then(res => res.json()).then(data => {
-          if (data.status === 'success') {
-            fetchTransactions();
-            showSuccess('ลบสำเร็จ', 'ข้อมูลรายการถูกลบเรียบร้อยแล้ว');
-          }
-        })
-        .catch(() => alert("เกิดข้อผิดพลาด"));
+      const res = await deleteTransaction(deleteModal.id);
+      if (res.status === 'success') {
+        fetchTransactions();
+        showSuccess('ลบสำเร็จ', 'ข้อมูลรายการถูกลบเรียบร้อยแล้ว');
+      } else {
+        alert(res.message || "เกิดข้อผิดพลาด");
+      }
     } else if (deleteModal.type === 'CATEGORY') {
-      fetch(api('delete_category.php'), { credentials: 'include', method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: deleteModal.id }) })
-        .then(res => res.json()).then(data => {
-          if (data.status === 'success') {
-            fetchCategories();
-            showSuccess('ลบสำเร็จ', 'หมวดหมู่ถูกลบเรียบร้อยแล้ว');
-          }
-        })
-        .catch(() => alert("เกิดข้อผิดพลาด"));
+      const res = await deleteCategory(deleteModal.id);
+      if (res.status === 'success') {
+        fetchCategories();
+        showSuccess('ลบสำเร็จ', 'หมวดหมู่ถูกลบเรียบร้อยแล้ว');
+      } else {
+        alert(res.message || "เกิดข้อผิดพลาด");
+      }
     }
     setDeleteModal({ ...deleteModal, isOpen: false });
   };
@@ -287,38 +289,42 @@ function App() {
     };
   };
 
-  const handleSubmitTransaction = (e) => {
+  const handleSubmitTransaction = async (e) => {
     e.preventDefault();
-    const url = editingId ? api('update_transaction.php') : api('add_transaction.php');
     const isEdit = !!editingId;
-    fetch(url, { credentials: 'include', method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...formData, id: editingId, image_url: imagePreview }) })
-      .then(res => res.json()).then(data => {
-        if (data.status === 'success') {
-          fetchTransactions();
-          setIsFormOpen(false);
-          showSuccess(isEdit ? 'แก้ไขสำเร็จ' : 'เพิ่มสำเร็จ', isEdit ? 'ข้อมูลรายการถูกอัปเดตเรียบร้อยแล้ว' : 'สร้างรายการใหม่เรียบร้อยแล้ว');
-          // ส่ง Web Notification เข้า notification bar มือถือ
-          if (!isEdit) {
-            const typeLabel = formData.type === 'INCOME' ? 'บันทึกรายรับ' : 'บันทึกรายจ่าย';
-            const amountLabel = `฿${Number(formData.amount).toLocaleString('th-TH')}`;
-            sendWebNotification(
-              `HWP — ${typeLabel}สำเร็จ`,
-              `${formData.description}: ${amountLabel}`
-            );
-            setNotifCount(prev => {
-              const total = prev + 1;
-              setUnreadBadge(total);
-              return total;
-            });
-          }
-        } else {
-          alert("ไม่สามารถบันทึกได้: " + (data.message || JSON.stringify(data)));
+    try {
+      let res;
+      if (isEdit) {
+        res = await updateTransaction(editingId, { ...formData, image_url: imagePreview });
+      } else {
+        res = await addTransaction({ ...formData, image_url: imagePreview });
+      }
+
+      if (res.status === 'success') {
+        fetchTransactions();
+        setIsFormOpen(false);
+        showSuccess(isEdit ? 'แก้ไขสำเร็จ' : 'เพิ่มสำเร็จ', isEdit ? 'ข้อมูลรายการถูกอัปเดตเรียบร้อยแล้ว' : 'สร้างรายการใหม่เรียบร้อยแล้ว');
+        // ส่ง Web Notification เข้า notification bar มือถือ
+        if (!isEdit) {
+          const typeLabel = formData.type === 'INCOME' ? 'บันทึกรายรับ' : 'บันทึกรายจ่าย';
+          const amountLabel = `฿${Number(formData.amount).toLocaleString('th-TH')}`;
+          sendWebNotification(
+            `HWP — ${typeLabel}สำเร็จ`,
+            `${formData.description}: ${amountLabel}`
+          );
+          setNotifCount(prev => {
+            const total = prev + 1;
+            setUnreadBadge(total);
+            return total;
+          });
         }
-      })
-      .catch((err) => {
-        console.error(err);
-        alert("เซิร์ฟเวอร์มีปัญหา กรุณาลองใหม่");
-      });
+      } else {
+        alert("ไม่สามารถบันทึกได้: " + (res.message || JSON.stringify(res)));
+      }
+    } catch (err) {
+      console.error(err);
+      alert("เซิร์ฟเวอร์มีปัญหา กรุณาลองใหม่");
+    }
   };
 
   const handleOpenAddCategory = () => { setCategoryFormData({ id: null, name: '', type: 'EXPENSE', color: CATEGORY_COLORS[11] }); setIsCategoryFormOpen(true); };
@@ -333,22 +339,27 @@ function App() {
     });
   };
 
-  const handleCategorySubmit = (e) => {
+  const handleCategorySubmit = async (e) => {
     e.preventDefault();
     const isEdit = !!categoryFormData.id;
-    const url = isEdit ? api('update_category.php') : api('add_category.php');
+    try {
+      let res;
+      if (isEdit) {
+        res = await updateCategory(categoryFormData.id, categoryFormData);
+      } else {
+        res = await addCategory(categoryFormData);
+      }
 
-    fetch(url, { credentials: 'include', method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(categoryFormData) })
-      .then(res => res.json()).then(data => {
-        if (data.status === 'success') {
-          fetchCategories();
-          setIsCategoryFormOpen(false);
-          showSuccess(isEdit ? 'แก้ไขสำเร็จ' : 'เพิ่มสำเร็จ', `หมวดหมู่ "${categoryFormData.name}" ${isEdit ? 'ถูกแก้ไขเรียบร้อยแล้ว' : 'ถูกสร้างเรียบร้อยแล้ว'}`);
-        } else {
-          alert(data.message);
-        }
-      })
-      .catch(() => alert("บันทึกไม่สำเร็จ"));
+      if (res.status === 'success') {
+        fetchCategories();
+        setIsCategoryFormOpen(false);
+        showSuccess(isEdit ? 'แก้ไขสำเร็จ' : 'เพิ่มสำเร็จ', `หมวดหมู่ "${categoryFormData.name}" ${isEdit ? 'ถูกแก้ไขเรียบร้อยแล้ว' : 'ถูกสร้างเรียบร้อยแล้ว'}`);
+      } else {
+        alert(res.message);
+      }
+    } catch (err) {
+      alert("บันทึกไม่สำเร็จ");
+    }
   };
 
   const fmt = (n) => Number(n || 0).toLocaleString('th-TH');
@@ -555,8 +566,7 @@ function App() {
           ) : (
             <button
               onClick={async () => { 
-                await fetch(api('logout.php'), { credentials: 'include' });
-                sessionStorage.removeItem('isLoggedIn'); 
+                await logout();
                 setIsLoggedIn(false); 
                 setActiveMenu('overview'); 
                 setIsMobileMenuOpen(false); 

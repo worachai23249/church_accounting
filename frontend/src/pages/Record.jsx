@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { api } from '../api';
+import { addTransaction } from '../supabase';
 
 import { Plus, Edit, Trash2, Image as ImageIcon, Database, Filter, Download, Upload, FileSpreadsheet } from 'lucide-react';
 import Papa from 'papaparse';
@@ -52,7 +52,7 @@ export default function Record({ transactions, formatThaiDate, fmt, handleViewIm
     Papa.parse(file, {
       header: true,
       skipEmptyLines: true,
-      complete: (results) => {
+      complete: async (results) => {
         const data = results.data;
         if (data.length === 0) {
           alert("ไม่พบข้อมูลในไฟล์ หรือไฟล์ผิดรูปแบบ");
@@ -84,28 +84,19 @@ export default function Record({ transactions, formatThaiDate, fmt, handleViewIm
           };
         });
 
-        // ส่งข้อมูลทั้งก้อนไปให้ Backend ทีเดียว
-        fetch(api('add_transaction.php'), { credentials: 'include',
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(formattedData)
-        })
-          .then(res => res.json())
-          .then(resData => {
-            if (resData.status === 'success') {
-              alert(resData.message);
-              // สั่งให้ App.jsx ดึงข้อมูลใหม่
-              if (handleOpenAddTransaction) { // Hack trick to trigger refresh by reopening and closing edit modal temporarily or we can just send a reload event via props 
-                window.location.reload(); // เร็วที่สุดคือรีเฟรชไปเลย
-              }
-            } else {
-              alert("เกิดข้อผิดพลาด: " + resData.message);
-            }
-          })
-          .catch(err => {
-            console.error(err);
-            alert("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
-          });
+        // ส่งข้อมูลทั้งก้อนไปให้ Supabase ทีเดียว
+        try {
+          const resData = await addTransaction(formattedData);
+          if (resData.status === 'success') {
+            alert(resData.message);
+            window.location.reload();
+          } else {
+            alert("เกิดข้อผิดพลาด: " + resData.message);
+          }
+        } catch (err) {
+          console.error(err);
+          alert("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
+        }
 
         // ล้างอินพุตเพื่อให้เลือกไฟล์เดิมใหม่ได้ถ้ามีแก้
         e.target.value = null;
