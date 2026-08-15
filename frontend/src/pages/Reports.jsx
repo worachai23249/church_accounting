@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { addTransaction } from '../supabase';
 
-import { ChevronLeft, ChevronRight, TrendingUp, TrendingDown, Wallet, Activity, ArrowLeft, Edit, Trash2, Image as ImageIcon, PieChart as PieIcon, LineChart, Download, Upload } from 'lucide-react';
+import { ChevronLeft, ChevronRight, TrendingUp, TrendingDown, Wallet, Activity, ArrowLeft, Edit, Trash2, Image as ImageIcon, PieChart as PieIcon, LineChart, Download, Upload, Calendar, CalendarDays, CheckCircle2, ChevronDown, ListFilter, ArrowRight } from 'lucide-react';
 import Papa from 'papaparse';
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Cell, ReferenceLine } from 'recharts';
 
@@ -14,6 +14,7 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
 
   const [selectedYear, setSelectedYear] = useState(currentYearNum);
   const [selectedMonthDetail, setSelectedMonthDetail] = useState(null);
+  const [selectedWeek, setSelectedWeek] = useState('all'); // 'all' or 1, 2, 3, 4, 5
   const fileInputRef = useRef(null);
 
   const reportTransactions = transactions.filter(t => t.transaction_date.startsWith(selectedYear.toString()));
@@ -38,32 +39,107 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
     };
   });
 
-  let detailTransactions = [];
-  let detailIncome = 0;
-  let detailExpense = 0;
-  let detailBalance = 0;
+  // ========== Month & Weekly Calculations ==========
   let detailMonthName = "";
+  let totalDaysInMonth = 31;
+  let weeksData = [];
+  let allMonthTransactions = [];
+  let activeTransactions = [];
+  let activeIncome = 0;
+  let activeExpense = 0;
+  let activeBalance = 0;
+  let activeLabel = "";
+  let activeDateRangeSubtitle = "";
 
   if (selectedMonthDetail) {
     const monthIndexStr = selectedMonthDetail.toString().padStart(2, '0');
-    detailTransactions = reportTransactions.filter(t => t.transaction_date.startsWith(`${selectedYear}-${monthIndexStr}`));
-    detailTransactions.forEach(t => {
-      if (t.type === 'INCOME') detailIncome += parseFloat(t.amount);
-      else detailExpense += parseFloat(t.amount);
-    });
-    detailBalance = detailIncome - detailExpense;
     detailMonthName = FULL_MONTHS_TH[selectedMonthDetail - 1];
-    detailTransactions.sort((a, b) => new Date(b.transaction_date) - new Date(a.transaction_date));
+    totalDaysInMonth = new Date(selectedYear, selectedMonthDetail, 0).getDate();
+
+    // All transactions in the selected month
+    allMonthTransactions = reportTransactions
+      .filter(t => t.transaction_date.startsWith(`${selectedYear}-${monthIndexStr}`))
+      .sort((a, b) => new Date(b.transaction_date) - new Date(a.transaction_date));
+
+    // Build weeks breakdown: 1-7, 8-14, 15-21, 22-28, 29-end
+    const weekRanges = [
+      { weekNum: 1, startDay: 1, endDay: 7 },
+      { weekNum: 2, startDay: 8, endDay: 14 },
+      { weekNum: 3, startDay: 15, endDay: 21 },
+      { weekNum: 4, startDay: 22, endDay: 28 },
+    ];
+
+    if (totalDaysInMonth > 28) {
+      weekRanges.push({
+        weekNum: 5,
+        startDay: 29,
+        endDay: totalDaysInMonth
+      });
+    }
+
+    weeksData = weekRanges.map(w => {
+      const startDayStr = w.startDay.toString().padStart(2, '0');
+      const endDayStr = w.endDay.toString().padStart(2, '0');
+      const startDateStr = `${selectedYear}-${monthIndexStr}-${startDayStr}`;
+      const endDateStr = `${selectedYear}-${monthIndexStr}-${endDayStr}`;
+
+      const txs = allMonthTransactions.filter(t => {
+        return t.transaction_date >= startDateStr && t.transaction_date <= endDateStr;
+      });
+
+      let inc = 0;
+      let exp = 0;
+      txs.forEach(t => {
+        if (t.type === 'INCOME') inc += parseFloat(t.amount);
+        else exp += parseFloat(t.amount);
+      });
+      const bal = inc - exp;
+
+      return {
+        weekNum: w.weekNum,
+        title: `สัปดาห์ที่ ${w.weekNum}`,
+        shortRange: `${w.startDay} - ${w.endDay} ${MONTHS_TH[selectedMonthDetail - 1]}`,
+        fullRange: `วันที่ ${w.startDay} - ${w.endDay} ${FULL_MONTHS_TH[selectedMonthDetail - 1]} ${selectedYear}`,
+        startDay: w.startDay,
+        endDay: w.endDay,
+        startDate: startDateStr,
+        endDate: endDateStr,
+        transactions: txs,
+        income: inc,
+        expense: exp,
+        balance: bal,
+        count: txs.length
+      };
+    });
+
+    if (selectedWeek === 'all') {
+      activeTransactions = allMonthTransactions;
+      allMonthTransactions.forEach(t => {
+        if (t.type === 'INCOME') activeIncome += parseFloat(t.amount);
+        else activeExpense += parseFloat(t.amount);
+      });
+      activeBalance = activeIncome - activeExpense;
+      activeLabel = `ทั้งเดือน${detailMonthName}`;
+      activeDateRangeSubtitle = `1 - ${totalDaysInMonth} ${detailMonthName} ${selectedYear}`;
+    } else {
+      const currentWeekObj = weeksData.find(w => w.weekNum === Number(selectedWeek)) || weeksData[0];
+      activeTransactions = currentWeekObj ? currentWeekObj.transactions : [];
+      activeIncome = currentWeekObj ? currentWeekObj.income : 0;
+      activeExpense = currentWeekObj ? currentWeekObj.expense : 0;
+      activeBalance = currentWeekObj ? currentWeekObj.balance : 0;
+      activeLabel = currentWeekObj ? currentWeekObj.title : `สัปดาห์ที่ ${selectedWeek}`;
+      activeDateRangeSubtitle = currentWeekObj ? currentWeekObj.fullRange : "";
+    }
   }
 
-  // ========== ฟังก์ชัน Export ข้อมูล (ดาวน์โหลดเป็น CSV) ==========
-  const handleExportCSV = () => {
-    if (reportTransactions.length === 0) {
+  // ========== Export CSV function ==========
+  const handleExportCSV = (txList = reportTransactions, filename = `worship_report_${selectedYear}`) => {
+    if (!txList || txList.length === 0) {
       alert("ไม่มีข้อมูลที่จะส่งออก");
       return;
     }
 
-    const exportData = reportTransactions.map(t => ({
+    const exportData = txList.map(t => ({
       วันที่: new Date(t.transaction_date).toLocaleDateString('th-TH'),
       ประเภท: t.type === 'INCOME' ? 'รายรับ' : 'รายจ่าย',
       หมวดหมู่: t.description,
@@ -77,13 +153,13 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
 
     const link = document.createElement('a');
     link.href = URL.createObjectURL(csvData);
-    link.setAttribute('download', `worship_report_${selectedYear}_${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute('download', `${filename}_${new Date().toISOString().split('T')[0]}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
 
-  // ========== ฟังก์ชัน Import ข้อมูล (อัปโหลดจาก CSV) ==========
+  // ========== Import CSV function ==========
   const handleImportCSV = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -142,73 +218,304 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
 
   // --- Render Month Details View ---
   if (selectedMonthDetail) {
+    const monthIndexStr = selectedMonthDetail.toString().padStart(2, '0');
+    const exportFilePrefix = selectedWeek === 'all' 
+      ? `worship_data_${selectedYear}_${monthIndexStr}_all_month` 
+      : `worship_data_${selectedYear}_${monthIndexStr}_week_${selectedWeek}`;
+
     return (
       <div className="max-w-7xl mx-auto pb-20 mt-4 xl:mt-0 font-sans">
         {/* Header */}
-        <div className="mb-8 relative animate-fade-in-up">
+        <div className="mb-6 relative animate-fade-in-up">
           <div className="absolute -left-6 -top-6 w-24 h-24 bg-blue-500/20 rounded-full blur-2xl animate-pulse-glow"></div>
-          <div className="flex items-center gap-4 relative z-10">
-            <button onClick={() => setSelectedMonthDetail(null)} className="w-11 h-11 md:w-14 md:h-14 bg-white/70 dark:bg-[#0B1121]/60 backdrop-blur-md border border-white/20 dark:border-white/5 rounded-full flex items-center justify-center text-slate-500 dark:text-[#94A3B8] hover:text-blue-500 hover:scale-110 transition-all duration-300 shrink-0">
-              <ArrowLeft size={18} className="md:w-6 md:h-6" />
+          
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 relative z-10">
+            <div className="flex items-center gap-3 md:gap-4">
+              <button 
+                onClick={() => { setSelectedMonthDetail(null); setSelectedWeek('all'); }} 
+                className="w-11 h-11 md:w-13 md:h-13 bg-white/80 dark:bg-[#0B1121]/70 backdrop-blur-md border border-slate-200 dark:border-white/10 rounded-2xl flex items-center justify-center text-slate-600 dark:text-[#94A3B8] hover:text-blue-500 dark:hover:text-blue-400 hover:scale-105 active:scale-95 transition-all duration-200 shadow-sm shrink-0"
+                title="กลับไปหน้ารวม 12 เดือน"
+              >
+                <ArrowLeft size={20} className="md:w-5 md:h-5" />
+              </button>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h1 className="text-2xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 tracking-tighter drop-shadow-sm pb-0.5">
+                    รายละเอียดประจำเดือน
+                  </h1>
+                </div>
+                <div className="flex items-center gap-2 mt-0.5">
+                  <span className="text-blue-600 dark:text-blue-400 text-xs md:text-sm font-black tracking-wide flex items-center gap-1.5">
+                    <Calendar size={13} className="text-blue-500" />
+                    {detailMonthName} {selectedYear}
+                  </span>
+                  <span className="text-slate-400 dark:text-white/30 text-xs">•</span>
+                  <span className="text-slate-500 dark:text-[#94A3B8] text-xs font-bold">
+                    {activeDateRangeSubtitle}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Month Switcher & Export */}
+            <div className="flex items-center gap-2 md:gap-3 flex-wrap">
+              {/* Previous / Next Month Navigation */}
+              <div className="glass-panel p-1 rounded-2xl flex items-center shadow-sm">
+                <button
+                  disabled={selectedMonthDetail <= 1}
+                  onClick={() => { setSelectedMonthDetail(m => m - 1); setSelectedWeek('all'); }}
+                  className={`p-2 rounded-xl transition-all ${selectedMonthDetail <= 1 ? 'opacity-30 cursor-not-allowed text-slate-400' : 'text-slate-600 dark:text-slate-300 hover:text-blue-500 hover:bg-slate-100 dark:hover:bg-white/5'}`}
+                  title="เดือนก่อนหน้า"
+                >
+                  <ChevronLeft size={18} />
+                </button>
+                <span className="px-3 text-xs md:text-sm font-black text-slate-700 dark:text-white whitespace-nowrap">
+                  {MONTHS_TH[selectedMonthDetail - 1]} {selectedYear}
+                </span>
+                <button
+                  disabled={selectedMonthDetail >= 12}
+                  onClick={() => { setSelectedMonthDetail(m => m + 1); setSelectedWeek('all'); }}
+                  className={`p-2 rounded-xl transition-all ${selectedMonthDetail >= 12 ? 'opacity-30 cursor-not-allowed text-slate-400' : 'text-slate-600 dark:text-slate-300 hover:text-blue-500 hover:bg-slate-100 dark:hover:bg-white/5'}`}
+                  title="เดือนถัดไป"
+                >
+                  <ChevronRight size={18} />
+                </button>
+              </div>
+
+              {/* Export Button */}
+              <button
+                onClick={() => handleExportCSV(activeTransactions, exportFilePrefix)}
+                className="group relative flex items-center justify-center space-x-2 bg-white hover:bg-slate-50 border border-slate-200 dark:border-white/10 dark:bg-white/10 dark:hover:bg-white/20 text-slate-700 dark:text-white px-4 py-2.5 rounded-2xl font-black text-xs uppercase tracking-widest transition-all duration-300 active:scale-95 shadow-sm"
+                title="ดาวน์โหลดไฟล์ CSV"
+              >
+                <Download size={15} className="text-blue-400 group-hover:translate-y-0.5 transition-transform duration-300" />
+                <span className="whitespace-nowrap">ส่งออก CSV</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* ================= Weekly & All Filter Tabs Bar ================= */}
+        <div className="mb-6 animate-fade-in-up">
+          <div className="glass-panel p-2 rounded-[22px] flex items-center gap-1.5 overflow-x-auto no-scrollbar shadow-sm">
+            
+            {/* Tab: All Month */}
+            <button
+              onClick={() => setSelectedWeek('all')}
+              className={`flex-1 min-w-[130px] md:min-w-0 py-2.5 px-3.5 rounded-xl transition-all duration-200 flex flex-col items-center justify-center gap-1 text-center shrink-0 md:shrink
+                ${selectedWeek === 'all'
+                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/25 scale-[1.02]'
+                  : 'bg-transparent text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5'}`}
+            >
+              <div className="flex items-center gap-1.5 font-black text-xs md:text-sm whitespace-nowrap">
+                <CalendarDays size={14} className={selectedWeek === 'all' ? 'text-white' : 'text-blue-500'} />
+                <span>ดูทั้งหมด (ทั้งเดือน)</span>
+              </div>
+              <span className={`text-[10px] font-bold ${selectedWeek === 'all' ? 'text-blue-100' : 'text-slate-400 dark:text-[#64748B]'}`}>
+                {allMonthTransactions.length} รายการ ({MONTHS_TH[selectedMonthDetail - 1]})
+              </span>
             </button>
-            <div>
-              <h1 className="text-2xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 tracking-tighter drop-shadow-sm pb-1">รายละเอียดประจำเดือน</h1>
-              <p className="text-slate-500 dark:text-[#94A3B8] text-[10px] font-bold tracking-[0.2em] uppercase flex items-center gap-2">
-                <Activity size={12} className="text-blue-500" />
-                {detailMonthName} {selectedYear}
+
+            {/* Tabs: Week 1 to 5 */}
+            {weeksData.map((w) => {
+              const isActive = selectedWeek === w.weekNum;
+              const hasTx = w.count > 0;
+              return (
+                <button
+                  key={w.weekNum}
+                  onClick={() => setSelectedWeek(w.weekNum)}
+                  className={`flex-1 min-w-[120px] md:min-w-0 py-2.5 px-3 rounded-xl transition-all duration-200 flex flex-col items-center justify-center gap-1 text-center shrink-0 md:shrink
+                    ${isActive
+                      ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/25 scale-[1.02]'
+                      : 'bg-transparent text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5'}`}
+                >
+                  <div className="flex items-center gap-1.5 font-black text-xs md:text-sm whitespace-nowrap">
+                    <span>สัปดาห์ที่ {w.weekNum}</span>
+                    {hasTx && (
+                      <span className={`w-2 h-2 rounded-full ${isActive ? 'bg-white' : (w.balance >= 0 ? 'bg-emerald-500' : 'bg-rose-500')}`}></span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className={`text-[10px] font-bold ${isActive ? 'text-blue-100' : 'text-slate-400 dark:text-[#64748B]'}`}>
+                      {w.shortRange}
+                    </span>
+                    {hasTx && (
+                      <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-black ${isActive ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-white/10 text-slate-600 dark:text-slate-300'}`}>
+                        {w.count}
+                      </span>
+                    )}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* ================= Detailed KPI Summary Cards ================= */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5 mb-8 animate-fade-in-up">
+          {/* Card 1: Total Income */}
+          <div className="glass-panel p-4 md:p-6 rounded-[22px] flex flex-col justify-between relative overflow-hidden group">
+            <div className="flex items-center justify-between mb-2 relative z-10">
+              <div className="flex items-center gap-1.5">
+                <div className="w-2 h-2 rounded-full bg-emerald-500 shrink-0 shadow-[0_0_8px_rgba(16,185,129,0.7)]"></div>
+                <span className="text-slate-500 dark:text-[#94A3B8] text-[10px] md:text-xs font-black uppercase tracking-wider">รายรับ ({activeLabel})</span>
+              </div>
+              <div className="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500">
+                <TrendingUp size={16} />
+              </div>
+            </div>
+            <span className="text-xl md:text-3xl font-black text-emerald-500 tracking-tight drop-shadow-sm relative z-10">+{fmt(activeIncome)}</span>
+          </div>
+
+          {/* Card 2: Total Expense */}
+          <div className="glass-panel p-4 md:p-6 rounded-[22px] flex flex-col justify-between relative overflow-hidden group">
+            <div className="flex items-center justify-between mb-2 relative z-10">
+              <div className="flex items-center gap-1.5">
+                <div className="w-2 h-2 rounded-full bg-rose-500 shrink-0 shadow-[0_0_8px_rgba(244,63,94,0.7)]"></div>
+                <span className="text-slate-500 dark:text-[#94A3B8] text-[10px] md:text-xs font-black uppercase tracking-wider">รายจ่าย ({activeLabel})</span>
+              </div>
+              <div className="w-8 h-8 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-500">
+                <TrendingDown size={16} />
+              </div>
+            </div>
+            <span className="text-xl md:text-3xl font-black text-rose-500 tracking-tight drop-shadow-sm relative z-10">-{fmt(activeExpense)}</span>
+          </div>
+
+          {/* Card 3: Net Balance */}
+          <div className="glass-panel p-4 md:p-6 rounded-[22px] flex flex-col justify-between relative overflow-hidden group">
+            <div className="flex items-center justify-between mb-2 relative z-10">
+              <div className="flex items-center gap-1.5">
+                <div className={`w-2 h-2 rounded-full shrink-0 ${activeBalance >= 0 ? 'bg-violet-500 shadow-[0_0_8px_rgba(139,92,246,0.7)]' : 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.7)]'}`}></div>
+                <span className="text-slate-500 dark:text-[#94A3B8] text-[10px] md:text-xs font-black uppercase tracking-wider">คงเหลือสุทธิ</span>
+              </div>
+              <div className="w-8 h-8 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center text-violet-500">
+                <Wallet size={16} />
+              </div>
+            </div>
+            <span className={`text-xl md:text-3xl font-black tracking-tight drop-shadow-sm relative z-10 ${activeBalance >= 0 ? 'text-transparent bg-clip-text bg-gradient-to-r from-violet-500 to-fuchsia-500' : 'text-rose-500'}`}>
+              ฿{fmt(activeBalance)}
+            </span>
+          </div>
+
+          {/* Card 4: Transaction Count */}
+          <div className="glass-panel p-4 md:p-6 rounded-[22px] flex flex-col justify-between relative overflow-hidden group">
+            <div className="flex items-center justify-between mb-2 relative z-10">
+              <div className="flex items-center gap-1.5">
+                <div className="w-2 h-2 rounded-full bg-blue-500 shrink-0 shadow-[0_0_8px_rgba(59,130,246,0.7)]"></div>
+                <span className="text-slate-500 dark:text-[#94A3B8] text-[10px] md:text-xs font-black uppercase tracking-wider">จำนวนรายการ</span>
+              </div>
+              <div className="w-8 h-8 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-500">
+                <Activity size={16} />
+              </div>
+            </div>
+            <div className="flex items-baseline gap-1 relative z-10">
+              <span className="text-xl md:text-3xl font-black text-slate-800 dark:text-white tracking-tight">
+                {activeTransactions.length}
+              </span>
+              <span className="text-xs text-slate-400 font-bold uppercase">รายการ</span>
+            </div>
+          </div>
+        </div>
+
+        {/* ================= Weekly Breakdown Cards Grid (Shown when 'all' is selected) ================= */}
+        {selectedWeek === 'all' && (
+          <div className="mb-8 animate-fade-in-up">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <div className="w-1.5 h-4 bg-gradient-to-b from-blue-400 to-purple-600 rounded-full"></div>
+                <h3 className="text-sm md:text-base font-black text-slate-800 dark:text-white">
+                  ภาพรวมเปรียบเทียบรายสัปดาห์ (5 สัปดาห์)
+                </h3>
+              </div>
+              <span className="text-[11px] text-slate-400 font-bold">คลิกสัปดาห์เพื่อกรองดูเฉพาะช่วง</span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+              {weeksData.map((w) => {
+                const hasTx = w.count > 0;
+                return (
+                  <div
+                    key={w.weekNum}
+                    onClick={() => setSelectedWeek(w.weekNum)}
+                    className="glass-panel p-4 rounded-[20px] cursor-pointer hover:border-blue-400/60 dark:hover:border-blue-500/50 hover:scale-[1.02] transition-all duration-200 group relative overflow-hidden flex flex-col justify-between"
+                  >
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="font-black text-sm text-slate-800 dark:text-white group-hover:text-blue-500 transition-colors">
+                          {w.title}
+                        </span>
+                        <span className={`text-[10px] px-2 py-0.5 rounded-lg font-black border ${w.balance >= 0 ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200/50 dark:border-emerald-500/20' : 'bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-200/50 dark:border-rose-500/20'}`}>
+                          {w.balance >= 0 ? 'สุทธิบวก' : 'สุทธิลบ'}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-400 font-bold mb-3">{w.shortRange}</p>
+
+                      <div className="space-y-1.5 p-2.5 rounded-xl bg-slate-50 dark:bg-[#060A13]/50 border border-slate-100 dark:border-white/5 text-xs">
+                        <div className="flex justify-between items-center">
+                          <span className="text-slate-500 dark:text-[#94A3B8] text-[10px] font-bold">รับ</span>
+                          <span className="font-black text-emerald-500">+{fmt(w.income)}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-slate-500 dark:text-[#94A3B8] text-[10px] font-bold">จ่าย</span>
+                          <span className="font-black text-rose-500">-{fmt(w.expense)}</span>
+                        </div>
+                        <div className="w-full h-px bg-slate-200/50 dark:bg-white/5 my-1"></div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-slate-500 dark:text-[#94A3B8] text-[10px] font-bold">คงเหลือ</span>
+                          <span className={`font-black ${w.balance >= 0 ? 'text-slate-800 dark:text-white' : 'text-rose-500'}`}>
+                            ฿{fmt(w.balance)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-3 pt-2 border-t border-slate-100 dark:border-white/5 flex items-center justify-between text-[11px] font-black text-blue-500 group-hover:text-blue-600">
+                      <span>{w.count} รายการ</span>
+                      <span className="flex items-center gap-0.5 group-hover:translate-x-1 transition-transform">
+                        ดูรายการ <ArrowRight size={12} />
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* ================= Transaction List Grid ================= */}
+        <div className="glass-panel rounded-[28px] overflow-hidden animate-fade-in-up">
+          <div className="px-5 py-4 border-b border-slate-200/50 dark:border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-slate-50/50 dark:bg-[#0B1121]/50">
+            <div className="flex items-center gap-3">
+              <div className="w-1.5 h-5 bg-gradient-to-b from-blue-400 to-purple-600 rounded-full"></div>
+              <h3 className="text-base font-black text-slate-800 dark:text-white">
+                รายการธุรกรรม: {activeLabel}
+              </h3>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-slate-500 dark:text-[#94A3B8] font-bold">
+                {activeDateRangeSubtitle}
+              </span>
+              <span className="text-xs px-2.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 font-black border border-blue-200/50 dark:border-blue-500/20">
+                {activeTransactions.length} รายการ
+              </span>
+            </div>
+          </div>
+
+          {activeTransactions.length === 0 ? (
+            <div className="p-12 flex flex-col items-center text-slate-400 space-y-3">
+              <div className="w-16 h-16 rounded-full border-2 border-dashed border-slate-300 dark:border-[#334155] flex items-center justify-center text-slate-400 dark:text-[#64748B]">
+                <Activity size={22} />
+              </div>
+              <p className="text-sm font-black text-slate-600 dark:text-slate-300">
+                ไม่มีรายการธุรกรรมใน{activeLabel}
+              </p>
+              <p className="text-xs text-slate-400">
+                ช่วงวันที่ {activeDateRangeSubtitle}
               </p>
             </div>
-          </div>
-          <div className="flex gap-3 mt-4 md:mt-0 md:absolute md:right-0 md:top-1/2 md:-translate-y-1/2 relative z-10">
-            <button
-              onClick={() => handleExportCSV(detailTransactions, `worship_data_${selectedYear}_${selectedMonthDetail.toString().padStart(2, '0')}`)}
-              className="group relative flex flex-1 md:flex-none items-center justify-center space-x-2 bg-white hover:bg-slate-50 border border-slate-200 dark:border-white/10 dark:bg-white/10 dark:hover:bg-white/20 text-slate-700 dark:text-white px-5 py-3 rounded-full font-black text-xs uppercase tracking-widest transition-all duration-300 active:scale-95 shadow-sm"
-            >
-              <Download size={16} className="text-blue-400 group-hover:translate-y-1 transition-transform duration-300" />
-              <span>ส่งออกรายเดือน</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Detailed Summary Cards */}
-        <div className="grid grid-cols-3 gap-3 md:gap-6 mb-8 animate-fade-in-up">
-          <div className="glass-panel p-4 md:p-8 rounded-[20px] md:rounded-[28px] flex flex-col justify-center relative overflow-hidden group">
-            <div className="flex items-center gap-1.5 mb-2 relative z-10">
-              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></div>
-              <span className="text-slate-500 dark:text-[#94A3B8] text-[10px] md:text-xs font-black uppercase tracking-[0.15em]">รายรับรวม</span>
-            </div>
-            <span className="text-xl md:text-4xl xl:text-5xl font-black text-emerald-500 tracking-tight drop-shadow-sm relative z-10">+{fmt(detailIncome)}</span>
-          </div>
-          <div className="glass-panel p-4 md:p-8 rounded-[20px] md:rounded-[28px] flex flex-col justify-center relative overflow-hidden group">
-            <div className="flex items-center gap-1.5 mb-2 relative z-10">
-              <div className="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0"></div>
-              <span className="text-slate-500 dark:text-[#94A3B8] text-[10px] md:text-xs font-black uppercase tracking-[0.15em]">รายจ่ายรวม</span>
-            </div>
-            <span className="text-xl md:text-4xl xl:text-5xl font-black text-rose-500 tracking-tight drop-shadow-sm relative z-10">-{fmt(detailExpense)}</span>
-          </div>
-          <div className="glass-panel p-4 md:p-8 rounded-[20px] md:rounded-[28px] flex flex-col justify-center relative overflow-hidden group">
-            <div className="flex items-center gap-1.5 mb-2 relative z-10">
-              <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${detailBalance >= 0 ? 'bg-violet-500' : 'bg-rose-500'}`}></div>
-              <span className="text-slate-500 dark:text-[#94A3B8] text-[10px] md:text-xs font-black uppercase tracking-[0.15em]">คงเหลือ</span>
-            </div>
-            <span className={`text-xl md:text-4xl xl:text-5xl font-black tracking-tight drop-shadow-sm relative z-10 ${detailBalance >= 0 ? 'text-transparent bg-clip-text bg-gradient-to-r from-violet-500 to-fuchsia-500' : 'text-rose-500'}`}>฿{fmt(detailBalance)}</span>
-          </div>
-        </div>
-
-        {/* Premium Card Grid — All screens */}
-        <div className="glass-panel rounded-[28px] overflow-hidden animate-fade-in-up">
-          <div className="px-5 py-4 border-b border-slate-200/50 dark:border-white/10 flex items-center gap-3 bg-slate-50/50 dark:bg-[#0B1121]/50">
-            <div className="w-1.5 h-5 bg-gradient-to-b from-blue-400 to-purple-600 rounded-full"></div>
-            <h3 className="text-base font-black text-slate-800 dark:text-white">รายการเดือน {detailMonthName}</h3>
-          </div>
-          {detailTransactions.length === 0 ? (
-            <div className="p-10 flex flex-col items-center text-slate-400 space-y-3">
-              <div className="w-14 h-14 rounded-full border-2 border-dashed border-slate-300 dark:border-[#334155] flex items-center justify-center"><Activity size={18} /></div>
-              <span className="text-xs font-black uppercase tracking-widest">No Transactions in {detailMonthName}</span>
-            </div>
           ) : (
-            <div className="px-3 pb-3 pt-1 grid grid-cols-1 md:grid-cols-2 gap-3">
-              {detailTransactions.map((t) => {
+            <div className="px-3 pb-4 pt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
+              {activeTransactions.map((t) => {
                 const isIncome = t.type === 'INCOME';
                 return (
                   <div
@@ -223,9 +530,13 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
                     <div className="relative flex items-center justify-between px-5 pt-4 pb-3">
                       <div className="flex items-center gap-2.5">
                         <div className={`w-2 h-2 rounded-full shrink-0 ${isIncome ? 'bg-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.9)]' : 'bg-rose-400 shadow-[0_0_10px_rgba(244,63,94,0.9)]'}`} />
-                        <span className={`text-sm font-black tracking-[0.25em] uppercase ${isIncome ? 'text-emerald-400' : 'text-rose-400'}`}>{isIncome ? 'รายรับ' : 'รายจ่าย'}</span>
+                        <span className={`text-sm font-black tracking-[0.25em] uppercase ${isIncome ? 'text-emerald-500 dark:text-emerald-400' : 'text-rose-500 dark:text-rose-400'}`}>
+                          {isIncome ? 'รายรับ' : 'รายจ่าย'}
+                        </span>
                       </div>
-                      <span className="text-sm text-slate-500 dark:text-white font-bold tracking-wide">{formatThaiDate(t.transaction_date)}</span>
+                      <span className="text-sm text-slate-500 dark:text-white font-bold tracking-wide">
+                        {formatThaiDate(t.transaction_date)}
+                      </span>
                     </div>
 
                     <div className={`mx-5 h-px ${isIncome ? 'bg-gradient-to-r from-transparent via-emerald-500/30 to-transparent' : 'bg-gradient-to-r from-transparent via-rose-500/30 to-transparent'}`} />
@@ -233,7 +544,9 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
                     {/* BODY */}
                     <div className="relative flex items-center justify-between px-5 py-4">
                       <div className="flex-1 min-w-0 mr-4">
-                        <p className="text-base font-black text-slate-800 dark:text-white mb-1.5 truncate tracking-tight">{t.description}</p>
+                        <p className="text-base font-black text-slate-800 dark:text-white mb-1.5 truncate tracking-tight">
+                          {t.description}
+                        </p>
                         <span className={`text-2xl font-black tracking-tight ${isIncome ? 'text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-emerald-600 dark:from-emerald-300 dark:to-emerald-500' : 'text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-rose-600 dark:from-rose-300 dark:to-rose-500'}`}>
                           {isIncome ? '+' : '-'}฿{fmt(t.amount)}
                         </span>
@@ -535,7 +848,7 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
           return (
             <div
               key={index}
-              onClick={() => hasData && setSelectedMonthDetail(index + 1)}
+              onClick={() => { setSelectedMonthDetail(index + 1); setSelectedWeek('all'); }}
               className={`glass-panel p-5 rounded-[24px] relative overflow-hidden transition-all duration-300 group
                 cursor-pointer hover:border-blue-400/50 dark:hover:border-blue-500/50
                 ${!hasData ? 'opacity-70 grayscale-[50%] hover:opacity-100 hover:grayscale-0' : ''} 
