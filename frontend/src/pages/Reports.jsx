@@ -39,7 +39,10 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
     };
   });
 
-  // ========== Month & Weekly Calculations ==========
+const DAY_NAMES_TH = ['อา.', 'จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.', 'ส.'];
+const FULL_DAY_NAMES_TH = ['วันอาทิตย์', 'วันจันทร์', 'วันอังคาร', 'วันพุธ', 'วันพฤหัสบดี', 'วันศุกร์', 'วันเสาร์'];
+
+  // ========== Month & Weekly Calculations (ตามปฏิทินจริง) ==========
   let detailMonthName = "";
   let totalDaysInMonth = 31;
   let weeksData = [];
@@ -61,25 +64,27 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
       .filter(t => t.transaction_date.startsWith(`${selectedYear}-${monthIndexStr}`))
       .sort((a, b) => new Date(b.transaction_date) - new Date(a.transaction_date));
 
-    // Build weeks breakdown: 1-7, 8-14, 15-21, 22-28, 29-end
-    const weekRanges = [
-      { weekNum: 1, startDay: 1, endDay: 7 },
-      { weekNum: 2, startDay: 8, endDay: 14 },
-      { weekNum: 3, startDay: 15, endDay: 21 },
-      { weekNum: 4, startDay: 22, endDay: 28 },
-    ];
+    // คำนวณสัปดาห์ตามปฏิทินจริงของปีและเดือนนั้นๆ (เริ่มวันอาทิตย์ ถึง วันเสาร์ ตามปฏิทินมาตรฐาน)
+    const daysInMonth = totalDaysInMonth;
+    let currentStart = 1;
+    let weekIndex = 1;
+    const computedWeeks = [];
 
-    if (totalDaysInMonth > 28) {
-      weekRanges.push({
-        weekNum: 5,
-        startDay: 29,
-        endDay: totalDaysInMonth
-      });
-    }
+    while (currentStart <= daysInMonth) {
+      const startDateObj = new Date(selectedYear, selectedMonthDetail - 1, currentStart);
+      const startDayOfWeek = startDateObj.getDay(); // 0 = Sun, 1 = Mon, ..., 6 = Sat
 
-    weeksData = weekRanges.map(w => {
-      const startDayStr = w.startDay.toString().padStart(2, '0');
-      const endDayStr = w.endDay.toString().padStart(2, '0');
+      // วันสิ้นสุดของสัปดาห์นี้คือ วันเสาร์ (6) หรือวันสิ้นเดือน
+      const daysUntilSaturday = 6 - startDayOfWeek;
+      const currentEnd = Math.min(daysInMonth, currentStart + daysUntilSaturday);
+      const endDateObj = new Date(selectedYear, selectedMonthDetail - 1, currentEnd);
+      const endDayOfWeek = endDateObj.getDay();
+
+      const startDayName = DAY_NAMES_TH[startDayOfWeek];
+      const endDayName = DAY_NAMES_TH[endDayOfWeek];
+
+      const startDayStr = currentStart.toString().padStart(2, '0');
+      const endDayStr = currentEnd.toString().padStart(2, '0');
       const startDateStr = `${selectedYear}-${monthIndexStr}-${startDayStr}`;
       const endDateStr = `${selectedYear}-${monthIndexStr}-${endDayStr}`;
 
@@ -95,13 +100,24 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
       });
       const bal = inc - exp;
 
-      return {
-        weekNum: w.weekNum,
-        title: `สัปดาห์ที่ ${w.weekNum}`,
-        shortRange: `${w.startDay} - ${w.endDay} ${MONTHS_TH[selectedMonthDetail - 1]}`,
-        fullRange: `วันที่ ${w.startDay} - ${w.endDay} ${FULL_MONTHS_TH[selectedMonthDetail - 1]} ${selectedYear}`,
-        startDay: w.startDay,
-        endDay: w.endDay,
+      const shortRangeText = currentStart === currentEnd
+        ? `${currentStart} ${MONTHS_TH[selectedMonthDetail - 1]} (${startDayName})`
+        : `${currentStart} - ${currentEnd} ${MONTHS_TH[selectedMonthDetail - 1]} (${startDayName} - ${endDayName})`;
+
+      const fullRangeText = currentStart === currentEnd
+        ? `${FULL_DAY_NAMES_TH[startDayOfWeek]}ที่ ${currentStart} ${FULL_MONTHS_TH[selectedMonthDetail - 1]} ${selectedYear}`
+        : `วันที่ ${currentStart} (${startDayName}) - ${currentEnd} (${endDayName}) ${FULL_MONTHS_TH[selectedMonthDetail - 1]} ${selectedYear}`;
+
+      computedWeeks.push({
+        weekNum: weekIndex,
+        title: `สัปดาห์ที่ ${weekIndex}`,
+        shortRange: currentStart === currentEnd ? `${currentStart} ${MONTHS_TH[selectedMonthDetail - 1]}` : `${currentStart} - ${currentEnd} ${MONTHS_TH[selectedMonthDetail - 1]}`,
+        shortRangeWithDays: shortRangeText,
+        fullRange: fullRangeText,
+        startDay: currentStart,
+        endDay: currentEnd,
+        startDayName,
+        endDayName,
         startDate: startDateStr,
         endDate: endDateStr,
         transactions: txs,
@@ -109,8 +125,13 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
         expense: exp,
         balance: bal,
         count: txs.length
-      };
-    });
+      });
+
+      currentStart = currentEnd + 1;
+      weekIndex++;
+    }
+
+    weeksData = computedWeeks;
 
     if (selectedWeek === 'all') {
       activeTransactions = allMonthTransactions;
@@ -337,7 +358,7 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
                   </div>
                   <div className="flex items-center gap-1">
                     <span className={`text-[10px] font-bold ${isActive ? 'text-blue-100' : 'text-slate-400 dark:text-[#64748B]'}`}>
-                      {w.shortRange}
+                      {w.shortRangeWithDays || w.shortRange}
                     </span>
                     {hasTx && (
                       <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-black ${isActive ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-white/10 text-slate-600 dark:text-slate-300'}`}>
@@ -424,13 +445,13 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
               <div className="flex items-center gap-2">
                 <div className="w-1.5 h-4 bg-gradient-to-b from-blue-400 to-purple-600 rounded-full"></div>
                 <h3 className="text-sm md:text-base font-black text-slate-800 dark:text-white">
-                  ภาพรวมเปรียบเทียบรายสัปดาห์ (5 สัปดาห์)
+                  ภาพรวมเปรียบเทียบรายสัปดาห์ตามปฏิทิน ({weeksData.length} สัปดาห์)
                 </h3>
               </div>
               <span className="text-[11px] text-slate-400 font-bold">คลิกสัปดาห์เพื่อกรองดูเฉพาะช่วง</span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+            <div className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 ${weeksData.length === 4 ? 'lg:grid-cols-4' : weeksData.length === 5 ? 'lg:grid-cols-5' : 'lg:grid-cols-3 xl:grid-cols-6'} gap-3`}>
               {weeksData.map((w) => {
                 const hasTx = w.count > 0;
                 return (
@@ -448,7 +469,7 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
                           {w.balance >= 0 ? 'สุทธิบวก' : 'สุทธิลบ'}
                         </span>
                       </div>
-                      <p className="text-[11px] text-slate-400 font-bold mb-3">{w.shortRange}</p>
+                      <p className="text-[11px] text-slate-400 font-bold mb-3">{w.shortRangeWithDays || w.shortRange}</p>
 
                       <div className="space-y-1.5 p-2.5 rounded-xl bg-slate-50 dark:bg-[#060A13]/50 border border-slate-100 dark:border-white/5 text-xs">
                         <div className="flex justify-between items-center">
