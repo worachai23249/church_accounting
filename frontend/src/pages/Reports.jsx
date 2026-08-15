@@ -64,55 +64,35 @@ const FULL_DAY_NAMES_TH = ['วันอาทิตย์', 'วันจัน
       .filter(t => t.transaction_date.startsWith(`${selectedYear}-${monthIndexStr}`))
       .sort((a, b) => new Date(b.transaction_date) - new Date(a.transaction_date));
 
-    // คำนวณสัปดาห์แบบ วันจันทร์ - วันอาทิตย์ (Monday to Sunday)
-    const firstDayOfMonth = new Date(selectedYear, selectedMonthDetail - 1, 1);
-    const lastDayOfMonth = new Date(selectedYear, selectedMonthDetail, 0);
-
-    // หาวันจันทร์ของสัปดาห์แรก:
-    // getDay(): 0 = อาทิตย์, 1 = จันทร์, 2 = อังคาร, 3 = พุธ, 4 = พฤหัสบดี, 5 = ศุกร์, 6 = เสาร์
-    const firstDayOfWeek = firstDayOfMonth.getDay();
-    const mondayOffset = firstDayOfWeek === 0 ? -6 : 1 - firstDayOfWeek;
-
-    let currentMonday = new Date(selectedYear, selectedMonthDetail - 1, 1 + mondayOffset);
+    // คำนวณสัปดาห์ตามปฏิทินจริงโดยตัดตามขอบเขตของเดือน (เริ่มวันที่ 1 จนถึงวันอาทิตย์แรก และจบที่วันสิ้นเดือน)
+    const daysInMonth = totalDaysInMonth;
+    let currentStart = 1;
     let weekIndex = 1;
     const computedWeeks = [];
 
-    // วนลูปสร้างสัปดาห์จันทร์-อาทิตย์ จนกระทั่งครอบคลุมทุกวันในเดือน
-    while (currentMonday <= lastDayOfMonth) {
-      const currentSunday = new Date(currentMonday);
-      currentSunday.setDate(currentMonday.getDate() + 6);
+    while (currentStart <= daysInMonth) {
+      const startDateObj = new Date(selectedYear, selectedMonthDetail - 1, currentStart);
+      const startDayOfWeek = startDateObj.getDay(); // 0 = Sun, 1 = Mon, ..., 6 = Sat
 
-      const formatYMD = (d) => {
-        const y = d.getFullYear();
-        const m = (d.getMonth() + 1).toString().padStart(2, '0');
-        const day = d.getDate().toString().padStart(2, '0');
-        return `${y}-${m}-${day}`;
-      };
+      // วันสิ้นสุดสัปดาห์คือ วันอาทิตย์ถัดไป หรือวันสิ้นเดือน
+      // ถ้าเริ่มวันอาทิตย์ (0) -> ตัดแค่วันอาทิตย์นั้นเลย (0 วัน)
+      // ถ้าเริ่มวันจันทร์ (1) -> วันอาทิตย์อีก 6 วัน
+      // ถ้าเริ่มวันเสาร์ (6) -> วันอาทิตย์อีก 1 วัน
+      const daysUntilSunday = (7 - startDayOfWeek) % 7;
+      const currentEnd = Math.min(daysInMonth, currentStart + daysUntilSunday);
+      const endDateObj = new Date(selectedYear, selectedMonthDetail - 1, currentEnd);
+      const endDayOfWeek = endDateObj.getDay();
 
-      const startDateStr = formatYMD(currentMonday);
-      const endDateStr = formatYMD(currentSunday);
+      const startDayName = DAY_NAMES_TH[startDayOfWeek];
+      const endDayName = DAY_NAMES_TH[endDayOfWeek];
 
-      const startDay = currentMonday.getDate();
-      const startMonth = currentMonday.getMonth() + 1;
-      const startYear = currentMonday.getFullYear();
+      const startDayStr = currentStart.toString().padStart(2, '0');
+      const endDayStr = currentEnd.toString().padStart(2, '0');
+      const startDateStr = `${selectedYear}-${monthIndexStr}-${startDayStr}`;
+      const endDateStr = `${selectedYear}-${monthIndexStr}-${endDayStr}`;
 
-      const endDay = currentSunday.getDate();
-      const endMonth = currentSunday.getMonth() + 1;
-      const endYear = currentSunday.getFullYear();
-
-      let shortRangeText = "";
-      let fullRangeText = "";
-
-      if (startMonth === endMonth) {
-        shortRangeText = `จ. ${startDay} - อา. ${endDay} ${MONTHS_TH[startMonth - 1]}`;
-        fullRangeText = `วันจันทร์ที่ ${startDay} - วันอาทิตย์ที่ ${endDay} ${FULL_MONTHS_TH[startMonth - 1]} ${startYear}`;
-      } else {
-        shortRangeText = `จ. ${startDay} ${MONTHS_TH[startMonth - 1]} - อา. ${endDay} ${MONTHS_TH[endMonth - 1]}`;
-        fullRangeText = `วันจันทร์ที่ ${startDay} ${FULL_MONTHS_TH[startMonth - 1]} - วันอาทิตย์ที่ ${endDay} ${FULL_MONTHS_TH[endMonth - 1]} ${endYear}`;
-      }
-
-      // กรองรายการธุรกรรมที่อยู่ในช่วง จันทร์ - อาทิตย์
-      const txs = reportTransactions.filter(t => {
+      // กรองรายการธุรกรรมภายในช่วงสัปดาห์นี้
+      const txs = allMonthTransactions.filter(t => {
         return t.transaction_date >= startDateStr && t.transaction_date <= endDateStr;
       });
 
@@ -124,12 +104,24 @@ const FULL_DAY_NAMES_TH = ['วันอาทิตย์', 'วันจัน
       });
       const bal = inc - exp;
 
+      const shortRangeText = currentStart === currentEnd
+        ? `${currentStart} ${MONTHS_TH[selectedMonthDetail - 1]} (${startDayName})`
+        : `${currentStart} - ${currentEnd} ${MONTHS_TH[selectedMonthDetail - 1]} (${startDayName} - ${endDayName})`;
+
+      const fullRangeText = currentStart === currentEnd
+        ? `${FULL_DAY_NAMES_TH[startDayOfWeek]}ที่ ${currentStart} ${FULL_MONTHS_TH[selectedMonthDetail - 1]} ${selectedYear}`
+        : `วันที่ ${currentStart} (${startDayName}) - ${currentEnd} (${endDayName}) ${FULL_MONTHS_TH[selectedMonthDetail - 1]} ${selectedYear}`;
+
       computedWeeks.push({
         weekNum: weekIndex,
         title: `สัปดาห์ที่ ${weekIndex}`,
-        shortRange: shortRangeText,
+        shortRange: currentStart === currentEnd ? `${currentStart} ${MONTHS_TH[selectedMonthDetail - 1]}` : `${currentStart} - ${currentEnd} ${MONTHS_TH[selectedMonthDetail - 1]}`,
         shortRangeWithDays: shortRangeText,
         fullRange: fullRangeText,
+        startDay: currentStart,
+        endDay: currentEnd,
+        startDayName,
+        endDayName,
         startDate: startDateStr,
         endDate: endDateStr,
         transactions: txs,
@@ -139,9 +131,7 @@ const FULL_DAY_NAMES_TH = ['วันอาทิตย์', 'วันจัน
         count: txs.length
       });
 
-      // ไปยังวันจันทร์ถัดไป
-      currentMonday = new Date(currentMonday);
-      currentMonday.setDate(currentMonday.getDate() + 7);
+      currentStart = currentEnd + 1;
       weekIndex++;
     }
 
