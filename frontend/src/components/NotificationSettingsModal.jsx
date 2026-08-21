@@ -159,7 +159,7 @@ function doPost(e) {
                   LINE Webhook URL (Make / Zapier / Google Apps Script)
                 </label>
                 <input
-                  type="url"
+                  type="text"
                   value={settings.line_webhook_url}
                   onChange={(e) => setSettings({ ...settings, line_webhook_url: e.target.value })}
                   placeholder="https://script.google.com/macros/s/.../exec"
