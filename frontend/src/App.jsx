@@ -519,7 +519,7 @@ function App() {
               <div className="relative z-10 flex items-center justify-center p-2 rounded-[12px] bg-transparent group-hover:bg-emerald-50 dark:group-hover:bg-emerald-500/20 transition-all duration-500">
                 <Bell size={18} className="text-emerald-500 group-hover:scale-110 transition-transform duration-500" />
               </div>
-              <span className="relative z-10 text-[10px] uppercase tracking-[0.2em] group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors translate-y-[1px]">แจ้งเตือน LINE/Telegram</span>
+              <span className="relative z-10 text-[10px] uppercase tracking-[0.2em] group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors translate-y-[1px]">แจ้งเตือน LINE</span>
             </button>
           )}
 

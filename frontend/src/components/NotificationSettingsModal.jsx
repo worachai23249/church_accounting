@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Bell, Send, CheckCircle2, Copy, AlertCircle, MessageSquare, ShieldCheck, Sparkles, ExternalLink } from 'lucide-react';
+import { X, Bell, Send, CheckCircle2, Copy, AlertCircle, MessageSquare, ShieldCheck, Sparkles } from 'lucide-react';
 import { getNotificationSettings, saveNotificationSettings, sendTestNotification, sendMonthlySummaryNotification } from '../services/notificationService';
 
 export default function NotificationSettingsModal({ isOpen, onClose, transactions = [], fmt, showSuccess }) {
@@ -21,7 +21,7 @@ export default function NotificationSettingsModal({ isOpen, onClose, transaction
   const handleSave = (e) => {
     e.preventDefault();
     saveNotificationSettings(settings);
-    if (showSuccess) showSuccess('บันทึกสำเร็จ', 'บันทึกการตั้งค่าการแจ้งเตือน LINE/Telegram เรียบร้อยแล้ว');
+    if (showSuccess) showSuccess('บันทึกสำเร็จ', 'บันทึกการตั้งค่าการแจ้งเตือน LINE เรียบร้อยแล้ว');
     onClose();
   };
 
@@ -31,10 +31,10 @@ export default function NotificationSettingsModal({ isOpen, onClose, transaction
     saveNotificationSettings(settings);
     try {
       const res = await sendTestNotification();
-      if (res.line || res.telegram) {
-        setStatusMsg({ text: '✅ ส่งข้อความทดสอบเข้า LINE / Telegram สำเร็จ!', isError: false });
+      if (res.line) {
+        setStatusMsg({ text: '✅ ส่งข้อความทดสอบเข้า LINE สำเร็จ!', isError: false });
       } else {
-        setStatusMsg({ text: '⚠️ กรุณาตรวจสอบ Webhook URL, Bot Token หรือ Chat ID ที่ตั้งไว้', isError: true });
+        setStatusMsg({ text: '⚠️ กรุณาตรวจสอบ Webhook URL ที่ตั้งไว้', isError: true });
       }
     } catch (err) {
       setStatusMsg({ text: 'เกิดข้อผิดพลาดในการส่งข้อความ: ' + err.message, isError: true });
@@ -52,10 +52,10 @@ export default function NotificationSettingsModal({ isOpen, onClose, transaction
       const currentYear = now.getFullYear();
       const currentMonth = now.getMonth() + 1;
       const res = await sendMonthlySummaryNotification(currentYear, currentMonth, transactions, fmt);
-      if (res.line || res.telegram) {
-        setStatusMsg({ text: '✅ ส่งรายงานสรุปประจำเดือนเข้า LINE / Telegram สำเร็จ!', isError: false });
+      if (res.line) {
+        setStatusMsg({ text: '✅ ส่งรายงานสรุปประจำเดือนเข้า LINE สำเร็จ!', isError: false });
       } else {
-        setStatusMsg({ text: '⚠️ กรุณาตั้งค่า LINE Webhook หรือ Telegram ก่อนส่งรายงาน', isError: true });
+        setStatusMsg({ text: '⚠️ กรุณาตั้งค่า LINE Webhook ก่อนส่งรายงาน', isError: true });
       }
     } catch (err) {
       setStatusMsg({ text: 'เกิดข้อผิดพลาด: ' + err.message, isError: true });
@@ -88,7 +88,7 @@ function doPost(e) {
   });
 
   return ContentService.createTextOutput("OK");
-};`
+};`;
 
   const copyScript = () => {
     navigator.clipboard.writeText(gasTemplateCode);
@@ -108,7 +108,7 @@ function doPost(e) {
             </div>
             <div>
               <h3 className="text-lg md:text-xl font-black text-slate-800 dark:text-white tracking-tight">
-                ระบบแจ้งเตือน LINE & Telegram
+                ระบบแจ้งเตือน LINE อัตโนมัติ
               </h3>
               <p className="text-xs text-slate-500 dark:text-[#94A3B8] font-bold">
                 แจ้งเตือนทุกรายการ + สรุปรายงานรายเดือนเข้ากลุ่มอัตโนมัติ
@@ -136,7 +136,7 @@ function doPost(e) {
             <div className="flex items-center gap-3">
               <ShieldCheck size={20} className="text-emerald-500" />
               <div>
-                <span className="text-sm font-black text-slate-800 dark:text-white block">เปิดใช้งานระบบแจ้งเตือนอัตโนมัติ</span>
+                <span className="text-sm font-black text-slate-800 dark:text-white block">เปิดใช้งานระบบแจ้งเตือน LINE</span>
                 <span className="text-[11px] text-slate-400 font-bold">เปิด/ปิด การส่งข้อความแจ้งเตือนทั้งหมด</span>
               </div>
             </div>
@@ -150,7 +150,7 @@ function doPost(e) {
           <div className="space-y-3">
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
-              <h4 className="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-200">1. การเชื่อมต่อ LINE (Webhook / LINE Notify / Make)</h4>
+              <h4 className="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-200">1. การเชื่อมต่อ LINE Webhook</h4>
             </div>
             
             <div className="p-4 rounded-2xl bg-slate-50 dark:bg-[#060A13]/60 border border-slate-200/50 dark:border-white/5 space-y-3">
@@ -162,7 +162,7 @@ function doPost(e) {
                   type="url"
                   value={settings.line_webhook_url}
                   onChange={(e) => setSettings({ ...settings, line_webhook_url: e.target.value })}
-                  placeholder="https://hook.make.com/... หรือ https://script.google.com/..."
+                  placeholder="https://script.google.com/macros/s/.../exec"
                   className="w-full p-3 bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-white/10 rounded-xl outline-none text-xs text-slate-800 dark:text-white font-mono focus:ring-2 focus:ring-emerald-500/50 transition-all"
                 />
               </div>
@@ -182,48 +182,11 @@ function doPost(e) {
             </div>
           </div>
 
-          {/* Section 2: Telegram Bot Integration */}
-          <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-              <h4 className="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-200">2. การเชื่อมต่อ Telegram Bot (ส่งตรงทันที)</h4>
-            </div>
-
-            <div className="p-4 rounded-2xl bg-slate-50 dark:bg-[#060A13]/60 border border-slate-200/50 dark:border-white/5 space-y-3">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-[10px] font-black text-slate-500 dark:text-[#64748B] mb-1.5 uppercase tracking-widest">
-                    Telegram Bot Token
-                  </label>
-                  <input
-                    type="text"
-                    value={settings.telegram_bot_token}
-                    onChange={(e) => setSettings({ ...settings, telegram_bot_token: e.target.value })}
-                    placeholder="123456789:ABCdefGhIJK..."
-                    className="w-full p-3 bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-white/10 rounded-xl outline-none text-xs text-slate-800 dark:text-white font-mono focus:ring-2 focus:ring-blue-500/50 transition-all"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[10px] font-black text-slate-500 dark:text-[#64748B] mb-1.5 uppercase tracking-widest">
-                    Telegram Chat / Group ID
-                  </label>
-                  <input
-                    type="text"
-                    value={settings.telegram_chat_id}
-                    onChange={(e) => setSettings({ ...settings, telegram_chat_id: e.target.value })}
-                    placeholder="-100123456789 หรือ @mygroup"
-                    className="w-full p-3 bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-white/10 rounded-xl outline-none text-xs text-slate-800 dark:text-white font-mono focus:ring-2 focus:ring-blue-500/50 transition-all"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Section 3: Notification Rules */}
+          {/* Section 2: Notification Rules */}
           <div className="space-y-3">
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-purple-500"></div>
-              <h4 className="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-200">3. เงื่อนไขการแจ้งเตือน</h4>
+              <h4 className="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-200">2. เงื่อนไขการแจ้งเตือน</h4>
             </div>
 
             <div className="p-4 rounded-2xl bg-slate-50 dark:bg-[#060A13]/60 border border-slate-200/50 dark:border-white/5">
@@ -253,7 +216,7 @@ function doPost(e) {
               type="button"
               onClick={handleSendMonthlySummary}
               disabled={isSendingSummary}
-              className="flex-1 min-w-[180px] py-3 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-black text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 active:scale-95 shadow-md shadow-blue-500/20 disabled:opacity-50"
+              className="flex-1 min-w-[180px] py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 active:scale-95 shadow-md shadow-emerald-500/20 disabled:opacity-50"
             >
               <MessageSquare size={14} className={isSendingSummary ? 'animate-spin' : ''} />
               <span>{isSendingSummary ? 'กำลังส่ง...' : '📊 ส่งสรุปประจำเดือนนี้เข้า LINE'}</span>

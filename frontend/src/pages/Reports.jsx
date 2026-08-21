@@ -323,10 +323,10 @@ const FULL_DAY_NAMES_TH = ['วันอาทิตย์', 'วันจัน
                 onClick={async () => {
                   try {
                     const res = await sendMonthlySummaryNotification(selectedYear, selectedMonthDetail, transactions, fmt);
-                    if (res.line || res.telegram) {
-                      alert(`ส่งสรุปรายงานประจำเดือน ${FULL_MONTHS_TH[selectedMonthDetail - 1]} ${selectedYear} เข้า LINE / Telegram เรียบร้อยแล้ว!`);
+                    if (res.line) {
+                      alert(`ส่งสรุปรายงานประจำเดือน ${FULL_MONTHS_TH[selectedMonthDetail - 1]} ${selectedYear} เข้า LINE เรียบร้อยแล้ว!`);
                     } else {
-                      alert('กรุณาตั้งค่า LINE Webhook หรือ Telegram ในเมนู "แจ้งเตือน LINE/Telegram" ก่อนส่งรายงาน');
+                      alert('กรุณาตั้งค่า LINE Webhook ในเมนู "แจ้งเตือน LINE" ก่อนส่งรายงาน');
                     }
                   } catch (e) {
                     alert('เกิดข้อผิดพลาด: ' + e.message);
