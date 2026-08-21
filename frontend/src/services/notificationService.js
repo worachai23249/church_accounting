@@ -77,7 +77,7 @@ export async function sendPlatformMessage(messageText, rawData = {}) {
         message: messageText,
         text: messageText,
         imageUrl: rawData.imageUrl || null,
-        data: rawData,
+        base64Image: rawData.base64Image || null,
         timestamp: new Date().toISOString()
       });
 
