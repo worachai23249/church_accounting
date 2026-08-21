@@ -64,19 +64,31 @@ export default function NotificationSettingsModal({ isOpen, onClose, transaction
     }
   };
 
-  const gasTemplateCode = `// Google Apps Script สำหรับส่งแจ้งเตือนเข้ากลุ่ม LINE (ฟรี 100%)
+  const gasTemplateCode = `// Google Apps Script สำหรับส่งเข้า LINE ผ่าน Messaging API (ฟรี 100%)
 function doPost(e) {
-  var LINE_TOKEN = "ใส่_LINE_NOTIFY_หรือ_ACCESS_TOKEN_ที่นี่";
+  var ACCESS_TOKEN = "ใส่_CHANNEL_ACCESS_TOKEN_ที่นี่";
+  var TARGET_ID = "ใส่_GROUP_ID_หรือ_USER_ID_ที่นี่"; // ID ของกลุ่ม LINE หรือ User ID
+
   var data = JSON.parse(e.postData.contents);
   var message = data.message;
 
-  UrlFetchApp.fetch("https://notify-api.line.me/api/notify", {
+  var url = "https://api.line.me/v2/bot/message/push";
+  var payload = {
+    "to": TARGET_ID,
+    "messages": [{ "type": "text", "text": message }]
+  };
+
+  UrlFetchApp.fetch(url, {
     "method": "post",
-    "headers": { "Authorization": "Bearer " + LINE_TOKEN },
-    "payload": { "message": message }
+    "headers": {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + ACCESS_TOKEN
+    },
+    "payload": JSON.stringify(payload)
   });
+
   return ContentService.createTextOutput("OK");
-}`;
+};`
 
   const copyScript = () => {
     navigator.clipboard.writeText(gasTemplateCode);
