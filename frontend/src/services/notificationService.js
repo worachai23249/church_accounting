@@ -45,15 +45,20 @@ export async function sendPlatformMessage(messageText, rawData = {}) {
   // 1. Send via LINE Webhook (Make / Zapier / Google Apps Script / Custom Webhook)
   if (settings.line_webhook_url && settings.line_webhook_url.trim()) {
     try {
-      await fetch(settings.line_webhook_url.trim(), {
+      const targetUrl = settings.line_webhook_url.trim();
+      const payload = JSON.stringify({
+        message: messageText,
+        text: messageText,
+        data: rawData,
+        timestamp: new Date().toISOString()
+      });
+
+      // Try sending with no-cors mode for Google Apps Script compatibility
+      await fetch(targetUrl, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: messageText,
-          text: messageText,
-          data: rawData,
-          timestamp: new Date().toISOString()
-        })
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: payload
       });
       results.line = true;
     } catch (err) {
