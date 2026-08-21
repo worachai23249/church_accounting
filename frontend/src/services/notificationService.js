@@ -12,6 +12,30 @@ export const DEFAULT_NOTIFICATION_SETTINGS = {
   telegram_chat_id: '',
 };
 
+// Upload base64 image to public HTTPS URL for LINE Messaging API image display
+export async function uploadSlipImage(base64Data) {
+  if (!base64Data || typeof base64Data !== 'string') return null;
+  if (base64Data.startsWith('https://') || base64Data.startsWith('http://')) return base64Data;
+  if (!base64Data.startsWith('data:image/')) return null;
+
+  try {
+    const formData = new FormData();
+    formData.append('key', '6d207e02198a847aa98d0a2a901485a5');
+    formData.append('image', base64Data.split(',')[1]);
+    const res = await fetch('https://api.imgbb.com/1/upload', {
+      method: 'POST',
+      body: formData
+    });
+    const json = await res.json();
+    if (json && json.data && json.data.url) {
+      return json.data.url;
+    }
+  } catch (e) {
+    console.warn("Image upload error:", e);
+  }
+  return null;
+}
+
 export function getNotificationSettings() {
   try {
     const saved = localStorage.getItem(SETTINGS_KEY);

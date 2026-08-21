@@ -26,7 +26,7 @@ import Reports from './pages/Reports';
 import Login from './pages/Login';
 import NotificationToast from './components/NotificationToast';
 import NotificationSettingsModal from './components/NotificationSettingsModal';
-import { sendTransactionNotification } from './services/notificationService';
+import { sendTransactionNotification, uploadSlipImage } from './services/notificationService';
 
 const CATEGORY_COLORS = ['#EF4444', '#F87171', '#F97316', '#EAB308', '#84CC16', '#10B981', '#059669', '#14B8A6', '#06B6D4', '#0EA5E9', '#3B82F6', '#6366F1', '#8B5CF6', '#A855F7', '#D946EF', '#EC4899', '#64748B'];
 
@@ -296,11 +296,18 @@ function App() {
     e.preventDefault();
     const isEdit = !!editingId;
     try {
+      // 1. แปลงรูปสลิป base64 ให้เป็น Public HTTPS URL สำหรับส่งเข้า LINE
+      let finalImageUrl = imagePreview;
+      if (imagePreview && imagePreview.startsWith('data:image/')) {
+        const uploadedUrl = await uploadSlipImage(imagePreview);
+        if (uploadedUrl) finalImageUrl = uploadedUrl;
+      }
+
       let res;
       if (isEdit) {
-        res = await updateTransaction(editingId, { ...formData, image_url: imagePreview });
+        res = await updateTransaction(editingId, { ...formData, image_url: finalImageUrl });
       } else {
-        res = await addTransaction({ ...formData, image_url: imagePreview });
+        res = await addTransaction({ ...formData, image_url: finalImageUrl });
       }
 
       if (res.status === 'success') {
@@ -308,14 +315,14 @@ function App() {
         setIsFormOpen(false);
         showSuccess(isEdit ? 'แก้ไขสำเร็จ' : 'เพิ่มสำเร็จ', isEdit ? 'ข้อมูลรายการถูกอัปเดตเรียบร้อยแล้ว' : 'สร้างรายการใหม่เรียบร้อยแล้ว');
         
-        // ส่งการแจ้งเตือนอัตโนมัติเข้า LINE & Telegram (ทุกรายการ)
+        // ส่งการแจ้งเตือนอัตโนมัติเข้า LINE (ทุกรายการพร้อมแนบรูปสลิป)
         sendTransactionNotification({
           type: formData.type,
           amount: formData.amount,
           description: formData.description,
           transaction_date: formData.transaction_date,
           note: formData.note,
-          image_url: imagePreview
+          image_url: finalImageUrl
         }, isEdit ? 'UPDATE' : 'ADD');
 
         // ส่ง Web Notification เข้า notification bar มือถือ
