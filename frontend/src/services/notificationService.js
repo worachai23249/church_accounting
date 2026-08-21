@@ -179,7 +179,7 @@ export async function sendMonthlySummaryNotification(year, monthNum, allTransact
     `🟢 รายรับรวม:  +฿${fmt ? fmt(totalIncome) : totalIncome.toLocaleString('th-TH')} บาท`,
     `🔴 รายจ่ายรวม: -฿${fmt ? fmt(totalExpense) : totalExpense.toLocaleString('th-TH')} บาท`,
     `⚡ คงเหลือสุทธิ:  ${netBalance >= 0 ? '+' : '-'}฿${fmt ? fmt(Math.abs(netBalance)) : Math.abs(netBalance).toLocaleString('th-TH')} บาท`,
-    `🏦 ยอดเงินคงเหลือในคริสตจักร: ฿${fmt ? fmt(accumulatedBalance) : accumulatedBalance.toLocaleString('th-TH')} บาท`,
+    `🏦 คงเหลือในคริสตจักร: ฿${fmt ? fmt(accumulatedBalance) : accumulatedBalance.toLocaleString('th-TH')} บาท`,
     `📋 จำนวนรายการทั้งหมด: ${monthTx.length} รายการ`,
     `━━━━━━━━━━━━━━━━━━━━`,
     `🌐 เข้าดูระบบเพิ่มเติม: https://church-accounting.pages.dev`,
