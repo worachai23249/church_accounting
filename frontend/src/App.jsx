@@ -16,7 +16,7 @@ import {
 
 import {
   LayoutDashboard, ArrowLeftRight, Tags, PieChart as PieChartIcon,
-  Sun, Moon, LogOut, X, Trash2, Upload, Lock, AlertTriangle, CheckCircle, Menu, Camera
+  Sun, Moon, LogOut, X, Trash2, Upload, Lock, AlertTriangle, CheckCircle, Menu, Camera, Bell
 } from 'lucide-react';
 
 import Overview from './pages/Overview';
@@ -25,6 +25,8 @@ import Categories from './pages/Categories';
 import Reports from './pages/Reports';
 import Login from './pages/Login';
 import NotificationToast from './components/NotificationToast';
+import NotificationSettingsModal from './components/NotificationSettingsModal';
+import { sendTransactionNotification } from './services/notificationService';
 
 const CATEGORY_COLORS = ['#EF4444', '#F87171', '#F97316', '#EAB308', '#84CC16', '#10B981', '#059669', '#14B8A6', '#06B6D4', '#0EA5E9', '#3B82F6', '#6366F1', '#8B5CF6', '#A855F7', '#D946EF', '#EC4899', '#64748B'];
 
@@ -41,6 +43,7 @@ function App() {
   const [successModal, setSuccessModal] = useState({ isOpen: false, title: '', message: '' });
   const [toasts, setToasts] = useState([]);
   const [notifCount, setNotifCount] = useState(0);
+  const [isNotifModalOpen, setIsNotifModalOpen] = useState(false);
   const lastIdRef = useRef(null);
 
   const showSuccess = (title, message) => {
@@ -304,6 +307,17 @@ function App() {
         fetchTransactions();
         setIsFormOpen(false);
         showSuccess(isEdit ? 'แก้ไขสำเร็จ' : 'เพิ่มสำเร็จ', isEdit ? 'ข้อมูลรายการถูกอัปเดตเรียบร้อยแล้ว' : 'สร้างรายการใหม่เรียบร้อยแล้ว');
+        
+        // ส่งการแจ้งเตือนอัตโนมัติเข้า LINE & Telegram (ทุกรายการ)
+        sendTransactionNotification({
+          type: formData.type,
+          amount: formData.amount,
+          description: formData.description,
+          transaction_date: formData.transaction_date,
+          note: formData.note,
+          image_url: imagePreview
+        }, isEdit ? 'UPDATE' : 'ADD');
+
         // ส่ง Web Notification เข้า notification bar มือถือ
         if (!isEdit) {
           const typeLabel = formData.type === 'INCOME' ? 'บันทึกรายรับ' : 'บันทึกรายจ่าย';
@@ -496,6 +510,19 @@ function App() {
 
 
 
+          {isLoggedIn && (
+            <button
+              onClick={() => { setIsNotifModalOpen(true); setIsMobileMenuOpen(false); }}
+              className="group relative w-full flex items-center space-x-4 px-5 py-4 rounded-[18px] bg-slate-50/80 dark:bg-[#0A101D]/80 border border-slate-200/80 dark:border-white/5 text-slate-600 dark:text-slate-400 font-black overflow-hidden transition-all duration-500 hover:border-emerald-400/50 dark:hover:border-emerald-500/30 hover:shadow-[0_0_20px_rgba(16,185,129,0.15)] hover:bg-white dark:hover:bg-[#0F172A]"
+            >
+              <div className="absolute inset-0 bg-gradient-to-b from-emerald-500/0 to-emerald-500/5 dark:to-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <div className="relative z-10 flex items-center justify-center p-2 rounded-[12px] bg-transparent group-hover:bg-emerald-50 dark:group-hover:bg-emerald-500/20 transition-all duration-500">
+                <Bell size={18} className="text-emerald-500 group-hover:scale-110 transition-transform duration-500" />
+              </div>
+              <span className="relative z-10 text-[10px] uppercase tracking-[0.2em] group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors translate-y-[1px]">แจ้งเตือน LINE/Telegram</span>
+            </button>
+          )}
+
           {!isLoggedIn ? (
             <button
               onClick={() => { setShowLoginScreen(true); setIsMobileMenuOpen(false); }}
@@ -528,12 +555,19 @@ function App() {
       </aside>
 
       {/* Mobile Top Header */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-slate-50/90 dark:bg-[#030610]/90 backdrop-blur-xl border-b border-slate-200/50 dark:border-white/5 z-[80] flex items-center px-4 shadow-sm">
-        <button onClick={() => setIsMobileMenuOpen(true)} className="p-2 -ml-2 text-slate-600 dark:text-slate-300 hover:text-blue-500">
-          <Menu size={24} />
-        </button>
-        <img src="/logo.png?v=3" alt="Logo" className="w-8 h-8 object-contain ml-2 shrink-0 drop-shadow-[0_0_8px_rgba(255,255,255,0.2)]" />
-        <span className="ml-2 text-[11px] uppercase font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-600 dark:from-blue-400 dark:via-purple-400 dark:to-indigo-500 whitespace-nowrap">The House of Worship and Prayer</span>
+      <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-slate-50/90 dark:bg-[#030610]/90 backdrop-blur-xl border-b border-slate-200/50 dark:border-white/5 z-[80] flex items-center justify-between px-4 shadow-sm">
+        <div className="flex items-center">
+          <button onClick={() => setIsMobileMenuOpen(true)} className="p-2 -ml-2 text-slate-600 dark:text-slate-300 hover:text-blue-500">
+            <Menu size={24} />
+          </button>
+          <img src="/logo.png?v=3" alt="Logo" className="w-8 h-8 object-contain ml-2 shrink-0 drop-shadow-[0_0_8px_rgba(255,255,255,0.2)]" />
+          <span className="ml-2 text-[11px] uppercase font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-600 dark:from-blue-400 dark:via-purple-400 dark:to-indigo-500 whitespace-nowrap">The House of Worship</span>
+        </div>
+        {isLoggedIn && (
+          <button onClick={() => setIsNotifModalOpen(true)} className="p-2 text-emerald-500 hover:scale-110 transition-transform">
+            <Bell size={20} />
+          </button>
+        )}
       </div>
 
       {/* Main Content */}
@@ -799,6 +833,15 @@ function App() {
           </div>
         </div>
       )}
+
+      {/* Modal ตั้งค่าการแจ้งเตือน LINE/Telegram */}
+      <NotificationSettingsModal
+        isOpen={isNotifModalOpen}
+        onClose={() => setIsNotifModalOpen(false)}
+        transactions={transactions}
+        fmt={fmt}
+        showSuccess={showSuccess}
+      />
     </div>
   );
 }

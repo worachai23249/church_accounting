@@ -1,7 +1,8 @@
 import { useState, useRef } from 'react';
 import { addTransaction } from '../supabase';
+import { sendMonthlySummaryNotification } from '../services/notificationService';
 
-import { ChevronLeft, ChevronRight, TrendingUp, TrendingDown, Wallet, Activity, ArrowLeft, Edit, Trash2, Image as ImageIcon, PieChart as PieIcon, LineChart, Download, Upload, Calendar, CalendarDays, CheckCircle2, ChevronDown, ListFilter, ArrowRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, TrendingUp, TrendingDown, Wallet, Activity, ArrowLeft, Edit, Trash2, Image as ImageIcon, PieChart as PieIcon, LineChart, Download, Upload, Calendar, CalendarDays, CheckCircle2, ChevronDown, ListFilter, ArrowRight, MessageSquare } from 'lucide-react';
 import Papa from 'papaparse';
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Cell, ReferenceLine } from 'recharts';
 
@@ -315,6 +316,27 @@ const FULL_DAY_NAMES_TH = ['วันอาทิตย์', 'วันจัน
               >
                 <Download size={15} className="text-blue-400 group-hover:translate-y-0.5 transition-transform duration-300" />
                 <span className="whitespace-nowrap">ส่งออก CSV</span>
+              </button>
+
+              {/* Send Monthly Summary to LINE Button */}
+              <button
+                onClick={async () => {
+                  try {
+                    const res = await sendMonthlySummaryNotification(selectedYear, selectedMonthDetail, transactions, fmt);
+                    if (res.line || res.telegram) {
+                      alert(`ส่งสรุปรายงานประจำเดือน ${FULL_MONTHS_TH[selectedMonthDetail - 1]} ${selectedYear} เข้า LINE / Telegram เรียบร้อยแล้ว!`);
+                    } else {
+                      alert('กรุณาตั้งค่า LINE Webhook หรือ Telegram ในเมนู "แจ้งเตือน LINE/Telegram" ก่อนส่งรายงาน');
+                    }
+                  } catch (e) {
+                    alert('เกิดข้อผิดพลาด: ' + e.message);
+                  }
+                }}
+                className="group relative flex items-center justify-center space-x-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white px-4 py-2.5 rounded-2xl font-black text-xs uppercase tracking-widest transition-all duration-300 active:scale-95 shadow-md shadow-emerald-500/20"
+                title="ส่งสรุปรายงานประจำเดือนเข้า LINE / Telegram"
+              >
+                <MessageSquare size={15} className="text-white group-hover:scale-110 transition-transform duration-300" />
+                <span className="whitespace-nowrap">ส่งสรุปเข้า LINE</span>
               </button>
             </div>
           </div>
