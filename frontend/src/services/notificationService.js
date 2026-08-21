@@ -12,32 +12,7 @@ export const DEFAULT_NOTIFICATION_SETTINGS = {
   telegram_chat_id: '',
 };
 
-// Upload base64 image to public HTTPS URL for LINE Messaging API image display
-export async function uploadSlipImage(base64Data) {
-  if (!base64Data || typeof base64Data !== 'string') return null;
-  if (base64Data.startsWith('https://') || base64Data.startsWith('http://')) return base64Data;
-  if (!base64Data.startsWith('data:image/')) return null;
-
-  try {
-    const cleanBase64 = base64Data.indexOf('base64,') !== -1 ? base64Data.split('base64,')[1] : base64Data;
-    const body = new URLSearchParams();
-    body.append('image', cleanBase64);
-
-    const res = await fetch('https://api.imgbb.com/1/upload?key=6d207e02198a847aa98d0a2a901485a5', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: body
-    });
-    const json = await res.json();
-    if (json && json.data) {
-      const directUrl = (json.data.image && json.data.image.url) || json.data.display_url;
-      if (directUrl) return directUrl;
-    }
-  } catch (e) {
-    console.warn("Image upload error:", e);
-  }
-  return null;
-}
+// Upload removed - Google Apps Script handles image hosting via Google Drive directly
 
 export function getNotificationSettings() {
   try {
