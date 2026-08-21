@@ -61,11 +61,26 @@ export async function getNewTransactions(lastId) {
 }
 
 export async function addTransaction(tx) {
-  // Support both single object and array (for CSV batch import)
   const isArray = Array.isArray(tx);
   const rows = isArray ? tx : [tx];
 
-  const formattedRows = rows.map(r => ({
+  // หา ID สูงสุดปัจจุบันเพื่อป้องกัน sequence id ชนกันใน Postgres/Supabase
+  let nextId = 1;
+  try {
+    const { data: maxRow } = await supabase
+      .from('transactions')
+      .select('id')
+      .order('id', { ascending: false })
+      .limit(1);
+    if (maxRow && maxRow.length > 0 && maxRow[0].id) {
+      nextId = Number(maxRow[0].id) + 1;
+    }
+  } catch (e) {
+    console.warn("Could not fetch max id:", e);
+  }
+
+  const formattedRows = rows.map((r, idx) => ({
+    id: nextId + idx,
     transaction_date: r.transaction_date,
     type: r.type,
     description: r.description,
@@ -74,10 +89,32 @@ export async function addTransaction(tx) {
     image_url: r.image_url || null
   }));
 
-  const { data, error } = await supabase
+  let { data, error } = await supabase
     .from('transactions')
     .insert(formattedRows)
     .select();
+
+  // Retry fallback if race condition
+  if (error && error.message && error.message.includes('transactions_pkey')) {
+    const { data: allRows } = await supabase.from('transactions').select('id').order('id', { ascending: false }).limit(20);
+    const maxVal = allRows && allRows.length > 0 ? Math.max(...allRows.map(i => Number(i.id) || 0)) : nextId + 10;
+    const retryRows = rows.map((r, idx) => ({
+      id: maxVal + 1 + idx,
+      transaction_date: r.transaction_date,
+      type: r.type,
+      description: r.description,
+      amount: parseFloat(r.amount) || 0,
+      note: r.note || '',
+      image_url: r.image_url || null
+    }));
+    const retryRes = await supabase.from('transactions').insert(retryRows).select();
+    if (!retryRes.error) {
+      data = retryRes.data;
+      error = null;
+    } else {
+      error = retryRes.error;
+    }
+  }
 
   if (error) {
     console.error("Error adding transaction:", error);
