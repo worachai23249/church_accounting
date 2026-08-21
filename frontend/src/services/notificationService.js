@@ -163,6 +163,7 @@ export async function sendTransactionNotification(tx, actionType = 'ADD') {
   return await sendPlatformMessage(msg, { 
     transaction: tx, 
     action: actionType,
+    base64Image: tx.image_url || null,
     imageUrl: tx.image_url && tx.image_url.startsWith('https://') ? tx.image_url : null
   });
 }
