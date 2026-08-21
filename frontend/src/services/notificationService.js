@@ -29,8 +29,9 @@ export async function uploadSlipImage(base64Data) {
       body: body
     });
     const json = await res.json();
-    if (json && json.data && (json.data.url || json.data.display_url)) {
-      return json.data.url || json.data.display_url;
+    if (json && json.data) {
+      const directUrl = (json.data.image && json.data.image.url) || json.data.display_url;
+      if (directUrl) return directUrl;
     }
   } catch (e) {
     console.warn("Image upload error:", e);
