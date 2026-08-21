@@ -283,11 +283,11 @@ function App() {
       const img = new Image(); img.src = event.target.result;
       img.onload = () => {
         const canvas = document.createElement('canvas');
-        const MAX = 800; let w = img.width, h = img.height;
+        const MAX = 600; let w = img.width, h = img.height;
         if (w > h) { if (w > MAX) { h *= MAX / w; w = MAX; } } else { if (h > MAX) { w *= MAX / h; h = MAX; } }
         canvas.width = w; canvas.height = h;
         canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-        setImagePreview(canvas.toDataURL('image/jpeg', 0.7));
+        setImagePreview(canvas.toDataURL('image/jpeg', 0.6));
       };
     };
   };

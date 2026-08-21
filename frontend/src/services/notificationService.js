@@ -19,16 +19,18 @@ export async function uploadSlipImage(base64Data) {
   if (!base64Data.startsWith('data:image/')) return null;
 
   try {
-    const formData = new FormData();
-    formData.append('key', '6d207e02198a847aa98d0a2a901485a5');
-    formData.append('image', base64Data.split(',')[1]);
-    const res = await fetch('https://api.imgbb.com/1/upload', {
+    const cleanBase64 = base64Data.indexOf('base64,') !== -1 ? base64Data.split('base64,')[1] : base64Data;
+    const body = new URLSearchParams();
+    body.append('image', cleanBase64);
+
+    const res = await fetch('https://api.imgbb.com/1/upload?key=6d207e02198a847aa98d0a2a901485a5', {
       method: 'POST',
-      body: formData
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: body
     });
     const json = await res.json();
-    if (json && json.data && json.data.url) {
-      return json.data.url;
+    if (json && json.data && (json.data.url || json.data.display_url)) {
+      return json.data.url || json.data.display_url;
     }
   } catch (e) {
     console.warn("Image upload error:", e);
