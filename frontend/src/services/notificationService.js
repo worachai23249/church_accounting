@@ -5,7 +5,7 @@ const SETTINGS_KEY = 'hwp_notification_settings';
 export const DEFAULT_NOTIFICATION_SETTINGS = {
   enabled: true,
   notify_all: true, // แจ้งเตือนทุกรายการตามความต้องการของผู้ใช้
-  line_webhook_url: '',
+  line_webhook_url: 'https://script.google.com/macros/s/AKfycbzctnaoRU2nh_s9nSzXwKy0pBzx3TPk_vgkxluj9k44K06aMR3lf4NtLsykqesdEZbB/exec',
   line_access_token: '',
   line_target_id: '',
   telegram_bot_token: '',
@@ -18,7 +18,12 @@ export function getNotificationSettings() {
   try {
     const saved = localStorage.getItem(SETTINGS_KEY);
     if (saved) {
-      return { ...DEFAULT_NOTIFICATION_SETTINGS, ...JSON.parse(saved) };
+      const parsed = JSON.parse(saved);
+      return {
+        ...DEFAULT_NOTIFICATION_SETTINGS,
+        ...parsed,
+        line_webhook_url: parsed.line_webhook_url && parsed.line_webhook_url.trim() ? parsed.line_webhook_url.trim() : DEFAULT_NOTIFICATION_SETTINGS.line_webhook_url
+      };
     }
   } catch (e) {
     console.error("Failed to load notification settings:", e);
