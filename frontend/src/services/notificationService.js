@@ -49,6 +49,7 @@ export async function sendPlatformMessage(messageText, rawData = {}) {
       const payload = JSON.stringify({
         message: messageText,
         text: messageText,
+        imageUrl: rawData.imageUrl || null,
         data: rawData,
         timestamp: new Date().toISOString()
       });
@@ -115,7 +116,7 @@ export async function sendTransactionNotification(tx, actionType = 'ADD') {
 
   const isIncome = tx.type === 'INCOME';
   const typeLabel = isIncome ? '🟢 รายรับ (Income)' : '🔴 รายจ่าย (Expense)';
-  const actionTitle = actionType === 'ADD' ? 'บันทึกรายการใหม่' : 'แก้ไขรายการ';
+  const actionTitle = actionType === 'ADD' ? '🔔 มีการบันทึกรายการใหม่' : '🔔 มีการแก้ไขรายการ';
   const formattedAmount = Number(tx.amount).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   
   let dateFormatted = tx.transaction_date;
@@ -124,19 +125,22 @@ export async function sendTransactionNotification(tx, actionType = 'ADD') {
   } catch (e) {}
 
   const msg = [
-    `🔔 [HWP Accounting] ${actionTitle}`,
+    actionTitle,
     `━━━━━━━━━━━━━━━━━━━━`,
     `📌 ประเภท: ${typeLabel}`,
     `💰 จำนวนเงิน: ฿${formattedAmount} บาท`,
     `📂 หมวดหมู่: ${tx.description || 'ไม่ระบุ'}`,
     `📅 วันที่: ${dateFormatted}`,
     tx.note ? `📝 หมายเหตุ: ${tx.note}` : null,
-    tx.image_url ? `🖼️ มีรูปภาพแนบหลักฐาน` : null,
     `━━━━━━━━━━━━━━━━━━━━`,
-    `⛪ คริสตจักร The House of Worship and Prayer`
+    `⛪ คริสตจักรบ้านนมัสการและอธิษฐาน`
   ].filter(Boolean).join('\n');
 
-  return await sendPlatformMessage(msg, { transaction: tx, action: actionType });
+  return await sendPlatformMessage(msg, { 
+    transaction: tx, 
+    action: actionType,
+    imageUrl: tx.image_url && tx.image_url.startsWith('https://') ? tx.image_url : null
+  });
 }
 
 // ========== Format & Send Monthly Summary (สรุปรายเดือน) ==========
@@ -166,13 +170,12 @@ export async function sendMonthlySummaryNotification(year, monthNum, allTransact
   const accumulatedBalance = totalOverallIncome - totalOverallExpense;
 
   const msg = [
-    `📊 สรุปรายงานการเงินประจำเดือน ${monthName} ${year}`,
-    `⛪ คริสตจักร The House of Worship and Prayer`,
+    `📊 สรุปการเงินประจำเดือน ${monthName} ${year}`,
+    `⛪ คริสตจักรบ้านนมัสการและอธิษฐาน`,
     `━━━━━━━━━━━━━━━━━━━━`,
     `🟢 รายรับรวมเดือนนี้:  +฿${fmt ? fmt(totalIncome) : totalIncome.toLocaleString('th-TH')} บาท`,
     `🔴 รายจ่ายรวมเดือนนี้: -฿${fmt ? fmt(totalExpense) : totalExpense.toLocaleString('th-TH')} บาท`,
-    `⚡ คงเหลือสุทธิเดือนนี้: ${netBalance >= 0 ? '+' : '-'}฿${fmt ? fmt(Math.abs(netBalance)) : Math.abs(netBalance).toLocaleString('th-TH')} บาท`,
-    ``,
+    `⚡ คงเหลือสุทธิเดือนนี้:  ${netBalance >= 0 ? '+' : '-'}${fmt ? fmt(Math.abs(netBalance)) : Math.abs(netBalance).toLocaleString('th-TH')} บาท`,
     `🏦 ยอดเงินคงเหลือสะสมคริสตจักร: ฿${fmt ? fmt(accumulatedBalance) : accumulatedBalance.toLocaleString('th-TH')} บาท`,
     `📋 จำนวนรายการทั้งหมดเดือนนี้: ${monthTx.length} รายการ`,
     `━━━━━━━━━━━━━━━━━━━━`,
