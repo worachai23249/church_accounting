@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { TrendingUp, TrendingDown, Wallet, Receipt, Image as ImageIcon, Activity, X, Gift } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { isCashTransaction, isInKindTransaction } from '../services/notificationService';
+import { isCashTransaction, isInKindTransaction, cleanTransactionNote } from '../services/notificationService';
 
 export default function Overview({ transactions, categories = [], formatThaiDate, fmt, handleViewImage, setActiveMenu, isLoggedIn }) {
   const [selectedExpenseCategory, setSelectedExpenseCategory] = useState(null);
@@ -431,31 +431,39 @@ export default function Overview({ transactions, categories = [], formatThaiDate
         <div className="px-3 pb-4 pt-1 grid grid-cols-1 md:grid-cols-2 gap-3">
           {transactions.slice(0, 6).map((tx) => {
             const isIncome = tx.type === 'INCOME';
-            const accentColor = isIncome ? 'emerald' : 'rose';
+            const inKind = isInKindTransaction(tx);
+            const cleanNote = cleanTransactionNote(tx.note);
+
             return (
               <div
                 key={tx.id}
                 className={`glass-panel relative rounded-[22px] overflow-hidden
-                  border ${isIncome ? 'border-emerald-400/40 dark:border-emerald-500/30' : 'border-rose-400/40 dark:border-rose-500/30'}`}
+                  border ${inKind ? 'border-purple-400/50 dark:border-purple-500/40 bg-purple-950/10' : (isIncome ? 'border-emerald-400/40 dark:border-emerald-500/30' : 'border-rose-400/40 dark:border-rose-500/30')}`}
               >
                 {/* Top shimmer accent line */}
-                <div className={`absolute top-0 left-0 right-0 h-[2px] ${isIncome
-                  ? 'bg-gradient-to-r from-transparent via-emerald-400 to-transparent'
-                  : 'bg-gradient-to-r from-transparent via-rose-400 to-transparent'}`}
+                <div className={`absolute top-0 left-0 right-0 h-[2px] ${inKind
+                  ? 'bg-gradient-to-r from-transparent via-purple-400 to-transparent'
+                  : (isIncome ? 'bg-gradient-to-r from-transparent via-emerald-400 to-transparent' : 'bg-gradient-to-r from-transparent via-rose-400 to-transparent')}`}
                 />
                 {/* Ambient glow orb */}
-                <div className={`absolute -top-8 -right-8 w-28 h-28 rounded-full blur-3xl pointer-events-none ${isIncome ? 'bg-emerald-500/20' : 'bg-rose-500/20'}`} />
+                <div className={`absolute -top-8 -right-8 w-28 h-28 rounded-full blur-3xl pointer-events-none opacity-0 dark:opacity-100 ${inKind ? 'bg-purple-500/25' : (isIncome ? 'bg-emerald-500/20' : 'bg-rose-500/20')}`} />
 
                 {/* ─── HEADER: ประเภท + วันที่ ─── */}
                 <div className="relative flex items-center justify-between px-5 pt-4 pb-3">
                   <div className="flex items-center gap-2.5">
-                    <div className={`w-2 h-2 rounded-full shrink-0 ${isIncome
-                      ? 'bg-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.9)]'
-                      : 'bg-rose-400 shadow-[0_0_10px_rgba(244,63,94,0.9)]'}`}
+                    <div className={`w-2 h-2 rounded-full shrink-0 ${inKind
+                      ? 'bg-purple-400 shadow-[0_0_10px_rgba(168,85,247,0.9)]'
+                      : (isIncome ? 'bg-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.9)]' : 'bg-rose-400 shadow-[0_0_10px_rgba(244,63,94,0.9)]')}`}
                     />
-                    <span className={`text-sm font-black tracking-[0.25em] uppercase ${isIncome ? 'text-emerald-500 dark:text-emerald-400' : 'text-rose-500 dark:text-rose-400'}`}>
-                      {isIncome ? 'รายรับ' : 'รายจ่าย'}
-                    </span>
+                    {inKind ? (
+                      <span className="text-xs md:text-sm font-black tracking-[0.15em] uppercase text-purple-400 flex items-center gap-1">
+                        🎁 ถวายสิ่งของ/จ่ายให้
+                      </span>
+                    ) : (
+                      <span className={`text-sm font-black tracking-[0.25em] uppercase ${isIncome ? 'text-emerald-500 dark:text-emerald-400' : 'text-rose-500 dark:text-rose-400'}`}>
+                        {isIncome ? 'รายรับ' : 'รายจ่าย'}
+                      </span>
+                    )}
                   </div>
                   <span className="text-sm text-slate-500 dark:text-white font-bold tracking-wide">
                     {formatThaiDate(tx.transaction_date)}
@@ -463,9 +471,9 @@ export default function Overview({ transactions, categories = [], formatThaiDate
                 </div>
 
                 {/* Divider */}
-                <div className={`mx-5 h-px ${isIncome
-                  ? 'bg-gradient-to-r from-transparent via-emerald-500/30 to-transparent'
-                  : 'bg-gradient-to-r from-transparent via-rose-500/30 to-transparent'}`}
+                <div className={`mx-5 h-px ${inKind
+                  ? 'bg-gradient-to-r from-transparent via-purple-500/30 to-transparent'
+                  : (isIncome ? 'bg-gradient-to-r from-transparent via-emerald-500/30 to-transparent' : 'bg-gradient-to-r from-transparent via-rose-500/30 to-transparent')}`}
                 />
 
                 {/* ─── BODY: หมวดหมู่ + จำนวน + รูป ─── */}
@@ -475,19 +483,25 @@ export default function Overview({ transactions, categories = [], formatThaiDate
                     <p className="text-base font-black text-slate-800 dark:text-white mb-1.5 truncate tracking-tight">
                       {tx.description}
                     </p>
-                    <span className={`text-2xl font-black tracking-tight ${isIncome
-                      ? 'text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-emerald-600 dark:from-emerald-300 dark:to-emerald-500'
-                      : 'text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-rose-600 dark:from-rose-300 dark:to-rose-500'}`}
-                    >
-                      {isIncome ? '+' : '-'}฿{fmt(tx.amount)}
-                    </span>
+                    {inKind ? (
+                      <span className="text-2xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-indigo-300 to-purple-300">
+                        ฿{fmt(tx.amount)}
+                      </span>
+                    ) : (
+                      <span className={`text-2xl font-black tracking-tight ${isIncome
+                        ? 'text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-emerald-600 dark:from-emerald-300 dark:to-emerald-500'
+                        : 'text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-rose-600 dark:from-rose-300 dark:to-rose-500'}`}
+                      >
+                        {isIncome ? '+' : '-'}฿{fmt(tx.amount)}
+                      </span>
+                    )}
                   </div>
                   {/* Right: receipt image */}
                   <button
                     onClick={() => tx.image_url && handleViewImage(tx.image_url)}
                     className={`relative w-16 h-16 rounded-2xl flex-shrink-0 flex items-center justify-center overflow-hidden transition-all duration-300 active:scale-95
                       ${tx.image_url
-                        ? `cursor-pointer border-2 ${isIncome ? 'border-emerald-500/50 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)]' : 'border-rose-500/50 shadow-[0_0_20px_rgba(244,63,94,0.3)] hover:shadow-[0_0_30px_rgba(244,63,94,0.5)]'}`
+                        ? `cursor-pointer border-2 ${inKind ? 'border-purple-500/50 shadow-[0_0_20px_rgba(168,85,247,0.3)] hover:shadow-[0_0_30px_rgba(168,85,247,0.5)]' : (isIncome ? 'border-emerald-500/50 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)]' : 'border-rose-500/50 shadow-[0_0_20px_rgba(244,63,94,0.3)] hover:shadow-[0_0_30px_rgba(244,63,94,0.5)]')}`
                         : 'border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-white/5 cursor-default opacity-40'}`}
                   >
                     {tx.image_url
@@ -498,16 +512,16 @@ export default function Overview({ transactions, categories = [], formatThaiDate
                 </div>
 
                 {/* Divider */}
-                <div className={`mx-5 h-px ${isIncome
-                  ? 'bg-gradient-to-r from-transparent via-emerald-500/20 to-transparent'
-                  : 'bg-gradient-to-r from-transparent via-rose-500/20 to-transparent'}`}
+                <div className={`mx-5 h-px ${inKind
+                  ? 'bg-gradient-to-r from-transparent via-purple-500/20 to-transparent'
+                  : (isIncome ? 'bg-gradient-to-r from-transparent via-emerald-500/20 to-transparent' : 'bg-gradient-to-r from-transparent via-rose-500/20 to-transparent')}`}
                 />
 
                 {/* ─── FOOTER: หมายเหตุ + ดูทั้งหมด ─── */}
                 <div className="flex items-center justify-between px-5 py-3.5">
                   <div className="flex items-center gap-2 min-w-0 flex-1 mr-2">
                     <span className="text-slate-400 dark:text-white/25 text-[10px] font-black uppercase tracking-widest shrink-0">NOTE</span>
-                    <span className="text-xs text-slate-500 dark:text-white/60 font-medium truncate">{tx.note || '—'}</span>
+                    <span className="text-xs text-slate-500 dark:text-white/60 font-medium truncate">{cleanNote || (inKind ? 'ถวายสิ่งของ/ชำระให้โดยตรง' : '—')}</span>
                   </div>
                   {isLoggedIn && (
                     <button

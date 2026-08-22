@@ -205,14 +205,9 @@ export default function Record({ transactions, formatThaiDate, fmt, handleViewIm
                     <div className="flex-1 min-w-0 mr-4">
                       <p className="text-base font-black text-slate-800 dark:text-white mb-1.5 truncate tracking-tight">{t.description}</p>
                       {inKind ? (
-                        <div>
-                          <span className="text-2xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-indigo-300 to-purple-300">
-                            ฿{fmt(t.amount)}
-                          </span>
-                          <span className="ml-2 inline-block text-[10px] font-black uppercase tracking-wider text-purple-600 dark:text-purple-400 bg-purple-100 dark:bg-purple-950/70 border border-purple-300/40 dark:border-purple-800/40 px-2 py-0.5 rounded-full">
-                            สิ่งของ • ไม่รวมเงินสด
-                          </span>
-                        </div>
+                        <span className="text-2xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-indigo-300 to-purple-300">
+                          ฿{fmt(t.amount)}
+                        </span>
                       ) : (
                         <span className={`text-2xl font-black tracking-tight ${isIncome ? 'text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-emerald-600 dark:from-emerald-300 dark:to-emerald-500' : 'text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-rose-600 dark:from-rose-300 dark:to-rose-500'}`}>
                           {isIncome ? '+' : '-'}฿{fmt(t.amount)}
