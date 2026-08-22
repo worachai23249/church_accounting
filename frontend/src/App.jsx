@@ -837,27 +837,39 @@ function App() {
         </div>
       )}
 
-      {/* 5. Modal แจ้งเตือนสำเร็จ (Clean, Elegant & Soothing) */}
+      {/* 5. Modal แจ้งเตือนสำเร็จ (Jesus Image - Clean & Soothing Edition) */}
       {successModal.isOpen && (
-        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-slate-900/60 dark:bg-[#060A13]/80 backdrop-blur-md animate-fade-in" onClick={() => setSuccessModal(prev => ({ ...prev, isOpen: false }))}>
-          <div className="relative w-[92vw] sm:w-full max-w-[380px] bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-white/10 rounded-[28px] shadow-2xl p-6 sm:p-8 flex flex-col items-center text-center animate-fade-in-up overflow-hidden" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-slate-900/60 dark:bg-[#060A13]/85 backdrop-blur-md animate-fade-in" onClick={() => setSuccessModal(prev => ({ ...prev, isOpen: false }))}>
+          <div className="relative w-[92vw] sm:w-full max-w-[390px] flex flex-col items-center animate-fade-in-up" onClick={e => e.stopPropagation()}>
             
-            {/* Top Soft Checkmark Circle */}
-            <div className="w-16 h-16 rounded-2xl bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/30 text-emerald-500 flex items-center justify-center mb-4 shadow-sm">
-              <CheckCircle size={32} strokeWidth={2.5} />
+            {/* Soft, calm background aura behind Jesus (steady, no flashing) */}
+            <div className="absolute top-[20px] w-[260px] h-[260px] bg-emerald-500/20 dark:bg-emerald-500/25 rounded-full blur-[60px] pointer-events-none z-0" />
+
+            {/* Jesus Image (Clean floating presentation) */}
+            <div className="relative z-10 w-[240px] sm:w-[280px] -mb-10 drop-shadow-[0_15px_25px_rgba(0,0,0,0.3)] transition-transform duration-500 hover:scale-105 pointer-events-none">
+              <img src="/jesus.png" alt="Jesus Blessing" className="w-full h-auto object-contain" />
             </div>
 
-            {/* Title & Message */}
-            <h3 className="text-xl font-black text-slate-800 dark:text-white mb-1.5 tracking-tight">
-              {successModal.title}
-            </h3>
-            <p className="text-sm font-medium text-slate-600 dark:text-slate-300 leading-relaxed mb-4">
-              {successModal.message}
-            </p>
+            {/* Main Card */}
+            <div className="w-full bg-white dark:bg-[#0F172A] border border-emerald-500/30 dark:border-emerald-500/30 rounded-[32px] shadow-2xl p-6 pt-10 sm:p-7 sm:pt-11 flex flex-col items-center text-center relative z-20 overflow-hidden">
+              
+              {/* Soft Check Badge */}
+              <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-3 shadow-sm">
+                <CheckCircle size={24} strokeWidth={2.5} />
+              </div>
 
-            {/* Subtle Progress Bar */}
-            <div className="absolute bottom-0 left-0 right-0 h-1 bg-slate-100 dark:bg-white/5 overflow-hidden">
-              <div className="h-full bg-emerald-500 rounded-full animate-[progress-shrink_2.5s_linear_forwards] w-full origin-left" />
+              {/* Title & Message */}
+              <h3 className="text-xl sm:text-2xl font-black text-slate-800 dark:text-white mb-1 tracking-tight">
+                {successModal.title}
+              </h3>
+              <p className="text-sm font-medium text-slate-600 dark:text-slate-300 leading-relaxed mb-3">
+                {successModal.message}
+              </p>
+
+              {/* Subtle shrinking countdown line */}
+              <div className="absolute bottom-0 left-0 right-0 h-1 bg-slate-100 dark:bg-white/5 overflow-hidden">
+                <div className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full animate-[progress-shrink_2.5s_linear_forwards] w-full origin-left" />
+              </div>
             </div>
           </div>
         </div>
