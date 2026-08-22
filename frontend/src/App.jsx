@@ -93,7 +93,7 @@ function App() {
         navigator.serviceWorker.ready.then(reg => {
           reg.showNotification(title, {
             body,
-            icon: '/logo.png?v=5',
+            icon: '/logo.png?v=6',
             badge: '/pwa-192x192.png',
             vibrate: [200, 100, 200],
             tag: 'hwp-transaction',
@@ -101,10 +101,10 @@ function App() {
             data: { url: '/' }
           });
         }).catch(() => {
-          new Notification(title, { body, icon: '/logo.png?v=5' });
+          new Notification(title, { body, icon: '/logo.png?v=6' });
         });
       } else {
-        new Notification(title, { body, icon: '/logo.png?v=5', vibrate: [200, 100, 200] });
+        new Notification(title, { body, icon: '/logo.png?v=6', vibrate: [200, 100, 200] });
       }
     } catch(e) {}
   };
@@ -402,7 +402,7 @@ function App() {
         <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 opacity-25 blur-[40px] animate-pulse" />
         <div className="w-28 h-28 md:w-36 md:h-36 relative z-10 flex items-center justify-center">
           <img
-            src="/logo.png?v=5"
+            src="/logo.png?v=6"
             alt="Logo"
             className="w-full h-full object-contain drop-shadow-[0_0_20px_rgba(99,102,241,0.5)] transition-transform duration-700 hover:scale-105"
           />
@@ -456,7 +456,7 @@ function App() {
             <div className="relative mb-6 transition-transform duration-700 z-10 flex justify-center items-center group-hover:-translate-y-2">
               <div className="absolute inset-2 rounded-full bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 opacity-60 blur-[30px] group-hover:opacity-100 group-hover:blur-[40px] transition-all duration-1000 animate-pulse-glow"></div>
               <div className="w-56 h-56 xl:w-64 xl:h-64 relative z-10">
-                <img src="/logo.png?v=5" alt="Logo" className="w-full h-full object-contain scale-[1.35] drop-shadow-[0_0_15px_rgba(255,255,255,0.1)] transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-700" />
+                <img src="/logo.png?v=6" alt="Logo" className="w-full h-full object-contain scale-[1.35] drop-shadow-[0_0_15px_rgba(255,255,255,0.1)] transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-700" />
               </div>
             </div>
 
@@ -573,7 +573,7 @@ function App() {
           <button onClick={() => setIsMobileMenuOpen(true)} className="p-2 -ml-2 text-slate-600 dark:text-slate-300 hover:text-blue-500">
             <Menu size={24} />
           </button>
-          <img src="/logo.png?v=5" alt="Logo" className="w-8 h-8 object-contain ml-2 shrink-0 drop-shadow-[0_0_8px_rgba(255,255,255,0.2)]" />
+          <img src="/logo.png?v=6" alt="Logo" className="w-8 h-8 object-contain ml-2 shrink-0 drop-shadow-[0_0_8px_rgba(255,255,255,0.2)]" />
           <span className="ml-2 text-[11px] uppercase font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-600 dark:from-blue-400 dark:via-purple-400 dark:to-indigo-500 whitespace-nowrap">The House of Worship</span>
         </div>
         {isLoggedIn && (
