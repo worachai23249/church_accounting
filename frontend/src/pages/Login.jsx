@@ -68,7 +68,7 @@ export default function Login({ onLogin, onBack }) {
 
             {/* Logo */}
             <div className="relative mb-6 xl:mb-8 transition-transform duration-700 z-10 flex justify-center items-center group-hover:-translate-y-2">
-              <div className="absolute inset-2 rounded-full bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 opacity-60 blur-[30px] group-hover:opacity-100 group-hover:blur-[45px] transition-all duration-1000 animate-pulse-glow"></div>
+              <div className="absolute inset-2 rounded-full bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 opacity-50 blur-[30px] group-hover:opacity-80 group-hover:blur-[45px] transition-all duration-700"></div>
               <div className="w-56 h-56 xl:w-64 xl:h-64 2xl:w-72 2xl:h-72 relative z-10">
                 <img
                   src="/logo.png?v=6"
@@ -109,7 +109,7 @@ export default function Login({ onLogin, onBack }) {
             {/* Mobile logo */}
             <div className="lg:hidden flex flex-col items-center justify-center mb-6 pt-2">
               <div className="relative mb-3 transition-transform duration-700 z-10 flex justify-center items-center group">
-                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 opacity-60 blur-[20px] animate-pulse-glow"></div>
+                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 opacity-50 blur-[20px]"></div>
                 <div className="w-40 h-40 sm:w-48 sm:h-48 relative z-10 flex items-center justify-center">
                   <img src="/logo.png?v=6" alt="Logo" className="w-full h-full object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.15)]" />
                 </div>

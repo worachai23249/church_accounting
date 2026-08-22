@@ -6,8 +6,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjoiSFdQIEFjY291bnRpbmciLCJzaG9ydF9uYW1lIjoiSFdQIEFjY291bnRpbmciLCJzdGFydF91cmwiOiIvaW5kZXguaHRtbCIsImRpc3BsYXkiOiJzdGFuZGFsb25lIiwiYmFja2dyb3VuZF9jb2xvciI6IiMwNjBBMTMiLCJ0aGVtZV9jb2xvciI6IiMzQjgyRjYiLCJpY29ucyI6W3sic3JjIjoiL2xvZ28ucG5nIiwic2l6ZXMiOiIxOTJ4MTkyIDUxMng1MTIiLCJ0eXBlIjoiaW1hZ2UvcG5nIiwicHVycG9zZSI6ImFueSBtYXNrYWJsZSJ9XX0=">
     <title>HWP Accounting</title>
-    <meta name="theme-color" content="#060A13">
+    <meta name="theme-color" content="#060A13" id="theme-color-meta">
     <link rel="apple-touch-icon" href="/logo.png">
+    <script>
+      (function() {
+        try {
+          var saved = localStorage.getItem('theme');
+          var isDark = saved ? saved === 'dark' : true;
+          if (isDark) {
+            document.documentElement.classList.add('dark');
+            var meta = document.getElementById('theme-color-meta');
+            if (meta) meta.setAttribute('content', '#060A13');
+          } else {
+            document.documentElement.classList.remove('dark');
+            var meta = document.getElementById('theme-color-meta');
+            if (meta) meta.setAttribute('content', '#F8FAFC');
+          }
+        } catch(e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

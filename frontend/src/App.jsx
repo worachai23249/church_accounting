@@ -140,6 +140,8 @@ function App() {
   useEffect(() => {
     document.documentElement.classList.toggle('dark', isDarkMode);
     localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+    const meta = document.getElementById('theme-color-meta');
+    if (meta) meta.setAttribute('content', isDarkMode ? '#060A13' : '#F8FAFC');
   }, [isDarkMode]);
 
   const fetchTransactions = () => {
@@ -439,7 +441,7 @@ function App() {
   }} onBack={() => setShowLoginScreen(false)} />;
 
   return (
-    <div className="h-screen bg-slate-50 dark:bg-[#060A13] text-slate-800 dark:text-white font-sans flex overflow-hidden relative transition-colors duration-500">
+    <div className="h-screen bg-slate-50 dark:bg-[#060A13] text-slate-800 dark:text-white font-sans flex overflow-hidden relative">
 
       {/* Background & Aura Effects */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080801a_1px,transparent_1px),linear-gradient(to_bottom,#8080801a_1px,transparent_1px)] bg-[size:64px_64px] pointer-events-none"></div>
