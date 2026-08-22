@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { X, Bell, Send, CheckCircle2, Copy, AlertCircle, MessageSquare, ShieldCheck, Sparkles } from 'lucide-react';
+import { X, Bell, Send, CheckCircle2, Copy, AlertCircle, MessageSquare, ShieldCheck, Sparkles, Lock, Unlock } from 'lucide-react';
 import { getNotificationSettings, saveNotificationSettings, sendTestNotification, sendMonthlySummaryNotification } from '../services/notificationService';
 
 export default function NotificationSettingsModal({ isOpen, onClose, transactions = [], fmt, showSuccess }) {
   const [settings, setSettings] = useState(getNotificationSettings());
+  const [isUrlLocked, setIsUrlLocked] = useState(true);
   const [isSendingTest, setIsSendingTest] = useState(false);
   const [isSendingSummary, setIsSendingSummary] = useState(false);
   const [copiedScript, setCopiedScript] = useState(false);
@@ -12,6 +13,7 @@ export default function NotificationSettingsModal({ isOpen, onClose, transaction
   useEffect(() => {
     if (isOpen) {
       setSettings(getNotificationSettings());
+      setIsUrlLocked(true);
       setStatusMsg({ text: '', isError: false });
     }
   }, [isOpen]);
@@ -150,23 +152,54 @@ function doPost(e) {
 
           {/* Section 1: LINE Integration */}
           <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
-              <h4 className="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-200">1. การเชื่อมต่อ LINE Webhook</h4>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+                <h4 className="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-200">1. การเชื่อมต่อ LINE Webhook</h4>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsUrlLocked(!isUrlLocked)}
+                className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 transition-all duration-200 ${
+                  isUrlLocked
+                    ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30 hover:bg-amber-500/20'
+                    : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20'
+                }`}
+              >
+                {isUrlLocked ? <Lock size={12} /> : <Unlock size={12} />}
+                {isUrlLocked ? '🔒 ปลดล็อกเพื่อแก้ไข' : '🔓 ล็อกป้องกัน'}
+              </button>
             </div>
             
             <div className="p-4 rounded-2xl bg-slate-50 dark:bg-[#060A13]/60 border border-slate-200/50 dark:border-white/5 space-y-3">
               <div>
-                <label className="block text-[10px] font-black text-slate-500 dark:text-[#64748B] mb-1.5 uppercase tracking-widest">
-                  LINE Webhook URL (Make / Zapier / Google Apps Script)
-                </label>
-                <input
-                  type="text"
-                  value={settings.line_webhook_url}
-                  onChange={(e) => setSettings({ ...settings, line_webhook_url: e.target.value })}
-                  placeholder="https://script.google.com/macros/s/.../exec"
-                  className="w-full p-3 bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-white/10 rounded-xl outline-none text-xs text-slate-800 dark:text-white font-mono focus:ring-2 focus:ring-emerald-500/50 transition-all"
-                />
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-[10px] font-black text-slate-500 dark:text-[#64748B] uppercase tracking-widest">
+                    LINE Webhook URL (Make / Zapier / Google Apps Script)
+                  </label>
+                  {isUrlLocked && (
+                    <span className="text-[10px] text-amber-500/90 dark:text-amber-400/90 font-bold">
+                      * ล็อกป้องกันการเผลอลบ
+                    </span>
+                  )}
+                </div>
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={settings.line_webhook_url}
+                    readOnly={isUrlLocked}
+                    onChange={(e) => setSettings({ ...settings, line_webhook_url: e.target.value })}
+                    placeholder="https://script.google.com/macros/s/.../exec"
+                    className={`w-full p-3 pr-10 border rounded-xl outline-none text-xs font-mono transition-all ${
+                      isUrlLocked
+                        ? 'bg-slate-100/80 dark:bg-[#0F172A]/50 border-slate-200/80 dark:border-white/5 text-slate-500 dark:text-slate-400 cursor-not-allowed select-all'
+                        : 'bg-white dark:bg-[#0F172A] border-emerald-500/50 text-slate-800 dark:text-white focus:ring-2 focus:ring-emerald-500/50'
+                    }`}
+                  />
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500">
+                    {isUrlLocked ? <Lock size={14} className="text-amber-500/80" /> : <Unlock size={14} className="text-emerald-500/80" />}
+                  </div>
+                </div>
               </div>
 
               <div className="pt-2 border-t border-slate-200/50 dark:border-white/5">
