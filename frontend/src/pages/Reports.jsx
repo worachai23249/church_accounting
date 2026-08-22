@@ -581,13 +581,13 @@ const FULL_DAY_NAMES_TH = ['วันอาทิตย์', 'วันจัน
                   </div>
                 </div>
 
-                {/* Filter Buttons: ทั้งหมด / รายรับ / รายจ่าย / ถวายพิเศษ (ไม่นำไปคำนวณ) */}
+                {/* Filter Buttons: ทั้งหมด / รายรับ / รายจ่าย / ถวายพิเศษ */}
                 <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-1">
                   {[
                     { key: 'ALL', label: 'ทั้งหมด', count: activeTransactions.length, color: 'blue' },
                     { key: 'INCOME', label: 'รายรับ', count: incomeCount, color: 'emerald' },
                     { key: 'EXPENSE', label: 'รายจ่าย', count: expenseCount, color: 'rose' },
-                    { key: 'IN_KIND', label: '🎁 ถวายพิเศษ/สิ่งของ (ไม่นำไปคำนวณ)', count: inKindCount, color: 'purple' },
+                    { key: 'IN_KIND', label: '🎁 ถวายพิเศษ', count: inKindCount, color: 'purple' },
                   ].map(f => {
                     const isSelected = detailFilterType === f.key;
                     return (
@@ -622,7 +622,7 @@ const FULL_DAY_NAMES_TH = ['วันอาทิตย์', 'วันจัน
                     <Activity size={22} />
                   </div>
                   <p className="text-sm font-black text-slate-600 dark:text-slate-300">
-                    ไม่มีรายการ{detailFilterType === 'INCOME' ? 'รายรับ' : detailFilterType === 'EXPENSE' ? 'รายจ่าย' : detailFilterType === 'IN_KIND' ? 'ถวายพิเศษ/สิ่งของ' : ''}ใน{activeLabel}
+                    ไม่มีรายการ{detailFilterType === 'INCOME' ? 'รายรับ' : detailFilterType === 'EXPENSE' ? 'รายจ่าย' : detailFilterType === 'IN_KIND' ? 'ถวายพิเศษ' : ''}ใน{activeLabel}
                   </p>
                   <p className="text-xs text-slate-400">
                     ช่วงวันที่ {activeDateRangeSubtitle}
