@@ -67,14 +67,13 @@ export default function Login({ onLogin, onBack }) {
           <div className="relative z-10 flex flex-col flex-1 justify-center items-center text-center">
 
             {/* Logo */}
-            <div className="w-56 h-56 xl:w-72 xl:h-72 2xl:w-80 2xl:h-80 shrink-0 flex items-center justify-center mb-6 xl:mb-8 relative group-hover:scale-105 transition-transform duration-1000">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 opacity-20 blur-[40px] rounded-full group-hover:opacity-40 transition-all duration-700" />
-              <div className="w-full h-full rounded-full p-[2px] bg-gradient-to-b from-white/50 to-transparent dark:from-white/10 dark:to-transparent relative shadow-xl">
-                <div className="absolute inset-0 bg-white/20 dark:bg-black/20 rounded-full backdrop-blur-md" />
+            <div className="relative mb-6 xl:mb-8 transition-transform duration-700 z-10 flex justify-center items-center group-hover:-translate-y-2">
+              <div className="absolute inset-2 rounded-full bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 opacity-60 blur-[30px] group-hover:opacity-100 group-hover:blur-[45px] transition-all duration-1000 animate-pulse-glow"></div>
+              <div className="w-56 h-56 xl:w-64 xl:h-64 2xl:w-72 2xl:h-72 relative z-10">
                 <img
                   src="/logo.png?v=6"
                   alt="Logo"
-                  className="w-full h-full object-contain scale-[1.35] drop-shadow-[0_0_20px_rgba(59,130,246,0.3)] relative z-10 group-hover:rotate-3 transition-transform duration-1000"
+                  className="w-full h-full object-contain scale-[1.35] drop-shadow-[0_0_15px_rgba(255,255,255,0.1)] transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-700"
                 />
               </div>
             </div>
@@ -129,11 +128,10 @@ export default function Login({ onLogin, onBack }) {
 
             {/* Mobile logo */}
             <div className="lg:hidden flex flex-col items-center justify-center mb-8">
-              <div className="w-52 h-52 md:w-64 md:h-64 relative flex items-center justify-center mb-4 group">
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 opacity-20 blur-[30px] rounded-full" />
-                <div className="w-full h-full rounded-full p-[2px] bg-gradient-to-b from-white/50 to-transparent dark:from-white/10 dark:to-transparent relative shadow-xl">
-                  <div className="absolute inset-0 bg-white/20 dark:bg-black/20 rounded-full backdrop-blur-md" />
-                  <img src="/logo.png?v=6" alt="Logo" className="w-full h-full object-contain scale-[1.35] drop-shadow-[0_0_15px_rgba(59,130,246,0.3)] relative z-10" />
+              <div className="relative mb-4 transition-transform duration-700 z-10 flex justify-center items-center group">
+                <div className="absolute inset-2 rounded-full bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 opacity-60 blur-[25px] animate-pulse-glow"></div>
+                <div className="w-52 h-52 md:w-60 md:h-60 relative z-10">
+                  <img src="/logo.png?v=6" alt="Logo" className="w-full h-full object-contain scale-[1.35] drop-shadow-[0_0_15px_rgba(255,255,255,0.1)]" />
                 </div>
               </div>
               <h1 className="text-2xl md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-600 dark:from-blue-400 dark:via-indigo-400 dark:to-purple-400 uppercase tracking-tighter drop-shadow-sm flex flex-col items-center">
