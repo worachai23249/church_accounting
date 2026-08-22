@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { login } from '../supabase';
-import { Mail, Lock, Eye, EyeOff, ArrowRight, ShieldCheck, Database, Activity, PieChart, LineChart, X } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, ArrowRight, ShieldCheck, X } from 'lucide-react';
 
 export default function Login({ onLogin, onBack }) {
   const [showPassword, setShowPassword] = useState(false);
@@ -84,26 +84,6 @@ export default function Login({ onLogin, onBack }) {
                 <span>The House of</span>
                 <span className="text-[0.7em] tracking-[0.1em] mt-2">worship and pray</span>
               </h1>
-            </div>
-
-            {/* Feature boxes */}
-            <div className="mt-6 xl:mt-8 grid grid-cols-4 gap-3 w-full max-w-xl shrink-0">
-              {[
-                { Icon: Activity,  label: 'ติดตามรายรับรายจ่าย\nแบบ Real-time',   color: 'blue'    },
-                { Icon: LineChart, label: 'วิเคราะห์แนวโน้ม\nการเงินด้วยกราฟ',    color: 'indigo'  },
-                { Icon: Database,  label: 'จัดหมวดหมู่\nรายการอัตโนมัติ',         color: 'purple'  },
-                { Icon: PieChart,  label: 'รายงานสรุป\nรายเดือน-รายปี',           color: 'emerald' },
-              ].map(({ Icon, label, color }) => (
-                <div key={label}
-                  className="bg-white/30 dark:bg-white/[0.03] backdrop-blur-xl border border-slate-200/50 dark:border-white/10 rounded-2xl p-4 2xl:p-5 flex flex-col items-center justify-center space-y-3 text-center transition-all duration-300 hover:bg-white/60 dark:hover:bg-white/[0.08] hover:-translate-y-2 hover:shadow-[0_10px_30px_-10px_rgba(59,130,246,0.3)] hover:border-blue-500/30 group/feat relative overflow-hidden"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-b from-blue-500/0 to-blue-500/5 dark:to-blue-500/10 opacity-0 group-hover/feat:opacity-100 transition-opacity duration-300" />
-                  <div className="w-12 h-12 2xl:w-14 2xl:h-14 rounded-full bg-blue-100 dark:bg-blue-500/20 flex items-center justify-center text-blue-600 dark:text-blue-400 group-hover/feat:bg-blue-500 group-hover/feat:text-white transition-all duration-300 shadow-inner group-hover/feat:shadow-[0_0_15px_rgba(59,130,246,0.5)] z-10">
-                    <Icon size={20} className="2xl:w-6 2xl:h-6" />
-                  </div>
-                  <p className="text-[10px] 2xl:text-xs font-black text-slate-700 dark:text-[#E2E8F0] leading-snug tracking-wide group-hover/feat:text-blue-600 dark:group-hover/feat:text-blue-400 transition-colors z-10 whitespace-pre-line">{label}</p>
-                </div>
-              ))}
             </div>
           </div>
         </div>
