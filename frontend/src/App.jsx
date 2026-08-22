@@ -393,34 +393,34 @@ function App() {
   const formatThaiDate = (d) => d ? new Date(d).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' }) : '-';
 
   if (loading) return (
-    <div className="h-screen bg-[#060A13] flex flex-col items-center justify-center gap-7 md:gap-9 overflow-hidden relative select-none">
+    <div className="h-screen bg-[#060A13] flex flex-col items-center justify-center gap-6 overflow-hidden relative">
       {/* Ambient background aura */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] md:w-[900px] h-[600px] md:h-[900px] rounded-full bg-gradient-to-tr from-blue-600/15 via-purple-600/15 to-indigo-600/15 blur-[160px] pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-blue-600/10 blur-[140px] pointer-events-none" />
 
       {/* Logo with smooth pulse */}
       <div className="relative flex items-center justify-center">
-        <div className="absolute inset-[-20px] md:inset-[-40px] rounded-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 opacity-40 blur-[50px] md:blur-[80px] animate-pulse" />
-        <div className="w-36 h-36 sm:w-48 sm:h-48 md:w-64 md:h-64 lg:w-80 lg:h-80 relative z-10 flex items-center justify-center">
+        <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 opacity-25 blur-[40px] animate-pulse" />
+        <div className="w-28 h-28 md:w-60 md:h-60 lg:w-72 lg:h-72 relative z-10 flex items-center justify-center">
           <img
             src="/logo.png?v=6"
             alt="Logo"
-            className="w-full h-full object-contain drop-shadow-[0_0_35px_rgba(99,102,241,0.6)] transition-transform duration-700 hover:scale-105"
+            className="w-full h-full object-contain drop-shadow-[0_0_20px_rgba(99,102,241,0.5)] transition-transform duration-700 hover:scale-105"
           />
         </div>
       </div>
 
       {/* Church title */}
-      <div className="font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-300 to-purple-400 flex flex-col items-center text-center drop-shadow-md">
-        <span className="text-base sm:text-xl md:text-2xl lg:text-3xl leading-[1.5em] tracking-[0.28em] uppercase">The House of Worship</span>
-        <span className="text-lg sm:text-2xl md:text-3xl lg:text-4xl leading-[1.2em] tracking-[0.2em] mt-1 uppercase font-black">and Pray</span>
+      <div className="font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 flex flex-col items-center text-center">
+        <span className="text-sm md:text-base leading-[1.6em] tracking-[0.25em] uppercase">The House of Worship</span>
+        <span className="text-base md:text-lg leading-[1.2em] tracking-[0.18em] mt-0.5 uppercase">and Pray</span>
       </div>
 
       {/* Smooth Loading Indicator */}
-      <div className="flex flex-col items-center gap-3.5 mt-2 md:mt-4">
-        <div className="w-52 sm:w-72 md:w-96 lg:w-[420px] h-2 md:h-2.5 bg-white/10 rounded-full overflow-hidden border border-white/15 relative shadow-inner">
+      <div className="flex flex-col items-center gap-3 mt-2">
+        <div className="w-48 h-1.5 bg-white/5 rounded-full overflow-hidden border border-white/10 relative">
           <div className="absolute inset-y-0 left-0 w-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 rounded-full animate-pulse" />
         </div>
-        <p className="text-xs sm:text-sm md:text-base tracking-[0.25em] uppercase text-slate-400 font-extrabold drop-shadow">กำลังโหลดระบบ...</p>
+        <p className="text-[11px] tracking-[0.2em] uppercase text-slate-500 font-bold">กำลังโหลดระบบ...</p>
       </div>
     </div>
   );
