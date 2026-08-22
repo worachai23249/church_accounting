@@ -262,43 +262,42 @@ const FULL_DAY_NAMES_TH = ['วันอาทิตย์', 'วันจัน
       : `worship_data_${selectedYear}_${monthIndexStr}_week_${selectedWeek}`;
 
     return (
-      <div className="max-w-7xl mx-auto pb-20 mt-4 xl:mt-0 font-sans">
+      <div className="max-w-7xl mx-auto pb-20 mt-2 xl:mt-0 font-sans">
         {/* Header */}
-        <div className="mb-6 relative animate-fade-in-up">
-          <div className="absolute -left-6 -top-6 w-24 h-24 bg-blue-500/20 rounded-full blur-2xl animate-pulse-glow"></div>
-          
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 relative z-10">
-            <div className="flex items-center gap-3 md:gap-4">
+        <div className="mb-5 relative animate-fade-in-up">
+          <div className="flex flex-col gap-3.5 relative z-10">
+            
+            {/* Top Row: Back button + Title */}
+            <div className="flex items-center gap-3">
               <button 
                 onClick={() => { setSelectedMonthDetail(null); setSelectedWeek('all'); }} 
-                className="w-11 h-11 md:w-13 md:h-13 bg-white/80 dark:bg-[#0B1121]/70 backdrop-blur-md border border-slate-200 dark:border-white/10 rounded-2xl flex items-center justify-center text-slate-600 dark:text-[#94A3B8] hover:text-blue-500 dark:hover:text-blue-400 hover:scale-105 active:scale-95 transition-all duration-200 shadow-sm shrink-0"
+                className="w-10 h-10 sm:w-12 sm:h-12 bg-white/80 dark:bg-[#0B1121]/70 backdrop-blur-md border border-slate-200 dark:border-white/10 rounded-2xl flex items-center justify-center text-slate-600 dark:text-[#94A3B8] hover:text-blue-500 dark:hover:text-blue-400 hover:scale-105 active:scale-95 transition-all duration-200 shadow-sm shrink-0"
                 title="กลับไปหน้ารวม 12 เดือน"
               >
-                <ArrowLeft size={20} className="md:w-5 md:h-5" />
+                <ArrowLeft size={18} className="sm:w-5 sm:h-5" />
               </button>
-              <div>
-                <div className="flex items-center gap-2">
-                  <h1 className="text-2xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 tracking-tighter drop-shadow-sm pb-0.5">
-                    รายละเอียดประจำเดือน
-                  </h1>
-                </div>
-                <div className="flex items-center gap-2 mt-0.5">
-                  <span className="text-blue-600 dark:text-blue-400 text-xs md:text-sm font-black tracking-wide flex items-center gap-1.5">
-                    <Calendar size={13} className="text-blue-500" />
+              <div className="min-w-0 flex-1">
+                <h1 className="text-xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 tracking-tight drop-shadow-sm truncate">
+                  รายละเอียดประจำเดือน
+                </h1>
+                <div className="flex items-center gap-1.5 sm:gap-2 mt-0.5 flex-wrap">
+                  <span className="text-blue-600 dark:text-blue-400 text-xs sm:text-sm font-black tracking-wide flex items-center gap-1">
+                    <Calendar size={12} className="text-blue-500 shrink-0" />
                     {detailMonthName} {selectedYear}
                   </span>
                   <span className="text-slate-400 dark:text-white/30 text-xs">•</span>
-                  <span className="text-slate-500 dark:text-[#94A3B8] text-xs font-bold">
+                  <span className="text-slate-500 dark:text-[#94A3B8] text-[11px] sm:text-xs font-bold truncate">
                     {activeDateRangeSubtitle}
                   </span>
                 </div>
               </div>
             </div>
 
-            {/* Quick Month Switcher & Export */}
-            <div className="flex items-center gap-2 md:gap-3 flex-wrap">
+            {/* Actions Bar on Mobile (Month Switcher + Action Buttons) */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 pt-1">
+              
               {/* Previous / Next Month Navigation */}
-              <div className="glass-panel p-1 rounded-2xl flex items-center shadow-sm">
+              <div className="glass-panel p-1 rounded-2xl flex items-center justify-between sm:justify-start shadow-sm shrink-0">
                 <button
                   disabled={selectedMonthDetail <= 1}
                   onClick={() => { setSelectedMonthDetail(m => m - 1); setSelectedWeek('all'); }}
@@ -307,7 +306,7 @@ const FULL_DAY_NAMES_TH = ['วันอาทิตย์', 'วันจัน
                 >
                   <ChevronLeft size={18} />
                 </button>
-                <span className="px-3 text-xs md:text-sm font-black text-slate-700 dark:text-white whitespace-nowrap">
+                <span className="px-3 text-xs sm:text-sm font-black text-slate-700 dark:text-white whitespace-nowrap text-center flex-1 sm:flex-none">
                   {MONTHS_TH[selectedMonthDetail - 1]} {selectedYear}
                 </span>
                 <button
@@ -320,55 +319,58 @@ const FULL_DAY_NAMES_TH = ['วันอาทิตย์', 'วันจัน
                 </button>
               </div>
 
-              {/* Export Button */}
-              <button
-                onClick={() => handleExportCSV(activeTransactions, exportFilePrefix)}
-                className="group relative flex items-center justify-center space-x-2 bg-white hover:bg-slate-50 border border-slate-200 dark:border-white/10 dark:bg-white/10 dark:hover:bg-white/20 text-slate-700 dark:text-white px-4 py-2.5 rounded-2xl font-black text-xs uppercase tracking-widest transition-all duration-300 active:scale-95 shadow-sm"
-                title="ดาวน์โหลดไฟล์ CSV"
-              >
-                <Download size={15} className="text-blue-400 group-hover:translate-y-0.5 transition-transform duration-300" />
-                <span className="whitespace-nowrap">ส่งออก CSV</span>
-              </button>
+              {/* Action Buttons: 2 columns on mobile */}
+              <div className="grid grid-cols-2 sm:flex sm:items-center gap-2">
+                {/* Export Button */}
+                <button
+                  onClick={() => handleExportCSV(activeTransactions, exportFilePrefix)}
+                  className="flex items-center justify-center space-x-1.5 bg-white hover:bg-slate-50 border border-slate-200 dark:border-white/10 dark:bg-white/10 dark:hover:bg-white/20 text-slate-700 dark:text-white px-3 py-2.5 rounded-2xl font-black text-[11px] sm:text-xs uppercase tracking-wider transition-all duration-200 active:scale-95 shadow-sm"
+                  title="ดาวน์โหลดไฟล์ CSV"
+                >
+                  <Download size={14} className="text-blue-400 shrink-0" />
+                  <span className="whitespace-nowrap">ส่งออก CSV</span>
+                </button>
 
-              {/* Send Monthly Summary to LINE Button */}
-              <button
-                onClick={async () => {
-                  try {
-                    const res = await sendMonthlySummaryNotification(selectedYear, selectedMonthDetail, transactions, fmt);
-                    if (res.line) {
-                      alert(`ส่งสรุปรายงานประจำเดือน ${FULL_MONTHS_TH[selectedMonthDetail - 1]} ${selectedYear} เข้า LINE เรียบร้อยแล้ว!`);
-                    } else {
-                      alert('กรุณาตั้งค่า LINE Webhook ในเมนู "แจ้งเตือน LINE" ก่อนส่งรายงาน');
+                {/* Send Monthly Summary to LINE Button */}
+                <button
+                  onClick={async () => {
+                    try {
+                      const res = await sendMonthlySummaryNotification(selectedYear, selectedMonthDetail, transactions, fmt);
+                      if (res.line) {
+                        alert(`ส่งสรุปรายงานประจำเดือน ${FULL_MONTHS_TH[selectedMonthDetail - 1]} ${selectedYear} เข้า LINE เรียบร้อยแล้ว!`);
+                      } else {
+                        alert('กรุณาตั้งค่า LINE Webhook ในเมนู "แจ้งเตือน LINE" ก่อนส่งรายงาน');
+                      }
+                    } catch (e) {
+                      alert('เกิดข้อผิดพลาด: ' + e.message);
                     }
-                  } catch (e) {
-                    alert('เกิดข้อผิดพลาด: ' + e.message);
-                  }
-                }}
-                className="group relative flex items-center justify-center space-x-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white px-4 py-2.5 rounded-2xl font-black text-xs uppercase tracking-widest transition-all duration-300 active:scale-95 shadow-md shadow-emerald-500/20"
-                title="ส่งสรุปรายงานประจำเดือนเข้า LINE / Telegram"
-              >
-                <MessageSquare size={15} className="text-white group-hover:scale-110 transition-transform duration-300" />
-                <span className="whitespace-nowrap">ส่งสรุปเข้า LINE</span>
-              </button>
+                  }}
+                  className="flex items-center justify-center space-x-1.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white px-3 py-2.5 rounded-2xl font-black text-[11px] sm:text-xs uppercase tracking-wider transition-all duration-200 active:scale-95 shadow-md shadow-emerald-500/20"
+                  title="ส่งสรุปรายงานประจำเดือนเข้า LINE"
+                >
+                  <MessageSquare size={14} className="text-white shrink-0" />
+                  <span className="whitespace-nowrap">ส่งสรุปเข้า LINE</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
 
         {/* ================= Weekly & All Filter Tabs Bar ================= */}
-        <div className="mb-6 animate-fade-in-up">
-          <div className="glass-panel p-2 rounded-[22px] flex items-center gap-1.5 overflow-x-auto no-scrollbar shadow-sm">
+        <div className="mb-5 animate-fade-in-up">
+          <div className="glass-panel p-1.5 rounded-2xl flex items-center gap-1.5 overflow-x-auto no-scrollbar shadow-sm">
             
             {/* Tab: All Month */}
             <button
               onClick={() => setSelectedWeek('all')}
-              className={`flex-1 min-w-[130px] md:min-w-0 py-2.5 px-3.5 rounded-xl transition-all duration-200 flex flex-col items-center justify-center gap-1 text-center shrink-0 md:shrink
+              className={`flex-1 min-w-[125px] sm:min-w-0 py-2 px-3 rounded-xl transition-all duration-200 flex flex-col items-center justify-center gap-0.5 text-center shrink-0 sm:shrink
                 ${selectedWeek === 'all'
-                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/25 scale-[1.02]'
+                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md shadow-blue-500/20 scale-[1.01]'
                   : 'bg-transparent text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5'}`}
             >
-              <div className="flex items-center gap-1.5 font-black text-xs md:text-sm whitespace-nowrap">
-                <CalendarDays size={14} className={selectedWeek === 'all' ? 'text-white' : 'text-blue-500'} />
-                <span>ดูทั้งหมด (ทั้งเดือน)</span>
+              <div className="flex items-center gap-1 font-black text-xs sm:text-sm whitespace-nowrap">
+                <CalendarDays size={13} className={selectedWeek === 'all' ? 'text-white' : 'text-blue-500'} />
+                <span>ทั้งเดือน</span>
               </div>
               <span className={`text-[10px] font-bold ${selectedWeek === 'all' ? 'text-blue-100' : 'text-slate-400 dark:text-[#64748B]'}`}>
                 {allMonthTransactions.length} รายการ ({MONTHS_TH[selectedMonthDetail - 1]})
@@ -383,15 +385,15 @@ const FULL_DAY_NAMES_TH = ['วันอาทิตย์', 'วันจัน
                 <button
                   key={w.weekNum}
                   onClick={() => setSelectedWeek(w.weekNum)}
-                  className={`flex-1 min-w-[120px] md:min-w-0 py-2.5 px-3 rounded-xl transition-all duration-200 flex flex-col items-center justify-center gap-1 text-center shrink-0 md:shrink
+                  className={`flex-1 min-w-[115px] sm:min-w-0 py-2 px-2.5 rounded-xl transition-all duration-200 flex flex-col items-center justify-center gap-0.5 text-center shrink-0 sm:shrink
                     ${isActive
-                      ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/25 scale-[1.02]'
+                      ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md shadow-blue-500/20 scale-[1.01]'
                       : 'bg-transparent text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5'}`}
                 >
-                  <div className="flex items-center gap-1.5 font-black text-xs md:text-sm whitespace-nowrap">
+                  <div className="flex items-center gap-1 font-black text-xs sm:text-sm whitespace-nowrap">
                     <span>สัปดาห์ที่ {w.weekNum}</span>
                     {hasTx && (
-                      <span className={`w-2 h-2 rounded-full ${isActive ? 'bg-white' : (w.balance >= 0 ? 'bg-emerald-500' : 'bg-rose-500')}`}></span>
+                      <span className={`w-1.5 h-1.5 rounded-full ${isActive ? 'bg-white' : (w.balance >= 0 ? 'bg-emerald-500' : 'bg-rose-500')}`}></span>
                     )}
                   </div>
                   <div className="flex items-center gap-1">
@@ -399,7 +401,7 @@ const FULL_DAY_NAMES_TH = ['วันอาทิตย์', 'วันจัน
                       {w.shortRangeWithDays || w.shortRange}
                     </span>
                     {hasTx && (
-                      <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-black ${isActive ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-white/10 text-slate-600 dark:text-slate-300'}`}>
+                      <span className={`text-[9px] px-1 py-0.2 rounded-full font-black ${isActive ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-white/10 text-slate-600 dark:text-slate-300'}`}>
                         {w.count}
                       </span>
                     )}
@@ -411,116 +413,120 @@ const FULL_DAY_NAMES_TH = ['วันอาทิตย์', 'วันจัน
         </div>
 
         {/* ================= Detailed KPI Summary Cards ================= */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5 mb-8 animate-fade-in-up">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4 mb-6 animate-fade-in-up">
           {/* Card 1: Total Income */}
-          <div className="glass-panel p-4 md:p-6 rounded-[22px] flex flex-col justify-between relative overflow-hidden group">
-            <div className="flex items-center justify-between mb-2 relative z-10">
-              <div className="flex items-center gap-1.5">
+          <div className="glass-panel p-3.5 sm:p-5 rounded-2xl flex flex-col justify-between relative overflow-hidden group">
+            <div className="flex items-center justify-between mb-1.5 relative z-10">
+              <div className="flex items-center gap-1.5 min-w-0">
                 <div className="w-2 h-2 rounded-full bg-emerald-500 shrink-0 shadow-[0_0_8px_rgba(16,185,129,0.7)]"></div>
-                <span className="text-slate-500 dark:text-[#94A3B8] text-[10px] md:text-xs font-black uppercase tracking-wider">รายรับ ({activeLabel})</span>
+                <span className="text-slate-500 dark:text-[#94A3B8] text-[10px] sm:text-xs font-black uppercase tracking-wider truncate">รายรับ</span>
               </div>
-              <div className="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500">
-                <TrendingUp size={16} />
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500 shrink-0">
+                <TrendingUp size={14} className="sm:w-4 sm:h-4" />
               </div>
             </div>
-            <span className="text-xl md:text-3xl font-black text-emerald-500 tracking-tight drop-shadow-sm relative z-10">+{fmt(activeIncome)}</span>
+            <span className="text-lg sm:text-2xl lg:text-3xl font-black text-emerald-500 tracking-tight drop-shadow-sm relative z-10 truncate">
+              +{fmt(activeIncome)}
+            </span>
           </div>
 
           {/* Card 2: Total Expense */}
-          <div className="glass-panel p-4 md:p-6 rounded-[22px] flex flex-col justify-between relative overflow-hidden group">
-            <div className="flex items-center justify-between mb-2 relative z-10">
-              <div className="flex items-center gap-1.5">
+          <div className="glass-panel p-3.5 sm:p-5 rounded-2xl flex flex-col justify-between relative overflow-hidden group">
+            <div className="flex items-center justify-between mb-1.5 relative z-10">
+              <div className="flex items-center gap-1.5 min-w-0">
                 <div className="w-2 h-2 rounded-full bg-rose-500 shrink-0 shadow-[0_0_8px_rgba(244,63,94,0.7)]"></div>
-                <span className="text-slate-500 dark:text-[#94A3B8] text-[10px] md:text-xs font-black uppercase tracking-wider">รายจ่าย ({activeLabel})</span>
+                <span className="text-slate-500 dark:text-[#94A3B8] text-[10px] sm:text-xs font-black uppercase tracking-wider truncate">รายจ่าย</span>
               </div>
-              <div className="w-8 h-8 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-500">
-                <TrendingDown size={16} />
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-500 shrink-0">
+                <TrendingDown size={14} className="sm:w-4 sm:h-4" />
               </div>
             </div>
-            <span className="text-xl md:text-3xl font-black text-rose-500 tracking-tight drop-shadow-sm relative z-10">-{fmt(activeExpense)}</span>
+            <span className="text-lg sm:text-2xl lg:text-3xl font-black text-rose-500 tracking-tight drop-shadow-sm relative z-10 truncate">
+              -{fmt(activeExpense)}
+            </span>
           </div>
 
           {/* Card 3: Net Balance */}
-          <div className="glass-panel p-4 md:p-6 rounded-[22px] flex flex-col justify-between relative overflow-hidden group">
-            <div className="flex items-center justify-between mb-2 relative z-10">
-              <div className="flex items-center gap-1.5">
+          <div className="glass-panel p-3.5 sm:p-5 rounded-2xl flex flex-col justify-between relative overflow-hidden group">
+            <div className="flex items-center justify-between mb-1.5 relative z-10">
+              <div className="flex items-center gap-1.5 min-w-0">
                 <div className={`w-2 h-2 rounded-full shrink-0 ${activeBalance >= 0 ? 'bg-violet-500 shadow-[0_0_8px_rgba(139,92,246,0.7)]' : 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.7)]'}`}></div>
-                <span className="text-slate-500 dark:text-[#94A3B8] text-[10px] md:text-xs font-black uppercase tracking-wider">คงเหลือสุทธิ</span>
+                <span className="text-slate-500 dark:text-[#94A3B8] text-[10px] sm:text-xs font-black uppercase tracking-wider truncate">คงเหลือสุทธิ</span>
               </div>
-              <div className="w-8 h-8 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center text-violet-500">
-                <Wallet size={16} />
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center text-violet-500 shrink-0">
+                <Wallet size={14} className="sm:w-4 sm:h-4" />
               </div>
             </div>
-            <span className={`text-xl md:text-3xl font-black tracking-tight drop-shadow-sm relative z-10 ${activeBalance >= 0 ? 'text-transparent bg-clip-text bg-gradient-to-r from-violet-500 to-fuchsia-500' : 'text-rose-500'}`}>
+            <span className={`text-lg sm:text-2xl lg:text-3xl font-black tracking-tight drop-shadow-sm relative z-10 truncate ${activeBalance >= 0 ? 'text-transparent bg-clip-text bg-gradient-to-r from-violet-500 to-fuchsia-500' : 'text-rose-500'}`}>
               ฿{fmt(activeBalance)}
             </span>
           </div>
 
           {/* Card 4: Transaction Count */}
-          <div className="glass-panel p-4 md:p-6 rounded-[22px] flex flex-col justify-between relative overflow-hidden group">
-            <div className="flex items-center justify-between mb-2 relative z-10">
-              <div className="flex items-center gap-1.5">
+          <div className="glass-panel p-3.5 sm:p-5 rounded-2xl flex flex-col justify-between relative overflow-hidden group">
+            <div className="flex items-center justify-between mb-1.5 relative z-10">
+              <div className="flex items-center gap-1.5 min-w-0">
                 <div className="w-2 h-2 rounded-full bg-blue-500 shrink-0 shadow-[0_0_8px_rgba(59,130,246,0.7)]"></div>
-                <span className="text-slate-500 dark:text-[#94A3B8] text-[10px] md:text-xs font-black uppercase tracking-wider">จำนวนรายการ</span>
+                <span className="text-slate-500 dark:text-[#94A3B8] text-[10px] sm:text-xs font-black uppercase tracking-wider truncate">จำนวนรายการ</span>
               </div>
-              <div className="w-8 h-8 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-500">
-                <Activity size={16} />
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-500 shrink-0">
+                <Activity size={14} className="sm:w-4 sm:h-4" />
               </div>
             </div>
             <div className="flex items-baseline gap-1 relative z-10">
-              <span className="text-xl md:text-3xl font-black text-slate-800 dark:text-white tracking-tight">
+              <span className="text-lg sm:text-2xl lg:text-3xl font-black text-slate-800 dark:text-white tracking-tight">
                 {activeTransactions.length}
               </span>
-              <span className="text-xs text-slate-400 font-bold uppercase">รายการ</span>
+              <span className="text-[10px] sm:text-xs text-slate-400 font-bold uppercase">รายการ</span>
             </div>
           </div>
         </div>
 
         {/* ================= Weekly Breakdown Cards Grid (Shown when 'all' is selected) ================= */}
         {selectedWeek === 'all' && (
-          <div className="mb-8 animate-fade-in-up">
-            <div className="flex items-center justify-between mb-4">
+          <div className="mb-6 animate-fade-in-up">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-3.5">
               <div className="flex items-center gap-2">
-                <div className="w-1.5 h-4 bg-gradient-to-b from-blue-400 to-purple-600 rounded-full"></div>
-                <h3 className="text-sm md:text-base font-black text-slate-800 dark:text-white">
-                  ภาพรวมเปรียบเทียบรายสัปดาห์ตามปฏิทิน ({weeksData.length} สัปดาห์)
+                <div className="w-1.5 h-4 bg-gradient-to-b from-blue-400 to-purple-600 rounded-full shrink-0"></div>
+                <h3 className="text-xs sm:text-base font-black text-slate-800 dark:text-white">
+                  เปรียบเทียบรายสัปดาห์ ({weeksData.length} สัปดาห์)
                 </h3>
               </div>
-              <span className="text-[11px] text-slate-400 font-bold">คลิกสัปดาห์เพื่อกรองดูเฉพาะช่วง</span>
+              <span className="text-[10px] sm:text-[11px] text-slate-400 font-bold ml-3.5 sm:ml-0">คลิกสัปดาห์เพื่อกรองดูเฉพาะช่วง</span>
             </div>
 
-            <div className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 ${weeksData.length === 4 ? 'lg:grid-cols-4' : weeksData.length === 5 ? 'lg:grid-cols-5' : 'lg:grid-cols-3 xl:grid-cols-6'} gap-3`}>
+            <div className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 ${weeksData.length === 4 ? 'lg:grid-cols-4' : weeksData.length === 5 ? 'lg:grid-cols-5' : 'lg:grid-cols-3 xl:grid-cols-6'} gap-2.5 sm:gap-3`}>
               {weeksData.map((w) => {
                 const hasTx = w.count > 0;
                 return (
                   <div
                     key={w.weekNum}
                     onClick={() => setSelectedWeek(w.weekNum)}
-                    className="glass-panel p-4 rounded-[20px] cursor-pointer hover:border-blue-400/60 dark:hover:border-blue-500/50 hover:scale-[1.02] transition-all duration-200 group relative overflow-hidden flex flex-col justify-between"
+                    className="glass-panel p-3.5 sm:p-4 rounded-2xl cursor-pointer hover:border-blue-400/60 dark:hover:border-blue-500/50 hover:scale-[1.01] transition-all duration-200 group relative overflow-hidden flex flex-col justify-between"
                   >
                     <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="font-black text-sm text-slate-800 dark:text-white group-hover:text-blue-500 transition-colors">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="font-black text-xs sm:text-sm text-slate-800 dark:text-white group-hover:text-blue-500 transition-colors">
                           {w.title}
                         </span>
-                        <span className={`text-[10px] px-2 py-0.5 rounded-lg font-black border ${w.balance >= 0 ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200/50 dark:border-emerald-500/20' : 'bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-200/50 dark:border-rose-500/20'}`}>
+                        <span className={`text-[9px] sm:text-[10px] px-2 py-0.5 rounded-lg font-black border ${w.balance >= 0 ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200/50 dark:border-emerald-500/20' : 'bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-200/50 dark:border-rose-500/20'}`}>
                           {w.balance >= 0 ? 'สุทธิบวก' : 'สุทธิลบ'}
                         </span>
                       </div>
-                      <p className="text-[11px] text-slate-400 font-bold mb-3">{w.shortRangeWithDays || w.shortRange}</p>
+                      <p className="text-[10px] sm:text-[11px] text-slate-400 font-bold mb-2.5">{w.shortRangeWithDays || w.shortRange}</p>
 
-                      <div className="space-y-1.5 p-2.5 rounded-xl bg-slate-50 dark:bg-[#060A13]/50 border border-slate-100 dark:border-white/5 text-xs">
-                        <div className="flex justify-between items-center">
-                          <span className="text-slate-500 dark:text-[#94A3B8] text-[10px] font-bold">รับ</span>
+                      <div className="space-y-1 p-2 sm:p-2.5 rounded-xl bg-slate-50 dark:bg-[#060A13]/50 border border-slate-100 dark:border-white/5 text-xs">
+                        <div className="flex justify-between items-center text-[11px]">
+                          <span className="text-slate-500 dark:text-[#94A3B8] font-bold">รับ</span>
                           <span className="font-black text-emerald-500">+{fmt(w.income)}</span>
                         </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-slate-500 dark:text-[#94A3B8] text-[10px] font-bold">จ่าย</span>
+                        <div className="flex justify-between items-center text-[11px]">
+                          <span className="text-slate-500 dark:text-[#94A3B8] font-bold">จ่าย</span>
                           <span className="font-black text-rose-500">-{fmt(w.expense)}</span>
                         </div>
-                        <div className="w-full h-px bg-slate-200/50 dark:bg-white/5 my-1"></div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-slate-500 dark:text-[#94A3B8] text-[10px] font-bold">คงเหลือ</span>
+                        <div className="w-full h-px bg-slate-200/50 dark:bg-white/5 my-0.5"></div>
+                        <div className="flex justify-between items-center text-[11px]">
+                          <span className="text-slate-500 dark:text-[#94A3B8] font-bold">คงเหลือ</span>
                           <span className={`font-black ${w.balance >= 0 ? 'text-slate-800 dark:text-white' : 'text-rose-500'}`}>
                             ฿{fmt(w.balance)}
                           </span>
@@ -528,7 +534,7 @@ const FULL_DAY_NAMES_TH = ['วันอาทิตย์', 'วันจัน
                       </div>
                     </div>
 
-                    <div className="mt-3 pt-2 border-t border-slate-100 dark:border-white/5 flex items-center justify-between text-[11px] font-black text-blue-500 group-hover:text-blue-600">
+                    <div className="mt-2.5 pt-2 border-t border-slate-100 dark:border-white/5 flex items-center justify-between text-[10px] sm:text-[11px] font-black text-blue-500 group-hover:text-blue-600">
                       <span>{w.count} รายการ</span>
                       <span className="flex items-center gap-0.5 group-hover:translate-x-1 transition-transform">
                         ดูรายการ <ArrowRight size={12} />
