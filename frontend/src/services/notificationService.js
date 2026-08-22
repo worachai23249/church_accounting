@@ -144,9 +144,9 @@ export async function sendTransactionNotification(tx, actionType = 'ADD') {
   const isIncome = tx.type === 'INCOME';
   const inKind = isInKindTransaction(tx);
   
-  let typeLabel = isIncome ? '🟢 รายรับ (Income)' : '🔴 รายจ่าย (Expense)';
+  let typeLabel = isIncome ? 'รายรับ' : 'รายจ่าย';
   if (inKind) {
-    typeLabel = '🎁 ถวายพิเศษ (สิ่งของ/ชำระให้ - ไม่รวมยอดเงินสด)';
+    typeLabel = 'รายรับ (ถวายพิเศษ)';
   }
 
   const actionTitle = actionType === 'ADD' ? '🔔 มีการบันทึกรายการใหม่' : '🔔 มีการแก้ไขรายการ';
@@ -162,10 +162,10 @@ export async function sendTransactionNotification(tx, actionType = 'ADD') {
     actionTitle,
     `━━━━━━━━━━━━━━━━━━━━`,
     `📌 ประเภท: ${typeLabel}`,
-    inKind ? `💰 มูลค่าประเมิน: ฿${formattedAmount} บาท` : `💰 จำนวนเงิน: ฿${formattedAmount} บาท`,
+    inKind ? `💰 มูลค่า: ฿${formattedAmount} บาท` : `💰 จำนวนเงิน: ฿${formattedAmount} บาท`,
     `📂 หมวดหมู่: ${tx.description || 'ไม่ระบุ'}`,
     `📅 วันที่: ${dateFormatted}`,
-    cleanNote ? `📝 หมายเหตุ: ${cleanNote}` : (inKind ? `📝 รูปแบบ: ถวายสิ่งของ/ชำระให้โดยตรง` : null),
+    cleanNote ? `📝 หมายเหตุ: ${cleanNote}` : null,
     `━━━━━━━━━━━━━━━━━━━━`,
     `⛪ คริสตจักรบ้านนมัสการและอธิษฐาน`
   ].filter(Boolean).join('\n');
