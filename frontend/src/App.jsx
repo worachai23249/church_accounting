@@ -412,7 +412,7 @@ function App() {
       {/* Church title */}
       <div className="font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 flex flex-col items-center text-center">
         <span className="text-sm md:text-base leading-[1.6em] tracking-[0.25em] uppercase">The House of Worship</span>
-        <span className="text-base md:text-lg leading-[1.2em] tracking-[0.18em] mt-0.5 uppercase">and Prayer</span>
+        <span className="text-base md:text-lg leading-[1.2em] tracking-[0.18em] mt-0.5 uppercase">and Pray</span>
       </div>
 
       {/* Smooth Loading Indicator */}
@@ -462,7 +462,7 @@ function App() {
 
             <h1 className="text-center font-black uppercase relative z-10 w-full px-2 text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 dark:from-blue-400 dark:via-indigo-400 dark:to-purple-500 drop-shadow-sm flex flex-col items-center group-hover:drop-shadow-[0_0_10px_rgba(168,85,247,0.4)] transition-all duration-500">
               <span className="text-[10px] leading-[1.6em] tracking-[0.2em]">The House of worship</span>
-              <span className="text-[14px] leading-[1.2em] tracking-[0.15em] mt-0.5">and prayer</span>
+              <span className="text-[14px] leading-[1.2em] tracking-[0.15em] mt-0.5">and pray</span>
             </h1>
           </div>
 

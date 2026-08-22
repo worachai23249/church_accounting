@@ -83,7 +83,7 @@ export default function Login({ onLogin, onBack }) {
             <div className="space-y-4">
               <h1 className="text-3xl xl:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-600 dark:from-blue-400 dark:via-indigo-400 dark:to-purple-400 uppercase tracking-tighter drop-shadow-sm filter flex flex-col items-center">
                 <span>The House of</span>
-                <span className="text-[0.7em] tracking-[0.1em] mt-2">worship and prayer</span>
+                <span className="text-[0.7em] tracking-[0.1em] mt-2">worship and pray</span>
               </h1>
             </div>
 
@@ -138,7 +138,7 @@ export default function Login({ onLogin, onBack }) {
               </div>
               <h1 className="text-2xl md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-600 dark:from-blue-400 dark:via-indigo-400 dark:to-purple-400 uppercase tracking-tighter drop-shadow-sm flex flex-col items-center">
                 <span>The House of</span>
-                <span className="text-[0.6em] tracking-[0.1em] mt-1">worship and prayer</span>
+                <span className="text-[0.6em] tracking-[0.1em] mt-1">worship and pray</span>
               </h1>
             </div>
 

@@ -235,7 +235,7 @@ export async function sendTestNotification() {
     `✅ ระบบแจ้งเตือน LINE / Telegram ทำงานถูกต้องเรียบร้อยแล้ว!`,
     `⏰ เวลาทดสอบ: ${new Date().toLocaleDateString('th-TH')} ${new Date().toLocaleTimeString('th-TH')}`,
     `━━━━━━━━━━━━━━━━━━━━`,
-    `⛪ คริสตจักร The House of Worship and Prayer`
+    `⛪ คริสตจักร The House of Worship and Pray`
   ].join('\n');
 
   return await sendPlatformMessage(msg, { test: true });
