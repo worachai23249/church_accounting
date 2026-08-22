@@ -400,11 +400,11 @@ function App() {
       {/* Logo with smooth pulse */}
       <div className="relative flex items-center justify-center">
         <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 opacity-25 blur-[40px] animate-pulse" />
-        <div className="w-28 h-28 md:w-60 md:h-60 lg:w-72 lg:h-72 relative z-10 flex items-center justify-center">
+        <div className="w-32 h-32 md:w-80 md:h-80 lg:w-[380px] lg:h-[380px] xl:w-[440px] xl:h-[440px] relative z-10 flex items-center justify-center">
           <img
             src="/logo.png?v=6"
             alt="Logo"
-            className="w-full h-full object-contain drop-shadow-[0_0_20px_rgba(99,102,241,0.5)] transition-transform duration-700 hover:scale-105"
+            className="w-full h-full object-contain drop-shadow-[0_0_25px_rgba(99,102,241,0.5)] transition-transform duration-700 hover:scale-105"
           />
         </div>
       </div>
