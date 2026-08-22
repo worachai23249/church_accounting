@@ -393,31 +393,36 @@ function App() {
   const formatThaiDate = (d) => d ? new Date(d).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' }) : '-';
 
   if (loading) return (
-    <div className="h-screen bg-[#060A13] flex flex-col items-center justify-center gap-6 overflow-hidden relative">
+    <div className={`h-screen ${isDarkMode ? 'bg-[#060A13] text-white' : 'bg-slate-50 text-slate-800'} flex flex-col items-center justify-center gap-6 overflow-hidden relative select-none transition-colors duration-500`}>
+      {/* Background grid for light mode */}
+      {!isDarkMode && (
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:64px_64px] pointer-events-none" />
+      )}
+
       {/* Ambient background aura */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-blue-600/10 blur-[140px] pointer-events-none" />
+      <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full ${isDarkMode ? 'bg-blue-600/10 blur-[140px]' : 'bg-gradient-to-r from-blue-400/15 via-purple-400/15 to-indigo-400/15 blur-[120px]'} pointer-events-none`} />
 
       {/* Logo with smooth pulse */}
       <div className="relative flex items-center justify-center">
-        <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 opacity-25 blur-[40px] animate-pulse" />
+        <div className={`absolute inset-0 rounded-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 ${isDarkMode ? 'opacity-25' : 'opacity-20'} blur-[40px] animate-pulse`} />
         <div className="w-32 h-32 md:w-80 md:h-80 lg:w-[380px] lg:h-[380px] xl:w-[440px] xl:h-[440px] relative z-10 flex items-center justify-center">
           <img
             src="/logo.png?v=6"
             alt="Logo"
-            className="w-full h-full object-contain drop-shadow-[0_0_25px_rgba(99,102,241,0.5)] transition-transform duration-700 hover:scale-105"
+            className={`w-full h-full object-contain ${isDarkMode ? 'drop-shadow-[0_0_25px_rgba(99,102,241,0.5)]' : 'drop-shadow-[0_10px_30px_rgba(99,102,241,0.25)]'} transition-transform duration-700 hover:scale-105`}
           />
         </div>
       </div>
 
       {/* Church title */}
-      <div className="font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 flex flex-col items-center text-center">
+      <div className={`font-black text-transparent bg-clip-text ${isDarkMode ? 'bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400' : 'bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600'} flex flex-col items-center text-center`}>
         <span className="text-sm md:text-base leading-[1.6em] tracking-[0.25em] uppercase">The House of Worship</span>
         <span className="text-base md:text-lg leading-[1.2em] tracking-[0.18em] mt-0.5 uppercase">and Pray</span>
       </div>
 
       {/* Smooth Loading Indicator */}
       <div className="flex flex-col items-center gap-3 mt-2">
-        <div className="w-48 h-1.5 bg-white/5 rounded-full overflow-hidden border border-white/10 relative">
+        <div className={`w-48 h-1.5 ${isDarkMode ? 'bg-white/5 border-white/10' : 'bg-slate-200/90 border-slate-300/60 shadow-inner'} rounded-full overflow-hidden border relative`}>
           <div className="absolute inset-y-0 left-0 w-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 rounded-full animate-pulse" />
         </div>
         <p className="text-[11px] tracking-[0.2em] uppercase text-slate-500 font-bold">กำลังโหลดระบบ...</p>
