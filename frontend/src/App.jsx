@@ -404,7 +404,7 @@ function App() {
 
       {/* Logo with smooth pulse */}
       <div className="relative flex items-center justify-center">
-        <div className={`absolute inset-0 rounded-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 ${isDarkMode ? 'opacity-25' : 'opacity-20'} blur-[40px] animate-pulse`} />
+        <div className={`absolute inset-0 rounded-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 ${isDarkMode ? 'opacity-25' : 'opacity-20'} blur-[40px]`} />
         <div className="w-56 h-56 sm:w-64 sm:h-64 md:w-80 md:h-80 lg:w-[380px] lg:h-[380px] xl:w-[440px] xl:h-[440px] relative z-10 flex items-center justify-center">
           <img
             src="/logo.png?v=6"
@@ -423,7 +423,7 @@ function App() {
       {/* Smooth Loading Indicator */}
       <div className="flex flex-col items-center gap-3 mt-2">
         <div className={`w-48 h-1.5 ${isDarkMode ? 'bg-white/5 border-white/10' : 'bg-slate-200/90 border-slate-300/60 shadow-inner'} rounded-full overflow-hidden border relative`}>
-          <div className="absolute inset-y-0 left-0 w-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 rounded-full animate-pulse" />
+          <div className="absolute inset-y-0 left-0 w-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 rounded-full" />
         </div>
         <p className="text-[11px] tracking-[0.2em] uppercase text-slate-500 font-bold">กำลังโหลดระบบ...</p>
       </div>
@@ -459,7 +459,7 @@ function App() {
             <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-blue-500/10 dark:from-blue-600/10 to-transparent pointer-events-none opacity-50 group-hover:opacity-100 transition-opacity duration-700"></div>
 
             <div className="relative mb-6 transition-transform duration-700 z-10 flex justify-center items-center group-hover:-translate-y-2">
-              <div className="absolute inset-2 rounded-full bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 opacity-60 blur-[30px] group-hover:opacity-100 group-hover:blur-[40px] transition-all duration-1000 animate-pulse-glow"></div>
+              <div className="absolute inset-2 rounded-full bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 opacity-50 blur-[30px] group-hover:opacity-80 group-hover:blur-[40px] transition-all duration-700"></div>
               <div className="w-56 h-56 xl:w-64 xl:h-64 relative z-10">
                 <img src="/logo.png?v=6" alt="Logo" className="w-full h-full object-contain scale-[1.35] drop-shadow-[0_0_15px_rgba(255,255,255,0.1)] transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-700" />
               </div>
@@ -835,61 +835,27 @@ function App() {
         </div>
       )}
 
-      {/* 5. Modal แจ้งเตือนสำเร็จ (Jesus Image) - 🌟 MAGNIFICENT GRAND EDITION 🌟 */}
+      {/* 5. Modal แจ้งเตือนสำเร็จ (Clean, Elegant & Soothing) */}
       {successModal.isOpen && (
-        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-[#010408]/90 backdrop-blur-xl animate-fade-in" onClick={() => setSuccessModal(prev => ({ ...prev, isOpen: false }))}>
-          <div className="relative w-[92vw] sm:w-full max-w-[420px] flex flex-col items-center animate-fade-in-up" style={{ animationDuration: '0.6s', animationTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)' }} onClick={e => e.stopPropagation()}>
-
-            {/* 🌟 GRAND LAYER 1: Rotating Divine God Rays */}
-            <div className="absolute top-[30px] w-[600px] h-[600px] rounded-full pointer-events-none z-0 overflow-hidden flex items-center justify-center opacity-30 mask-radial-gradient mix-blend-screen">
-              <div className="w-[150%] h-[150%] animate-[spin_20s_linear_infinite]" style={{ background: 'conic-gradient(from 0deg, transparent 0deg, rgba(74,222,128,0.8) 10deg, transparent 20deg, rgba(74,222,128,0.8) 30deg, transparent 40deg, rgba(74,222,128,0.8) 50deg, transparent 60deg, rgba(74,222,128,0.8) 70deg, transparent 80deg, rgba(74,222,128,0.8) 90deg, transparent 100deg, rgba(74,222,128,0.8) 110deg, transparent 120deg, rgba(74,222,128,0.8) 130deg, transparent 140deg, rgba(74,222,128,0.8) 150deg, transparent 160deg, rgba(74,222,128,0.8) 170deg, transparent 180deg, rgba(74,222,128,0.8) 190deg, transparent 200deg, rgba(74,222,128,0.8) 210deg, transparent 220deg, rgba(74,222,128,0.8) 230deg, transparent 240deg, rgba(74,222,128,0.8) 250deg, transparent 260deg, rgba(74,222,128,0.8) 270deg, transparent 280deg, rgba(74,222,128,0.8) 290deg, transparent 300deg, rgba(74,222,128,0.8) 310deg, transparent 320deg, rgba(74,222,128,0.8) 330deg, transparent 340deg, rgba(74,222,128,0.8) 350deg, transparent 360deg)' }}></div>
+        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-slate-900/60 dark:bg-[#060A13]/80 backdrop-blur-md animate-fade-in" onClick={() => setSuccessModal(prev => ({ ...prev, isOpen: false }))}>
+          <div className="relative w-[92vw] sm:w-full max-w-[380px] bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-white/10 rounded-[28px] shadow-2xl p-6 sm:p-8 flex flex-col items-center text-center animate-fade-in-up overflow-hidden" onClick={e => e.stopPropagation()}>
+            
+            {/* Top Soft Checkmark Circle */}
+            <div className="w-16 h-16 rounded-2xl bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/30 text-emerald-500 flex items-center justify-center mb-4 shadow-sm">
+              <CheckCircle size={32} strokeWidth={2.5} />
             </div>
 
-            {/* 🌟 GRAND LAYER 2: Pulsing Intense Emerald Aura */}
-            <div className="absolute top-[50px] w-[350px] h-[350px] bg-gradient-to-r from-[#22c55e] via-[#10b981] to-[#34d399] rounded-full blur-[80px] opacity-70 animate-pulse pointer-events-none z-0 shadow-[0_0_150px_rgba(34,197,94,0.6)]"></div>
+            {/* Title & Message */}
+            <h3 className="text-xl font-black text-slate-800 dark:text-white mb-1.5 tracking-tight">
+              {successModal.title}
+            </h3>
+            <p className="text-sm font-medium text-slate-600 dark:text-slate-300 leading-relaxed mb-4">
+              {successModal.message}
+            </p>
 
-            {/* 🌟 GRAND LAYER 3: Floating Particles / Light Sparks */}
-            <div className="absolute inset-0 pointer-events-none z-0 overflow-visible">
-              {[...Array(8)].map((_, i) => (
-                <div key={i} className="absolute w-2.5 h-2.5 bg-[#86efac] rounded-full blur-[1px] animate-[float-ray_4s_ease-in-out_infinite]" style={{ left: `${15 + i * 10}%`, top: `${50 + (i % 4) * 10}%`, animationDelay: `${i * 0.5}s`, boxShadow: '0 0 10px #4ade80' }}></div>
-              ))}
-            </div>
-
-            {/* 👑 Jesus Image (Giant Floating Effect) */}
-            <div className="relative z-10 w-[380px] -mb-16 drop-shadow-[0_25px_35px_rgba(0,0,0,0.6)] animate-[float_4s_ease-in-out_infinite] hover:scale-110 hover:-translate-y-4 hover:drop-shadow-[0_0_50px_rgba(74,222,128,0.6)] transition-all duration-700 cursor-pointer">
-              <img src="/jesus.png" alt="Success" className="w-full h-auto object-contain pointer-events-none" />
-            </div>
-
-            {/* 💎 Main Card: Glassmorphism + Thick Glowing Border */}
-            <div className="w-full bg-gradient-to-br from-[#e8fdf0] to-[#bbf7d0] border-[5px] border-[#86efac] rounded-[36px] shadow-[0_0_80px_rgba(34,197,94,0.3),inset_0_0_30px_rgba(255,255,255,0.8)] relative z-20 flex flex-col items-center pt-14 pb-12 px-8">
-
-              {/* Inner glass highlight line */}
-              <div className="absolute inset-0 rounded-[30px] border-2 border-white/60 pointer-events-none"></div>
-
-              {/* ✨ Giant Check Icon Centered on Top Border */}
-              <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-24 h-24 rounded-full bg-gradient-to-br from-[#16a34a] to-[#15803d] border-[6px] border-[#e8fdf0] flex items-center justify-center shadow-[0_10px_30px_rgba(22,163,74,0.6),inset_0_0_20px_rgba(255,255,255,0.4)] z-30 group overflow-hidden">
-                <div className="absolute w-full h-full bg-white opacity-20 -rotate-45 translate-x-full group-hover:-translate-x-full transition-transform duration-1000 ease-in-out"></div>
-                <CheckCircle className="text-white w-12 h-12 drop-shadow-[0_0_15px_rgba(255,255,255,0.9)]" style={{ animation: 'bounce 2s infinite' }} strokeWidth={2.5} />
-              </div>
-
-              {/* 📜 Text Content */}
-              <h3 className="text-[#14532d] font-black text-3xl mb-2 mt-3 tracking-tighter drop-shadow-md uppercase relative z-10">{successModal.title}</h3>
-              <p className="text-[#166534] text-[15px] font-bold w-full text-center leading-relaxed mb-6 pb-4 border-b-2 border-[#22c55e]/30 relative z-10 shadow-[0_1px_0_rgba(255,255,255,0.5)]">
-                {successModal.message}
-              </p>
-
-              {/* 🌟 Three Grand Bouncing Orbs */}
-              <div className="flex space-x-3 mt-2 relative z-10">
-                <div className="w-3.5 h-3.5 rounded-full bg-gradient-to-r from-[#10b981] to-[#34d399] shadow-[0_0_12px_#22c55e]" style={{ animation: 'bounce 1s infinite 0s' }}></div>
-                <div className="w-3.5 h-3.5 rounded-full bg-gradient-to-r from-[#10b981] to-[#34d399] shadow-[0_0_12px_#22c55e]" style={{ animation: 'bounce 1s infinite 0.2s' }}></div>
-                <div className="w-3.5 h-3.5 rounded-full bg-gradient-to-r from-[#10b981] to-[#34d399] shadow-[0_0_12px_#22c55e]" style={{ animation: 'bounce 1s infinite 0.4s' }}></div>
-              </div>
-
-              {/* ⚡ Incredible Inset Progress Bar at Bottom */}
-              <div className="absolute bottom-0 left-0 right-0 h-[10px] overflow-hidden rounded-b-[30px] pointer-events-none">
-                <div className="h-full bg-gradient-to-r from-[#22c55e] via-[#86efac] to-[#22c55e] animate-[progress-shrink_2.5s_linear_forwards] w-full origin-left rounded-bl-[30px] shadow-[0_-5px_20px_rgba(34,197,94,0.8)]"></div>
-              </div>
-
+            {/* Subtle Progress Bar */}
+            <div className="absolute bottom-0 left-0 right-0 h-1 bg-slate-100 dark:bg-white/5 overflow-hidden">
+              <div className="h-full bg-emerald-500 rounded-full animate-[progress-shrink_2.5s_linear_forwards] w-full origin-left" />
             </div>
           </div>
         </div>

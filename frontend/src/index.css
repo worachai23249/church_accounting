@@ -71,29 +71,27 @@
 
 @layer utilities {
   .animate-fade-in {
-    animation: fade-in 0.25s ease-out forwards;
+    animation: fade-in 0.2s ease-out forwards;
   }
 
   .animate-fade-in-up {
-    animation: fade-in 0.25s ease-out forwards;
+    animation: fade-in-up 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
 
   .animate-float {
-    animation: float 4s ease-in-out infinite;
+    animation: float 6s ease-in-out infinite;
   }
 
   .animate-pulse-glow {
-    animation: pulse-glow 3s ease-in-out infinite;
+    opacity: 0.75;
   }
 
   @keyframes fade-in {
     from {
       opacity: 0;
-      transform: translateY(4px);
     }
     to {
       opacity: 1;
-      transform: translateY(0);
     }
   }
 
@@ -111,7 +109,7 @@
   @keyframes slide-in-right {
     from {
       opacity: 0;
-      transform: translateX(8px);
+      transform: translateX(6px);
     }
     to {
       opacity: 1;
@@ -124,21 +122,12 @@
       transform: translateY(0);
     }
     50% {
-      transform: translateY(-4px);
-    }
-  }
-
-  @keyframes pulse-glow {
-    0%, 100% {
-      opacity: 0.9;
-    }
-    50% {
-      opacity: 0.6;
+      transform: translateY(-3px);
     }
   }
 
   .animate-slide-in-right {
-    animation: slide-in-right 0.25s ease-out forwards;
+    animation: slide-in-right 0.2s ease-out forwards;
   }
 
   .glass-panel {
