@@ -1,8 +1,8 @@
 import { useState, useRef } from 'react';
 import { addTransaction } from '../supabase';
-import { sendMonthlySummaryNotification } from '../services/notificationService';
+import { sendMonthlySummaryNotification, isCashTransaction, isInKindTransaction, cleanTransactionNote } from '../services/notificationService';
 
-import { ChevronLeft, ChevronRight, TrendingUp, TrendingDown, Wallet, Activity, ArrowLeft, Edit, Trash2, Image as ImageIcon, PieChart as PieIcon, LineChart, Download, Upload, Calendar, CalendarDays, CheckCircle2, ChevronDown, ListFilter, ArrowRight, MessageSquare } from 'lucide-react';
+import { ChevronLeft, ChevronRight, TrendingUp, TrendingDown, Wallet, Activity, ArrowLeft, Edit, Trash2, Image as ImageIcon, PieChart as PieIcon, LineChart, Download, Upload, Calendar, CalendarDays, CheckCircle2, ChevronDown, ListFilter, ArrowRight, MessageSquare, Gift } from 'lucide-react';
 import Papa from 'papaparse';
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Cell, ReferenceLine } from 'recharts';
 
@@ -19,7 +19,7 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
   const fileInputRef = useRef(null);
 
   const reportTransactions = transactions.filter(t => t.transaction_date.startsWith(selectedYear.toString()));
-  const reportYearlyIncome = reportTransactions.filter(t => t.type === 'INCOME').reduce((sum, t) => sum + parseFloat(t.amount), 0);
+  const reportYearlyIncome = reportTransactions.filter(t => t.type === 'INCOME' && isCashTransaction(t)).reduce((sum, t) => sum + parseFloat(t.amount), 0);
   const reportYearlyExpense = reportTransactions.filter(t => t.type === 'EXPENSE').reduce((sum, t) => sum + parseFloat(t.amount), 0);
   const reportYearlyBalance = reportYearlyIncome - reportYearlyExpense;
   const reportSavingsRate = reportYearlyIncome > 0 ? ((reportYearlyBalance / reportYearlyIncome) * 100).toFixed(1) : 0;
@@ -28,7 +28,13 @@ export default function Reports({ transactions, fmt, formatThaiDate, handleViewI
     const monthIndexStr = (index + 1).toString().padStart(2, '0');
     const monthTx = reportTransactions.filter(t => t.transaction_date.startsWith(`${selectedYear}-${monthIndexStr}`));
     let inc = 0, exp = 0;
-    monthTx.forEach(t => { if (t.type === 'INCOME') inc += parseFloat(t.amount); else exp += parseFloat(t.amount); });
+    monthTx.forEach(t => { 
+      if (t.type === 'INCOME') {
+        if (isCashTransaction(t)) inc += parseFloat(t.amount);
+      } else {
+        exp += parseFloat(t.amount);
+      }
+    });
     const net = inc - exp;
     return { 
       name: monthName, 
@@ -100,8 +106,11 @@ const FULL_DAY_NAMES_TH = ['วันอาทิตย์', 'วันจัน
       let inc = 0;
       let exp = 0;
       txs.forEach(t => {
-        if (t.type === 'INCOME') inc += parseFloat(t.amount);
-        else exp += parseFloat(t.amount);
+        if (t.type === 'INCOME') {
+          if (isCashTransaction(t)) inc += parseFloat(t.amount);
+        } else {
+          exp += parseFloat(t.amount);
+        }
       });
       const bal = inc - exp;
 
@@ -141,8 +150,11 @@ const FULL_DAY_NAMES_TH = ['วันอาทิตย์', 'วันจัน
     if (selectedWeek === 'all') {
       activeTransactions = allMonthTransactions;
       allMonthTransactions.forEach(t => {
-        if (t.type === 'INCOME') activeIncome += parseFloat(t.amount);
-        else activeExpense += parseFloat(t.amount);
+        if (t.type === 'INCOME') {
+          if (isCashTransaction(t)) activeIncome += parseFloat(t.amount);
+        } else {
+          activeExpense += parseFloat(t.amount);
+        }
       });
       activeBalance = activeIncome - activeExpense;
       activeLabel = `ทั้งเดือน${detailMonthName}`;
@@ -564,29 +576,38 @@ const FULL_DAY_NAMES_TH = ['วันอาทิตย์', 'วันจัน
             <div className="px-3 pb-4 pt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
               {activeTransactions.map((t) => {
                 const isIncome = t.type === 'INCOME';
+                const inKind = isInKindTransaction(t);
+                const cleanNote = cleanTransactionNote(t.note);
+
                 return (
                   <div
                     key={t.id}
                     className={`glass-panel relative rounded-[22px] overflow-hidden
-                    border ${isIncome ? 'border-emerald-400/40 dark:border-emerald-500/30' : 'border-rose-400/40 dark:border-rose-500/30'}`}
+                    border ${inKind ? 'border-purple-400/50 dark:border-purple-500/40 bg-purple-950/10' : (isIncome ? 'border-emerald-400/40 dark:border-emerald-500/30' : 'border-rose-400/40 dark:border-rose-500/30')}`}
                   >
-                    <div className={`absolute top-0 left-0 right-0 h-[2px] ${isIncome ? 'bg-gradient-to-r from-transparent via-emerald-400 to-transparent' : 'bg-gradient-to-r from-transparent via-rose-400 to-transparent'}`} />
-                    <div className={`absolute -top-8 -right-8 w-28 h-28 rounded-full blur-3xl pointer-events-none opacity-0 dark:opacity-100 ${isIncome ? 'bg-emerald-500/20' : 'bg-rose-500/20'}`} />
+                    <div className={`absolute top-0 left-0 right-0 h-[2px] ${inKind ? 'bg-gradient-to-r from-transparent via-purple-400 to-transparent' : (isIncome ? 'bg-gradient-to-r from-transparent via-emerald-400 to-transparent' : 'bg-gradient-to-r from-transparent via-rose-400 to-transparent')}`} />
+                    <div className={`absolute -top-8 -right-8 w-28 h-28 rounded-full blur-3xl pointer-events-none opacity-0 dark:opacity-100 ${inKind ? 'bg-purple-500/25' : (isIncome ? 'bg-emerald-500/20' : 'bg-rose-500/20')}`} />
 
                     {/* HEADER */}
                     <div className="relative flex items-center justify-between px-5 pt-4 pb-3">
                       <div className="flex items-center gap-2.5">
-                        <div className={`w-2 h-2 rounded-full shrink-0 ${isIncome ? 'bg-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.9)]' : 'bg-rose-400 shadow-[0_0_10px_rgba(244,63,94,0.9)]'}`} />
-                        <span className={`text-sm font-black tracking-[0.25em] uppercase ${isIncome ? 'text-emerald-500 dark:text-emerald-400' : 'text-rose-500 dark:text-rose-400'}`}>
-                          {isIncome ? 'รายรับ' : 'รายจ่าย'}
-                        </span>
+                        <div className={`w-2 h-2 rounded-full shrink-0 ${inKind ? 'bg-purple-400 shadow-[0_0_10px_rgba(168,85,247,0.9)]' : (isIncome ? 'bg-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.9)]' : 'bg-rose-400 shadow-[0_0_10px_rgba(244,63,94,0.9)]')}`} />
+                        {inKind ? (
+                          <span className="text-xs md:text-sm font-black tracking-[0.15em] uppercase text-purple-400 flex items-center gap-1">
+                            🎁 ถวายสิ่งของ/จ่ายให้
+                          </span>
+                        ) : (
+                          <span className={`text-sm font-black tracking-[0.25em] uppercase ${isIncome ? 'text-emerald-500 dark:text-emerald-400' : 'text-rose-500 dark:text-rose-400'}`}>
+                            {isIncome ? 'รายรับ' : 'รายจ่าย'}
+                          </span>
+                        )}
                       </div>
                       <span className="text-sm text-slate-500 dark:text-white font-bold tracking-wide">
                         {formatThaiDate(t.transaction_date)}
                       </span>
                     </div>
 
-                    <div className={`mx-5 h-px ${isIncome ? 'bg-gradient-to-r from-transparent via-emerald-500/30 to-transparent' : 'bg-gradient-to-r from-transparent via-rose-500/30 to-transparent'}`} />
+                    <div className={`mx-5 h-px ${inKind ? 'bg-gradient-to-r from-transparent via-purple-500/30 to-transparent' : (isIncome ? 'bg-gradient-to-r from-transparent via-emerald-500/30 to-transparent' : 'bg-gradient-to-r from-transparent via-rose-500/30 to-transparent')}`} />
 
                     {/* BODY */}
                     <div className="relative flex items-center justify-between px-5 py-4">
@@ -594,28 +615,39 @@ const FULL_DAY_NAMES_TH = ['วันอาทิตย์', 'วันจัน
                         <p className="text-base font-black text-slate-800 dark:text-white mb-1.5 truncate tracking-tight">
                           {t.description}
                         </p>
-                        <span className={`text-2xl font-black tracking-tight ${isIncome ? 'text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-emerald-600 dark:from-emerald-300 dark:to-emerald-500' : 'text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-rose-600 dark:from-rose-300 dark:to-rose-500'}`}>
-                          {isIncome ? '+' : '-'}฿{fmt(t.amount)}
-                        </span>
+                        {inKind ? (
+                          <div>
+                            <span className="text-2xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-indigo-300 to-purple-300">
+                              ฿{fmt(t.amount)}
+                            </span>
+                            <span className="ml-2 inline-block text-[10px] font-black uppercase tracking-wider text-purple-600 dark:text-purple-400 bg-purple-100 dark:bg-purple-950/70 border border-purple-300/40 dark:border-purple-800/40 px-2 py-0.5 rounded-full">
+                              สิ่งของ • ไม่รวมเงินสด
+                            </span>
+                          </div>
+                        ) : (
+                          <span className={`text-2xl font-black tracking-tight ${isIncome ? 'text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-emerald-600 dark:from-emerald-300 dark:to-emerald-500' : 'text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-rose-600 dark:from-rose-300 dark:to-rose-500'}`}>
+                            {isIncome ? '+' : '-'}฿{fmt(t.amount)}
+                          </span>
+                        )}
                       </div>
                       <button
                         onClick={() => t.image_url && handleViewImage(t.image_url)}
                         className={`relative w-16 h-16 rounded-2xl flex-shrink-0 flex items-center justify-center overflow-hidden transition-all duration-300 active:scale-95
                         ${t.image_url
-                            ? `cursor-pointer border-2 ${isIncome ? 'border-emerald-500/50 shadow-[0_0_20px_rgba(16,185,129,0.3)]' : 'border-rose-500/50 shadow-[0_0_20px_rgba(244,63,94,0.3)]'}`
+                            ? `cursor-pointer border-2 ${inKind ? 'border-purple-500/50 shadow-[0_0_20px_rgba(168,85,247,0.3)]' : (isIncome ? 'border-emerald-500/50 shadow-[0_0_20px_rgba(16,185,129,0.3)]' : 'border-rose-500/50 shadow-[0_0_20px_rgba(244,63,94,0.3)]')}`
                             : 'border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-white/5 cursor-default opacity-40'}`}
                       >
                         {t.image_url ? <img src={t.image_url} alt="Evidence" className="w-full h-full object-cover" /> : <ImageIcon size={20} className="text-slate-400 dark:text-white/30" />}
                       </button>
                     </div>
 
-                    <div className={`mx-5 h-px ${isIncome ? 'bg-gradient-to-r from-transparent via-emerald-500/20 to-transparent' : 'bg-gradient-to-r from-transparent via-rose-500/20 to-transparent'}`} />
+                    <div className={`mx-5 h-px ${inKind ? 'bg-gradient-to-r from-transparent via-purple-500/20 to-transparent' : (isIncome ? 'bg-gradient-to-r from-transparent via-emerald-500/20 to-transparent' : 'bg-gradient-to-r from-transparent via-rose-500/20 to-transparent')}`} />
 
                     {/* FOOTER */}
                     <div className="flex items-center justify-between px-5 py-3.5">
                       <div className="flex items-center gap-2 min-w-0 flex-1 mr-2">
                         <span className="text-slate-400 dark:text-white/25 text-[10px] font-black uppercase tracking-widest shrink-0">NOTE</span>
-                        <span className="text-xs text-slate-500 dark:text-white/60 font-medium truncate">{t.note || '—'}</span>
+                        <span className="text-xs text-slate-500 dark:text-white/60 font-medium truncate">{cleanNote || (inKind ? 'ถวายสิ่งของ/ชำระให้โดยตรง' : '—')}</span>
                       </div>
                       {isLoggedIn && (
                         <div className="flex items-center gap-2 shrink-0">

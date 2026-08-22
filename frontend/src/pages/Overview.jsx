@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { TrendingUp, TrendingDown, Wallet, Receipt, Image as ImageIcon, Activity, X } from 'lucide-react';
+import { TrendingUp, TrendingDown, Wallet, Receipt, Image as ImageIcon, Activity, X, Gift } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { isCashTransaction, isInKindTransaction } from '../services/notificationService';
 
 export default function Overview({ transactions, categories = [], formatThaiDate, fmt, handleViewImage, setActiveMenu, isLoggedIn }) {
   const [selectedExpenseCategory, setSelectedExpenseCategory] = useState(null);
@@ -15,8 +16,10 @@ export default function Overview({ transactions, categories = [], formatThaiDate
     return parseInt(m) === currentMonthNum && parseInt(y) === currentYearNum;
   });
 
-  const totalIncome = currentMonthTransactions.filter(t => t.type === 'INCOME').reduce((sum, t) => sum + parseFloat(t.amount), 0);
+  const totalIncome = currentMonthTransactions.filter(t => t.type === 'INCOME' && isCashTransaction(t)).reduce((sum, t) => sum + parseFloat(t.amount), 0);
   const totalExpense = currentMonthTransactions.filter(t => t.type === 'EXPENSE').reduce((sum, t) => sum + parseFloat(t.amount), 0);
+  const totalInKind = currentMonthTransactions.filter(t => isInKindTransaction(t)).reduce((sum, t) => sum + parseFloat(t.amount), 0);
+  const inKindCount = currentMonthTransactions.filter(t => isInKindTransaction(t)).length;
   const balance = totalIncome - totalExpense;
   const transactionCount = currentMonthTransactions.length;
 
@@ -26,7 +29,7 @@ export default function Overview({ transactions, categories = [], formatThaiDate
     transactions.filter(t => t.transaction_date.startsWith(currentYearNum.toString())).forEach(t => {
       const [, month] = t.transaction_date.split('-');
       const monthName = MONTHS_TH[parseInt(month) - 1];
-      if (t.type === 'INCOME') md[monthName].income += parseFloat(t.amount);
+      if (t.type === 'INCOME' && isCashTransaction(t)) md[monthName].income += parseFloat(t.amount);
       if (t.type === 'EXPENSE') md[monthName].expense += parseFloat(t.amount);
     });
     return Object.values(md).slice(0, 12);
@@ -49,7 +52,7 @@ export default function Overview({ transactions, categories = [], formatThaiDate
   const incomeCategoryData = (() => {
     const id = {};
     currentMonthTransactions.forEach(t => {
-      if (t.type === 'INCOME') {
+      if (t.type === 'INCOME' && isCashTransaction(t)) {
         const desc = t.description || 'อื่นๆ';
         id[desc] = (id[desc] || 0) + parseFloat(t.amount);
       }

@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { addTransaction } from '../supabase';
-
-import { Plus, Edit, Trash2, Image as ImageIcon, Database, Filter, Download, Upload, FileSpreadsheet } from 'lucide-react';
+import { isInKindTransaction, cleanTransactionNote } from '../services/notificationService';
+import { Plus, Edit, Trash2, Image as ImageIcon, Database, Filter, Download, Upload, FileSpreadsheet, Gift } from 'lucide-react';
 import Papa from 'papaparse';
 
 export default function Record({ transactions, formatThaiDate, fmt, handleViewImage, handleOpenAddTransaction, handleOpenEditTransaction, handleDeleteTransaction }) {
@@ -168,42 +168,62 @@ export default function Record({ transactions, formatThaiDate, fmt, handleViewIm
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 px-0">
             {filteredTransactions.map((t) => {
               const isIncome = t.type === 'INCOME';
+              const inKind = isInKindTransaction(t);
+              const cleanNote = cleanTransactionNote(t.note);
+
               return (
                 <div
                   key={t.id}
                   className={`glass-panel relative rounded-[22px] overflow-hidden
-                    border ${isIncome ? 'border-emerald-400/40 dark:border-emerald-500/30' : 'border-rose-400/40 dark:border-rose-500/30'}`}
+                    border ${inKind ? 'border-purple-400/50 dark:border-purple-500/40 bg-purple-950/10' : (isIncome ? 'border-emerald-400/40 dark:border-emerald-500/30' : 'border-rose-400/40 dark:border-rose-500/30')}`}
                 >
                   {/* Top shimmer line */}
-                  <div className={`absolute top-0 left-0 right-0 h-[2px] ${isIncome ? 'bg-gradient-to-r from-transparent via-emerald-400 to-transparent' : 'bg-gradient-to-r from-transparent via-rose-400 to-transparent'}`} />
+                  <div className={`absolute top-0 left-0 right-0 h-[2px] ${inKind ? 'bg-gradient-to-r from-transparent via-purple-400 to-transparent' : (isIncome ? 'bg-gradient-to-r from-transparent via-emerald-400 to-transparent' : 'bg-gradient-to-r from-transparent via-rose-400 to-transparent')}`} />
                   {/* Ambient glow */}
-                  <div className={`absolute -top-8 -right-8 w-28 h-28 rounded-full blur-3xl pointer-events-none opacity-0 dark:opacity-100 ${isIncome ? 'bg-emerald-500/20' : 'bg-rose-500/20'}`} />
+                  <div className={`absolute -top-8 -right-8 w-28 h-28 rounded-full blur-3xl pointer-events-none opacity-0 dark:opacity-100 ${inKind ? 'bg-purple-500/25' : (isIncome ? 'bg-emerald-500/20' : 'bg-rose-500/20')}`} />
 
                   {/* HEADER */}
                   <div className="relative flex items-center justify-between px-5 pt-4 pb-3">
                     <div className="flex items-center gap-2.5">
-                      <div className={`w-2 h-2 rounded-full shrink-0 ${isIncome ? 'bg-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.9)]' : 'bg-rose-400 shadow-[0_0_10px_rgba(244,63,94,0.9)]'}`} />
-                      <span className={`text-sm font-black tracking-[0.25em] uppercase ${isIncome ? 'text-emerald-400' : 'text-rose-400'}`}>{isIncome ? 'รายรับ' : 'รายจ่าย'}</span>
+                      <div className={`w-2 h-2 rounded-full shrink-0 ${inKind ? 'bg-purple-400 shadow-[0_0_10px_rgba(168,85,247,0.9)]' : (isIncome ? 'bg-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.9)]' : 'bg-rose-400 shadow-[0_0_10px_rgba(244,63,94,0.9)]')}`} />
+                      {inKind ? (
+                        <span className="text-xs md:text-sm font-black tracking-[0.15em] uppercase text-purple-400 flex items-center gap-1">
+                          🎁 ถวายสิ่งของ/จ่ายให้
+                        </span>
+                      ) : (
+                        <span className={`text-sm font-black tracking-[0.25em] uppercase ${isIncome ? 'text-emerald-400' : 'text-rose-400'}`}>{isIncome ? 'รายรับ' : 'รายจ่าย'}</span>
+                      )}
                     </div>
                     <span className="text-sm text-slate-500 dark:text-white font-bold tracking-wide">{formatThaiDate(t.transaction_date)}</span>
                   </div>
 
                   {/* Divider */}
-                  <div className={`mx-5 h-px ${isIncome ? 'bg-gradient-to-r from-transparent via-emerald-500/30 to-transparent' : 'bg-gradient-to-r from-transparent via-rose-500/30 to-transparent'}`} />
+                  <div className={`mx-5 h-px ${inKind ? 'bg-gradient-to-r from-transparent via-purple-500/30 to-transparent' : (isIncome ? 'bg-gradient-to-r from-transparent via-emerald-500/30 to-transparent' : 'bg-gradient-to-r from-transparent via-rose-500/30 to-transparent')}`} />
 
                   {/* BODY */}
                   <div className="relative flex items-center justify-between px-5 py-4">
                     <div className="flex-1 min-w-0 mr-4">
                       <p className="text-base font-black text-slate-800 dark:text-white mb-1.5 truncate tracking-tight">{t.description}</p>
-                      <span className={`text-2xl font-black tracking-tight ${isIncome ? 'text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-emerald-600 dark:from-emerald-300 dark:to-emerald-500' : 'text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-rose-600 dark:from-rose-300 dark:to-rose-500'}`}>
-                        {isIncome ? '+' : '-'}฿{fmt(t.amount)}
-                      </span>
+                      {inKind ? (
+                        <div>
+                          <span className="text-2xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-indigo-300 to-purple-300">
+                            ฿{fmt(t.amount)}
+                          </span>
+                          <span className="ml-2 inline-block text-[10px] font-black uppercase tracking-wider text-purple-600 dark:text-purple-400 bg-purple-100 dark:bg-purple-950/70 border border-purple-300/40 dark:border-purple-800/40 px-2 py-0.5 rounded-full">
+                            สิ่งของ • ไม่รวมเงินสด
+                          </span>
+                        </div>
+                      ) : (
+                        <span className={`text-2xl font-black tracking-tight ${isIncome ? 'text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-emerald-600 dark:from-emerald-300 dark:to-emerald-500' : 'text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-rose-600 dark:from-rose-300 dark:to-rose-500'}`}>
+                          {isIncome ? '+' : '-'}฿{fmt(t.amount)}
+                        </span>
+                      )}
                     </div>
                     <button
                       onClick={() => t.image_url && handleViewImage(t.image_url)}
                       className={`relative w-16 h-16 rounded-2xl flex-shrink-0 flex items-center justify-center overflow-hidden transition-all duration-300 active:scale-95
                         ${t.image_url
-                          ? `cursor-pointer border-2 ${isIncome ? 'border-emerald-500/50 shadow-[0_0_20px_rgba(16,185,129,0.3)]' : 'border-rose-500/50 shadow-[0_0_20px_rgba(244,63,94,0.3)]'}`
+                          ? `cursor-pointer border-2 ${inKind ? 'border-purple-500/50 shadow-[0_0_20px_rgba(168,85,247,0.3)]' : (isIncome ? 'border-emerald-500/50 shadow-[0_0_20px_rgba(16,185,129,0.3)]' : 'border-rose-500/50 shadow-[0_0_20px_rgba(244,63,94,0.3)]')}`
                           : 'border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-white/5 cursor-default opacity-40'}`}
                     >
                       {t.image_url ? <img src={t.image_url} alt="Receipt" className="w-full h-full object-cover" /> : <ImageIcon size={20} className="text-slate-400 dark:text-white/30" />}
@@ -211,13 +231,13 @@ export default function Record({ transactions, formatThaiDate, fmt, handleViewIm
                   </div>
 
                   {/* Divider */}
-                  <div className={`mx-5 h-px ${isIncome ? 'bg-gradient-to-r from-transparent via-emerald-500/20 to-transparent' : 'bg-gradient-to-r from-transparent via-rose-500/20 to-transparent'}`} />
+                  <div className={`mx-5 h-px ${inKind ? 'bg-gradient-to-r from-transparent via-purple-500/20 to-transparent' : (isIncome ? 'bg-gradient-to-r from-transparent via-emerald-500/20 to-transparent' : 'bg-gradient-to-r from-transparent via-rose-500/20 to-transparent')}`} />
 
                   {/* FOOTER */}
                   <div className="flex items-center justify-between px-5 py-3.5">
                     <div className="flex items-center gap-2 min-w-0 flex-1 mr-2">
                       <span className="text-slate-400 dark:text-white/25 text-[10px] font-black uppercase tracking-widest shrink-0">NOTE</span>
-                      <span className="text-xs text-slate-500 dark:text-white/60 font-medium truncate">{t.note || '—'}</span>
+                      <span className="text-xs text-slate-500 dark:text-white/60 font-medium truncate">{cleanNote || (inKind ? 'ถวายสิ่งของ/ชำระให้โดยตรง' : '—')}</span>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
                       <button onClick={(e) => { e.stopPropagation(); handleOpenEditTransaction(t); }} className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-white/10 border border-slate-200 dark:border-white/15 flex items-center justify-center text-slate-400 dark:text-white/50 hover:text-blue-500 hover:border-blue-400/50 active:scale-95 transition-all"><Edit size={13} /></button>

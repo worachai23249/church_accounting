@@ -116,15 +116,42 @@ export async function sendPlatformMessage(messageText, rawData = {}) {
   return results;
 }
 
+// ========== In-Kind (สิ่งของ/จ่ายให้) Helpers ==========
+export function isInKindTransaction(tx) {
+  if (!tx || tx.type !== 'INCOME') return false;
+  const note = (tx.note || '').trim();
+  return note.includes('[สิ่งของ/จ่ายให้]') || note.includes('[ถวายสิ่งของ]') || note.includes('[IN_KIND]');
+}
+
+export function isCashTransaction(tx) {
+  return !isInKindTransaction(tx);
+}
+
+export function cleanTransactionNote(note) {
+  if (!note) return '';
+  return note
+    .replace(/\[สิ่งของ\/จ่ายให้\]/g, '')
+    .replace(/\[ถวายสิ่งของ\]/g, '')
+    .replace(/\[IN_KIND\]/g, '')
+    .trim();
+}
+
 // ========== Format & Send Transaction Alert (ทุกรายการ) ==========
 export async function sendTransactionNotification(tx, actionType = 'ADD') {
   const settings = getNotificationSettings();
   if (!settings.enabled || !settings.notify_all) return;
 
   const isIncome = tx.type === 'INCOME';
-  const typeLabel = isIncome ? '🟢 รายรับ (Income)' : '🔴 รายจ่าย (Expense)';
+  const inKind = isInKindTransaction(tx);
+  
+  let typeLabel = isIncome ? '🟢 รายรับ (Income)' : '🔴 รายจ่าย (Expense)';
+  if (inKind) {
+    typeLabel = '🎁 ถวายพิเศษ (สิ่งของ/ชำระให้ - ไม่รวมยอดเงินสด)';
+  }
+
   const actionTitle = actionType === 'ADD' ? '🔔 มีการบันทึกรายการใหม่' : '🔔 มีการแก้ไขรายการ';
   const formattedAmount = Number(tx.amount).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const cleanNote = cleanTransactionNote(tx.note);
   
   let dateFormatted = tx.transaction_date;
   try {
@@ -135,10 +162,10 @@ export async function sendTransactionNotification(tx, actionType = 'ADD') {
     actionTitle,
     `━━━━━━━━━━━━━━━━━━━━`,
     `📌 ประเภท: ${typeLabel}`,
-    `💰 จำนวนเงิน: ฿${formattedAmount} บาท`,
+    inKind ? `💰 มูลค่าประเมิน: ฿${formattedAmount} บาท` : `💰 จำนวนเงิน: ฿${formattedAmount} บาท`,
     `📂 หมวดหมู่: ${tx.description || 'ไม่ระบุ'}`,
     `📅 วันที่: ${dateFormatted}`,
-    tx.note ? `📝 หมายเหตุ: ${tx.note}` : null,
+    cleanNote ? `📝 หมายเหตุ: ${cleanNote}` : (inKind ? `📝 รูปแบบ: ถวายสิ่งของ/ชำระให้โดยตรง` : null),
     `━━━━━━━━━━━━━━━━━━━━`,
     `⛪ คริสตจักรบ้านนมัสการและอธิษฐาน`
   ].filter(Boolean).join('\n');
@@ -163,8 +190,11 @@ export async function sendMonthlySummaryNotification(year, monthNum, allTransact
   let totalIncome = 0;
   let totalExpense = 0;
   monthTx.forEach(t => {
-    if (t.type === 'INCOME') totalIncome += parseFloat(t.amount);
-    else totalExpense += parseFloat(t.amount);
+    if (t.type === 'INCOME') {
+      if (isCashTransaction(t)) totalIncome += parseFloat(t.amount);
+    } else {
+      totalExpense += parseFloat(t.amount);
+    }
   });
   const netBalance = totalIncome - totalExpense;
 
@@ -172,8 +202,11 @@ export async function sendMonthlySummaryNotification(year, monthNum, allTransact
   let totalOverallIncome = 0;
   let totalOverallExpense = 0;
   allTransactions.forEach(t => {
-    if (t.type === 'INCOME') totalOverallIncome += parseFloat(t.amount);
-    else totalOverallExpense += parseFloat(t.amount);
+    if (t.type === 'INCOME') {
+      if (isCashTransaction(t)) totalOverallIncome += parseFloat(t.amount);
+    } else {
+      totalOverallExpense += parseFloat(t.amount);
+    }
   });
   const accumulatedBalance = totalOverallIncome - totalOverallExpense;
 
