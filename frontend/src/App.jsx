@@ -405,7 +405,7 @@ function App() {
       {/* Logo with smooth pulse */}
       <div className="relative flex items-center justify-center">
         <div className={`absolute inset-0 rounded-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 ${isDarkMode ? 'opacity-25' : 'opacity-20'} blur-[40px] animate-pulse`} />
-        <div className="w-32 h-32 md:w-80 md:h-80 lg:w-[380px] lg:h-[380px] xl:w-[440px] xl:h-[440px] relative z-10 flex items-center justify-center">
+        <div className="w-56 h-56 sm:w-64 sm:h-64 md:w-80 md:h-80 lg:w-[380px] lg:h-[380px] xl:w-[440px] xl:h-[440px] relative z-10 flex items-center justify-center">
           <img
             src="/logo.png?v=6"
             alt="Logo"
@@ -579,7 +579,7 @@ function App() {
             <Menu size={24} />
           </button>
           <img src="/logo.png?v=6" alt="Logo" className="w-8 h-8 object-contain ml-2 shrink-0 drop-shadow-[0_0_8px_rgba(255,255,255,0.2)]" />
-          <span className="ml-2 text-[11px] uppercase font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-600 dark:from-blue-400 dark:via-purple-400 dark:to-indigo-500 whitespace-nowrap">The House of Worship</span>
+          <span className="ml-2 text-[10px] sm:text-[11px] uppercase font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-600 dark:from-blue-400 dark:via-purple-400 dark:to-indigo-500 whitespace-nowrap">The House of Worship and Pray</span>
         </div>
         {isLoggedIn && (
           <button onClick={() => setIsNotifModalOpen(true)} className="p-2 text-emerald-500 hover:scale-110 transition-transform">

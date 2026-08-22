@@ -107,16 +107,16 @@ export default function Login({ onLogin, onBack }) {
           <div className="max-w-[440px] mx-auto w-full relative z-10">
 
             {/* Mobile logo */}
-            <div className="lg:hidden flex flex-col items-center justify-center mb-8">
-              <div className="relative mb-4 transition-transform duration-700 z-10 flex justify-center items-center group">
-                <div className="absolute inset-2 rounded-full bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 opacity-60 blur-[25px] animate-pulse-glow"></div>
-                <div className="w-52 h-52 md:w-60 md:h-60 relative z-10">
-                  <img src="/logo.png?v=6" alt="Logo" className="w-full h-full object-contain scale-[1.35] drop-shadow-[0_0_15px_rgba(255,255,255,0.1)]" />
+            <div className="lg:hidden flex flex-col items-center justify-center mb-6 pt-2">
+              <div className="relative mb-3 transition-transform duration-700 z-10 flex justify-center items-center group">
+                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 opacity-60 blur-[20px] animate-pulse-glow"></div>
+                <div className="w-40 h-40 sm:w-48 sm:h-48 relative z-10 flex items-center justify-center">
+                  <img src="/logo.png?v=6" alt="Logo" className="w-full h-full object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.15)]" />
                 </div>
               </div>
-              <h1 className="text-2xl md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-600 dark:from-blue-400 dark:via-indigo-400 dark:to-purple-400 uppercase tracking-tighter drop-shadow-sm flex flex-col items-center">
+              <h1 className="text-xl sm:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-600 dark:from-blue-400 dark:via-indigo-400 dark:to-purple-400 uppercase tracking-tighter drop-shadow-sm flex flex-col items-center">
                 <span>The House of</span>
-                <span className="text-[0.6em] tracking-[0.1em] mt-1">worship and pray</span>
+                <span className="text-[0.65em] tracking-[0.1em] mt-1 font-bold">worship and pray</span>
               </h1>
             </div>
 
