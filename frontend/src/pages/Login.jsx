@@ -72,7 +72,7 @@ export default function Login({ onLogin, onBack }) {
               <div className="w-full h-full rounded-full p-[2px] bg-gradient-to-b from-white/50 to-transparent dark:from-white/10 dark:to-transparent relative shadow-xl">
                 <div className="absolute inset-0 bg-white/20 dark:bg-black/20 rounded-full backdrop-blur-md" />
                 <img
-                  src="/logo.png?v=3"
+                  src="/logo.png?v=4"
                   alt="Logo"
                   className="w-full h-full object-contain scale-[1.35] drop-shadow-[0_0_20px_rgba(59,130,246,0.3)] relative z-10 group-hover:rotate-3 transition-transform duration-1000"
                 />
@@ -133,7 +133,7 @@ export default function Login({ onLogin, onBack }) {
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 opacity-20 blur-[30px] rounded-full" />
                 <div className="w-full h-full rounded-full p-[2px] bg-gradient-to-b from-white/50 to-transparent dark:from-white/10 dark:to-transparent relative shadow-xl">
                   <div className="absolute inset-0 bg-white/20 dark:bg-black/20 rounded-full backdrop-blur-md" />
-                  <img src="/logo.png?v=3" alt="Logo" className="w-full h-full object-contain scale-[1.35] drop-shadow-[0_0_15px_rgba(59,130,246,0.3)] relative z-10" />
+                  <img src="/logo.png?v=4" alt="Logo" className="w-full h-full object-contain scale-[1.35] drop-shadow-[0_0_15px_rgba(59,130,246,0.3)] relative z-10" />
                 </div>
               </div>
               <h1 className="text-2xl md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-600 dark:from-blue-400 dark:via-indigo-400 dark:to-purple-400 uppercase tracking-tighter drop-shadow-sm flex flex-col items-center">
