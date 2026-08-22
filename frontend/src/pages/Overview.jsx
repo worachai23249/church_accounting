@@ -387,20 +387,27 @@ export default function Overview({ transactions, categories = [], formatThaiDate
                 </button>
               </div>
               <div className="p-4 md:p-6 overflow-y-auto custom-scrollbar flex-1 space-y-3">
-                {currentMonthTransactions.filter(t => t.type === 'INCOME' && (t.description === selectedIncomeCategory || (!t.description && selectedIncomeCategory === 'อื่นๆ'))).map((t, idx) => (
-                  <div key={idx} className="flex flex-col p-4 rounded-2xl bg-slate-50 dark:bg-white/[0.02] border border-slate-200 dark:border-white/5 hover:border-slate-300 dark:hover:border-white/10 transition-colors">
-                    <div className="flex justify-between items-start mb-2">
-                      <span className="text-sm font-black text-slate-800 dark:text-white">{formatThaiDate(t.transaction_date)}</span>
-                      <span className="font-black text-emerald-500 text-lg tracking-tight">+฿{fmt(t.amount)}</span>
-                    </div>
-                    {t.note && (
-                      <div className="flex gap-2">
-                        <span className="text-[10px] uppercase font-black tracking-widest text-slate-400 dark:text-slate-500 shrink-0 mt-0.5">NOTE:</span>
-                        <p className="text-xs font-medium text-slate-600 dark:text-white/70">{t.note}</p>
+                {currentMonthTransactions.filter(t => t.type === 'INCOME' && (t.description === selectedIncomeCategory || (!t.description && selectedIncomeCategory === 'อื่นๆ'))).map((t, idx) => {
+                  const inKind = isInKindTransaction(t);
+                  const cleanNote = cleanTransactionNote(t.note);
+                  return (
+                    <div key={idx} className={`flex flex-col p-4 rounded-2xl bg-slate-50 dark:bg-white/[0.02] border ${inKind ? 'border-purple-400/40 dark:border-purple-500/30' : 'border-slate-200 dark:border-white/5'} hover:border-slate-300 dark:hover:border-white/10 transition-colors`}>
+                      <div className="flex justify-between items-start mb-2">
+                        <div className="flex items-center gap-2">
+                          {inKind && <span className="text-[10px] font-black text-purple-600 dark:text-purple-400 bg-purple-100 dark:bg-purple-950/60 px-2 py-0.5 rounded-md">🎁 สิ่งของ</span>}
+                          <span className="text-sm font-black text-slate-800 dark:text-white">{formatThaiDate(t.transaction_date)}</span>
+                        </div>
+                        <span className={`font-black text-lg tracking-tight ${inKind ? 'text-purple-600 dark:text-purple-400' : 'text-emerald-500'}`}>{inKind ? '' : '+'}฿{fmt(t.amount)}</span>
                       </div>
-                    )}
-                  </div>
-                ))}
+                      {cleanNote && (
+                        <div className="flex gap-2">
+                          <span className="text-[10px] uppercase font-black tracking-widest text-slate-400 dark:text-slate-500 shrink-0 mt-0.5">NOTE:</span>
+                          <p className="text-xs font-medium text-slate-600 dark:text-white/70">{cleanNote}</p>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
                 {currentMonthTransactions.filter(t => t.type === 'INCOME' && (t.description === selectedIncomeCategory || (!t.description && selectedIncomeCategory === 'อื่นๆ'))).length === 0 && (
                   <div className="text-center py-8 text-slate-500 font-black tracking-widest text-sm uppercase">ไม่มีรายการ</div>
                 )}
