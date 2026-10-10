@@ -12,8 +12,8 @@ self.addEventListener('push', function(event) {
     const data = event.data.json();
     const options = {
       body: data.body || 'มีการเคลื่อนไหวใหม่ในระบบการเงิน',
-      icon: '/logo.png',
-      badge: '/logo.png', // ตัวลูกศร/ไอคอนเล็กๆ ใน Notification bar (Android)
+      icon: '/logo.png?v=7',
+      badge: '/logo.png?v=7', // ตัวลูกศร/ไอคอนเล็กๆ ใน Notification bar (Android)
       vibrate: [200, 100, 200, 100, 200, 100, 200], // สั่นแบบรัว (แอปพลิเคชันสไตล์)
       data: { url: data.url || '/' },
       requireInteraction: true // แนะนำให้ค้างไว้ที่จอจนกว่าจะกด

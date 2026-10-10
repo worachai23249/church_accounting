@@ -71,7 +71,7 @@ export default function Login({ onLogin, onBack }) {
               <div className="absolute inset-2 rounded-full bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 opacity-50 blur-[30px] group-hover:opacity-80 group-hover:blur-[45px] transition-all duration-700"></div>
               <div className="w-56 h-56 xl:w-64 xl:h-64 2xl:w-72 2xl:h-72 relative z-10">
                 <img
-                  src="/logo.png?v=6"
+                  src="/logo.png?v=7"
                   alt="Logo"
                   className="w-full h-full object-contain scale-[1.35] drop-shadow-[0_0_15px_rgba(255,255,255,0.1)] transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-700"
                 />
@@ -111,7 +111,7 @@ export default function Login({ onLogin, onBack }) {
               <div className="relative mb-3 transition-transform duration-700 z-10 flex justify-center items-center group">
                 <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 opacity-50 blur-[20px]"></div>
                 <div className="w-40 h-40 sm:w-48 sm:h-48 relative z-10 flex items-center justify-center">
-                  <img src="/logo.png?v=6" alt="Logo" className="w-full h-full object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.15)]" />
+                  <img src="/logo.png?v=7" alt="Logo" className="w-full h-full object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.15)]" />
                 </div>
               </div>
               <h1 className="text-xl sm:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-600 dark:from-blue-400 dark:via-indigo-400 dark:to-purple-400 uppercase tracking-tighter drop-shadow-sm flex flex-col items-center">
