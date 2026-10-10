@@ -67,13 +67,13 @@ export default function Login({ onLogin, onBack }) {
           <div className="relative z-10 flex flex-col flex-1 justify-center items-center text-center">
 
             {/* Logo */}
-            <div className="relative mb-6 xl:mb-8 transition-transform duration-700 z-10 flex justify-center items-center group-hover:-translate-y-2">
-              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 opacity-40 blur-[25px] group-hover:opacity-70 group-hover:blur-[35px] transition-all duration-700"></div>
-              <div className="w-44 h-44 xl:w-52 xl:h-52 2xl:w-60 2xl:h-60 relative z-10">
+            <div className="relative mb-8 xl:mb-10 2xl:mb-12 transition-transform duration-700 z-10 flex justify-center items-center group-hover:-translate-y-2">
+              <div className="absolute -inset-4 rounded-full bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 opacity-45 blur-[40px] group-hover:opacity-75 group-hover:blur-[50px] transition-all duration-700"></div>
+              <div className="w-64 h-64 sm:w-72 sm:h-72 xl:w-80 xl:h-80 2xl:w-[380px] 2xl:h-[380px] relative z-10 flex items-center justify-center">
                 <img
                   src="/logo.png?v=7"
                   alt="Logo"
-                  className="w-full h-full object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.1)] transform group-hover:scale-105 group-hover:rotate-2 transition-all duration-700"
+                  className="w-full h-full object-contain drop-shadow-[0_0_25px_rgba(59,130,246,0.3)] transform group-hover:scale-105 group-hover:rotate-1 transition-all duration-700"
                 />
               </div>
             </div>
