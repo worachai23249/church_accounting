@@ -405,9 +405,9 @@ function App() {
       <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full ${isDarkMode ? 'bg-blue-600/10 blur-[140px]' : 'bg-gradient-to-r from-blue-400/15 via-purple-400/15 to-indigo-400/15 blur-[120px]'} pointer-events-none`} />
 
       {/* Logo with smooth pulse */}
-      <div className="relative flex items-center justify-center">
+      <div className="relative flex items-center justify-center mb-6 sm:mb-8">
         <div className={`absolute inset-0 rounded-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 ${isDarkMode ? 'opacity-25' : 'opacity-20'} blur-[40px]`} />
-        <div className="w-56 h-56 sm:w-64 sm:h-64 md:w-80 md:h-80 lg:w-[380px] lg:h-[380px] xl:w-[440px] xl:h-[440px] relative z-10 flex items-center justify-center">
+        <div className="w-48 h-48 sm:w-56 sm:h-56 md:w-64 md:h-64 lg:w-72 lg:h-72 relative z-10 flex items-center justify-center">
           <img
             src="/logo.png?v=7"
             alt="Logo"
@@ -460,10 +460,10 @@ function App() {
           <div className="p-8 border-b border-slate-200/50 dark:border-white/5 flex flex-col items-center relative overflow-hidden group">
             <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-blue-500/10 dark:from-blue-600/10 to-transparent pointer-events-none opacity-50 group-hover:opacity-100 transition-opacity duration-700"></div>
 
-            <div className="relative mb-6 transition-transform duration-700 z-10 flex justify-center items-center group-hover:-translate-y-2">
-              <div className="absolute inset-2 rounded-full bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 opacity-50 blur-[30px] group-hover:opacity-80 group-hover:blur-[40px] transition-all duration-700"></div>
-              <div className="w-56 h-56 xl:w-64 xl:h-64 relative z-10">
-                <img src="/logo.png?v=7" alt="Logo" className="w-full h-full object-contain scale-[1.35] drop-shadow-[0_0_15px_rgba(255,255,255,0.1)] transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-700" />
+            <div className="relative mb-5 transition-transform duration-700 z-10 flex justify-center items-center group-hover:-translate-y-1">
+              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 opacity-40 blur-[20px] group-hover:opacity-70 group-hover:blur-[25px] transition-all duration-700"></div>
+              <div className="w-32 h-32 xl:w-36 xl:h-36 relative z-10">
+                <img src="/logo.png?v=7" alt="Logo" className="w-full h-full object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.1)] transform group-hover:scale-105 group-hover:rotate-2 transition-all duration-500" />
               </div>
             </div>
 

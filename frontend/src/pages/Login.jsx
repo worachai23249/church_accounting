@@ -68,12 +68,12 @@ export default function Login({ onLogin, onBack }) {
 
             {/* Logo */}
             <div className="relative mb-6 xl:mb-8 transition-transform duration-700 z-10 flex justify-center items-center group-hover:-translate-y-2">
-              <div className="absolute inset-2 rounded-full bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 opacity-50 blur-[30px] group-hover:opacity-80 group-hover:blur-[45px] transition-all duration-700"></div>
-              <div className="w-56 h-56 xl:w-64 xl:h-64 2xl:w-72 2xl:h-72 relative z-10">
+              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 opacity-40 blur-[25px] group-hover:opacity-70 group-hover:blur-[35px] transition-all duration-700"></div>
+              <div className="w-44 h-44 xl:w-52 xl:h-52 2xl:w-60 2xl:h-60 relative z-10">
                 <img
                   src="/logo.png?v=7"
                   alt="Logo"
-                  className="w-full h-full object-contain scale-[1.35] drop-shadow-[0_0_15px_rgba(255,255,255,0.1)] transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-700"
+                  className="w-full h-full object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.1)] transform group-hover:scale-105 group-hover:rotate-2 transition-all duration-700"
                 />
               </div>
             </div>
@@ -108,9 +108,9 @@ export default function Login({ onLogin, onBack }) {
 
             {/* Mobile logo */}
             <div className="lg:hidden flex flex-col items-center justify-center mb-6 pt-2">
-              <div className="relative mb-3 transition-transform duration-700 z-10 flex justify-center items-center group">
+              <div className="relative mb-4 transition-transform duration-700 z-10 flex justify-center items-center group">
                 <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 opacity-50 blur-[20px]"></div>
-                <div className="w-40 h-40 sm:w-48 sm:h-48 relative z-10 flex items-center justify-center">
+                <div className="w-32 h-32 sm:w-36 sm:h-36 relative z-10 flex items-center justify-center">
                   <img src="/logo.png?v=7" alt="Logo" className="w-full h-full object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.15)]" />
                 </div>
               </div>
